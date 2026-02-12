@@ -1,0 +1,13 @@
+# env
+.env
+.venv/
+__pycache__/
+*.pyc
+
+# generated artifacts
+runs/
+figures/
+paper/*.pdf
+*.png
+*.parquet
+*.zip
