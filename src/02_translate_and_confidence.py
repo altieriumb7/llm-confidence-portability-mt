@@ -70,7 +70,14 @@ def main():
     if args.max_samples:
         data = data[: args.max_samples]
 
-    for m in filter_models(cfg["models"], args.providers, args.models):
+    selected_models = filter_models(cfg["models"], args.providers, args.models)
+    if not args.models and not args.providers and len(selected_models) > 1:
+        logger.info(
+            "No --models/--providers filter set: processing %d configured models.",
+            len(selected_models),
+        )
+
+    for m in selected_models:
         provider, model_id = m["provider"], m["model_id"]
         out_path = Path(args.outdir) / f"{provider}__{model_id}.jsonl"
         # Normalize IDs to string so resume works even if previous runs used a
