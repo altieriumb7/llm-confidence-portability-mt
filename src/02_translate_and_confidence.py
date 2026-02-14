@@ -73,7 +73,9 @@ def main():
     for m in filter_models(cfg["models"], args.providers, args.models):
         provider, model_id = m["provider"], m["model_id"]
         out_path = Path(args.outdir) / f"{provider}__{model_id}.jsonl"
-        done_ids = {r["id"] for r in read_jsonl(out_path)}
+        # Normalize IDs to string so resume works even if previous runs used a
+        # different JSON type (e.g. "1" vs 1).
+        done_ids = {str(r["id"]) for r in read_jsonl(out_path) if "id" in r}
 
         key_name = ENV_KEYS[provider]
         api_key = os.getenv(key_name) or (os.getenv("GOOGLE_API_KEY") if provider == "gemini" else None)
@@ -87,8 +89,11 @@ def main():
             continue
 
         logger.info("Running %s/%s existing=%d", provider, model_id, len(done_ids))
+        total_pending = sum(1 for row in data if str(row["id"]) not in done_ids)
+        logger.info("Pending %s/%s samples=%d", provider, model_id, total_pending)
         for row in data:
-            if row["id"] in done_ids:
+            row_id = str(row["id"])
+            if row_id in done_ids:
                 continue
             try:
                 if args.dry_run:
@@ -116,6 +121,7 @@ def main():
                         "timestamp_utc": now_utc_iso(),
                     },
                 )
+                done_ids.add(row_id)
             except Exception as exc:
                 logger.exception("Failed %s/%s id=%s: %s", provider, model_id, row["id"], exc)
 
