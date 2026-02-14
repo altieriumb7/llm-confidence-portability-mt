@@ -1,0 +1,18 @@
+{
+  "testset": "wmt17",
+  "langpair": "en-de",
+  "n": 200,
+  "seed": 123,
+  "temperature": 0.0,
+  "max_output_tokens": 512,
+  "tau": 0.8,
+  "conf_bins": 10,
+  "timeout_s": 60,
+  "max_retries": 6,
+  "concurrency_per_provider": 2,
+  "bootstrap_samples": 500,
+  "quality_metric_main": "chrf",
+  "error_quantile_within_model": 0.2,
+  "error_quantile_global": 0.2,
+  "dataset_source": "fallback"
+}

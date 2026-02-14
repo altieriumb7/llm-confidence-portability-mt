@@ -1,0 +1,14 @@
+pandas
+numpy
+PyYAML
+python-dotenv
+sacrebleu
+matplotlib
+seaborn
+scipy
+spacy
+wordfreq
+openai
+anthropic
+google-genai
+pyarrow
