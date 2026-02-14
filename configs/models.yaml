@@ -1,7 +1,7 @@
 global:
   testset: wmt17
   langpair: en-de
-  n: 200
+  n: 500
   seed: 123
   temperature: 0.0
   max_output_tokens: 512
