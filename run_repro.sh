@@ -10,12 +10,11 @@ set -euo pipefail
 #   bash run_repro.sh --providers openai --max-samples 50
 #   bash run_repro.sh --clean --step2-bg
 #
-# Notes for reviewers:
-# - Put API keys in environment variables, or create a local .env (NOT committed):
+# Reviewers:
+# - Put API keys in env vars OR create a local .env (NOT committed):
 #     OPENAI_API_KEY=...
 #     ANTHROPIC_API_KEY=...
 #     GEMINI_API_KEY=...
-# - If a provider key is missing, the pipeline may skip that provider depending on implementation.
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
@@ -80,28 +79,28 @@ echo "== Environment =="
 python --version
 pip --version
 
-# Optional: check n in YAML (warn if not 500)
-python - <<'PY' || true
+# Optional: config sanity check (only if PyYAML is installed)
+python - "$CONFIG" <<'PY' || true
 import sys
+cfg_path = sys.argv[1]
 try:
     import yaml
 except Exception:
-    print("WARN: PyYAML not available; skipping config check.")
-    sys.exit(0)
-cfg_path = sys.argv[1] if len(sys.argv) > 1 else "configs/models.yaml"
+    print("WARN: PyYAML not installed; skipping config check.")
+    raise SystemExit(0)
+
 with open(cfg_path, "r", encoding="utf-8") as f:
     cfg = yaml.safe_load(f) or {}
 g = cfg.get("global", {}) or {}
 n = g.get("n", None)
 print(f"== Config check == global.n = {n!r} (set to 500 for the full run)")
-PY "$CONFIG"
+PY
 
 if [[ "$CLEAN" -eq 1 ]]; then
   echo "== CLEAN: removing generated artifacts =="
   rm -f data/wmt_sample.jsonl || true
   rm -rf runs/raw runs/aggregated figures || true
   rm -f paper/top_mismatch_examples.md || true
-  # keep runs/logs but clear its contents
   rm -f runs/logs/*.log || true
 fi
 
@@ -172,7 +171,6 @@ case "$MODE" in
   all)
     run_step1
     run_step2
-    # If step2-bg was used, stop here (reviewers can run step3/4 after step2 finishes)
     if [[ "$STEP2_BG" -eq 1 ]]; then
       echo "Step 2 is running in background. When finished, run:"
       echo "  bash run_repro.sh --mode step3"
