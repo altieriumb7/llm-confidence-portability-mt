@@ -1,21 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ----------------------------
-# Reproducible end-to-end runner
-# ----------------------------
-# Usage examples:
-#   bash run_repro.sh --clean
-#   bash run_repro.sh --clean --max-samples 10
-#   bash run_repro.sh --providers openai --max-samples 50
-#   bash run_repro.sh --clean --step2-bg
-#
-# Reviewers:
-# - Put API keys in env vars OR create a local .env (NOT committed):
-#     OPENAI_API_KEY=...
-#     ANTHROPIC_API_KEY=...
-#     GEMINI_API_KEY=...
-
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
@@ -23,23 +8,27 @@ CONFIG="configs/models.yaml"
 CLEAN=0
 MAX_SAMPLES=""
 PROVIDERS=""
-MODE="all"           # all | step1 | step2 | step3 | step4
-STEP2_BG=0           # run step2 via nohup in background
+MODE="all"          # all | step1 | step2 | step3 | step4
+STEP2_BG=0
 VENV_DIR=".venv"
 
+log() {
+  printf '\n[%s] %s\n' "$(date +"%Y-%m-%d %H:%M:%S")" "$*"
+}
+
 usage() {
-  cat <<EOF
+  cat <<'USAGE'
 Usage: bash run_repro.sh [options]
 
 Options:
-  --config PATH           Path to config YAML (default: ${CONFIG})
-  --clean                 Remove generated outputs and cached runs (start from 0)
-  --max-samples N         Limit Step 2 to N samples (useful for smoke tests)
-  --providers LIST        Comma-separated providers for Step 2 (e.g. openai,anthropic,gemini)
-  --mode MODE             all | step1 | step2 | step3 | step4  (default: all)
+  --config PATH           Path to config YAML (default: configs/models.yaml)
+  --clean                 Remove generated outputs before running
+  --max-samples N         Limit Step 2 to N samples (smoke test)
+  --providers LIST        Comma-separated providers for Step 2 (e.g. openai,anthropic)
+  --mode MODE             all | step1 | step2 | step3 | step4 (default: all)
   --step2-bg              Run Step 2 in background (nohup), logs to runs/logs/step2.log
-  -h, --help              Show this help
-EOF
+  -h, --help              Show help
+USAGE
 }
 
 while [[ $# -gt 0 ]]; do
@@ -55,9 +44,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-mkdir -p runs/logs
-
-# Load local .env if present (do NOT commit it)
 if [[ -f ".env" ]]; then
   set -a
   # shellcheck disable=SC1091
@@ -65,60 +51,86 @@ if [[ -f ".env" ]]; then
   set +a
 fi
 
-# Create venv if missing, then activate (Linux/macOS bash)
-if [[ ! -d "${VENV_DIR}" ]]; then
-  python -m venv "${VENV_DIR}"
+if [[ ! -d "$VENV_DIR" ]]; then
+  log "Creating virtual environment at $VENV_DIR"
+  python -m venv "$VENV_DIR"
 fi
-# shellcheck disable=SC1091
-source "${VENV_DIR}/bin/activate"
 
+# shellcheck disable=SC1091
+source "$VENV_DIR/bin/activate"
+
+log "Installing dependencies"
 python -m pip install -U pip >/dev/null
 pip install -r requirements.txt >/dev/null
 
-echo "== Environment =="
+mkdir -p runs/logs
+
+log "Environment"
 python --version
 pip --version
 
-# Optional: config sanity check (only if PyYAML is installed)
+log "Config sanity check"
 python - "$CONFIG" <<'PY' || true
 import sys
 cfg_path = sys.argv[1]
 try:
     import yaml
 except Exception:
-    print("WARN: PyYAML not installed; skipping config check.")
+    print("WARN: PyYAML unavailable; skipping config parse check")
     raise SystemExit(0)
 
 with open(cfg_path, "r", encoding="utf-8") as f:
     cfg = yaml.safe_load(f) or {}
-g = cfg.get("global", {}) or {}
-n = g.get("n", None)
-print(f"== Config check == global.n = {n!r} (set to 500 for the full run)")
+print(f"global.n = {(cfg.get('global') or {}).get('n')!r}")
 PY
 
 if [[ "$CLEAN" -eq 1 ]]; then
-  echo "== CLEAN: removing generated artifacts =="
-  rm -f data/wmt_sample.jsonl || true
-  rm -rf runs/raw runs/aggregated figures || true
-  rm -f paper/top_mismatch_examples.md || true
-  rm -f runs/logs/*.log || true
+  log "CLEAN: removing generated outputs only"
+  rm -f data/wmt_sample.jsonl
+  rm -rf runs/raw
+  rm -rf runs/logs
+  rm -rf runs/aggregated
+  rm -rf figures
+  rm -f paper/top_mismatch_examples.md
+  rm -f paper/results_table.md paper/summary_table.md
 fi
 
+mkdir -p runs/logs
+
+require_step2_keys() {
+  local missing=()
+  if [[ -z "${OPENAI_API_KEY:-}" ]]; then
+    missing+=("OPENAI_API_KEY")
+  fi
+  if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+    missing+=("ANTHROPIC_API_KEY")
+  fi
+  if [[ -z "${GEMINI_API_KEY:-}" && -z "${GOOGLE_API_KEY:-}" ]]; then
+    missing+=("GEMINI_API_KEY or GOOGLE_API_KEY")
+  fi
+
+  if (( ${#missing[@]} > 0 )); then
+    echo "ERROR: Step 2 requires API keys. Missing: ${missing[*]}" >&2
+    echo "Hint: set env vars or create a local .env file." >&2
+    exit 1
+  fi
+}
+
 run_step1() {
-  echo "== Step 1: build dataset =="
+  log "Step 1/4: Build dataset"
   python src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
-  echo "Dataset lines:"
   wc -l data/wmt_sample.jsonl || true
 }
 
 run_step2() {
-  echo "== Step 2: translate + confidence (APIs) =="
+  log "Step 2/4: Translate + confidence (API calls)"
+  require_step2_keys
   mkdir -p runs/raw
 
   CMD=(python src/02_translate_and_confidence.py
-        --config "$CONFIG"
-        --input data/wmt_sample.jsonl
-        --outdir runs/raw)
+    --config "$CONFIG"
+    --input data/wmt_sample.jsonl
+    --outdir runs/raw)
 
   if [[ -n "$MAX_SAMPLES" ]]; then
     CMD+=(--max_samples "$MAX_SAMPLES")
@@ -127,20 +139,19 @@ run_step2() {
     CMD+=(--providers "$PROVIDERS")
   fi
 
-  echo "Command: ${CMD[*]}"
+  log "Command: ${CMD[*]}"
 
   if [[ "$STEP2_BG" -eq 1 ]]; then
-    echo "Running Step 2 in background. Log: runs/logs/step2.log"
     nohup "${CMD[@]}" > runs/logs/step2.log 2>&1 &
     disown || true
-    echo "Tail with: tail -f runs/logs/step2.log"
+    log "Step 2 running in background. Tail logs: tail -f runs/logs/step2.log"
   else
     "${CMD[@]}" 2>&1 | tee runs/logs/step2.log
   fi
 }
 
 run_step3() {
-  echo "== Step 3: features + metrics =="
+  log "Step 3/4: Features + metrics"
   mkdir -p runs/aggregated
   python src/03_features_and_metrics.py \
     --config "$CONFIG" \
@@ -150,7 +161,7 @@ run_step3() {
 }
 
 run_step4() {
-  echo "== Step 4: analysis + outputs =="
+  log "Step 4/4: Analysis + paper outputs"
   mkdir -p figures
   python src/04_analysis_and_plots.py \
     --config "$CONFIG" \
@@ -161,7 +172,7 @@ run_step4() {
     --examples paper/top_mismatch_examples.md \
     | tee runs/logs/step4.log
 
-  echo "== Outputs =="
+  log "Done writing outputs"
   ls -lah runs/aggregated || true
   ls -lah figures || true
   ls -lah paper/top_mismatch_examples.md || true
@@ -172,9 +183,9 @@ case "$MODE" in
     run_step1
     run_step2
     if [[ "$STEP2_BG" -eq 1 ]]; then
-      echo "Step 2 is running in background. When finished, run:"
-      echo "  bash run_repro.sh --mode step3"
-      echo "  bash run_repro.sh --mode step4"
+      log "Step 2 is running in background. Continue later with:"
+      log "  bash run_repro.sh --mode step3"
+      log "  bash run_repro.sh --mode step4"
       exit 0
     fi
     run_step3
@@ -187,4 +198,4 @@ case "$MODE" in
   *) echo "Unknown --mode: $MODE"; usage; exit 1 ;;
 esac
 
-echo "✅ Done."
+log "All requested steps completed."
