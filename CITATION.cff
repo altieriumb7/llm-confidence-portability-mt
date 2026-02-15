@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "Multi-provider MT Confidence–Difficulty Mismatch Study"
+message: "If you use this repository, please cite it using this metadata."
+type: software
+authors:
+  - family-names: "Project Team"
+    given-names: "Confidence-Difficulty"
+repository-code: "https://github.com/example/confidence-difficulty-mismatch-on-MT-evaluation"
+license: MIT

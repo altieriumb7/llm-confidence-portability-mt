@@ -1,0 +1,36 @@
+# Python cache/build
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtual environments / Python version managers
+.venv/
+venv/
+env/
+.python-version
+
+# IDE/editor
+.idea/
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs / temp / tooling cache
+*.log
+.pytest_cache/
+.mypy_cache/
+
+# Generated artifacts (pipeline outputs)
+runs/
+figures/
+data/wmt_sample.jsonl
+paper/top_mismatch_examples.md
+
+# Secrets
+.env
+*.key
+*.pem
+google*.json
+**/kaggle.json

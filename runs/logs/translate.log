@@ -1,8 +1,0 @@
-2026-02-12 20:15:45,528 [WARNING] Skipping openai/gpt-5.2 due to missing API key (OPENAI_API_KEY)
-2026-02-12 20:15:45,528 [WARNING] Skipping openai/gpt-5-mini due to missing API key (OPENAI_API_KEY)
-2026-02-12 20:15:45,529 [WARNING] Skipping openai/gpt-5-nano due to missing API key (OPENAI_API_KEY)
-2026-02-12 20:15:45,530 [WARNING] Skipping anthropic/claude-opus-4-6 due to missing API key (ANTHROPIC_API_KEY)
-2026-02-12 20:15:45,531 [WARNING] Skipping anthropic/claude-sonnet-4-5-20250929 due to missing API key (ANTHROPIC_API_KEY)
-2026-02-12 20:15:45,532 [WARNING] Skipping anthropic/claude-haiku-4-5-20251001 due to missing API key (ANTHROPIC_API_KEY)
-2026-02-12 20:15:45,533 [WARNING] Skipping gemini/gemini-3-pro-preview due to missing API key (GEMINI_API_KEY)
-2026-02-12 20:15:45,534 [WARNING] Skipping gemini/gemini-3-flash-preview due to missing API key (GEMINI_API_KEY)

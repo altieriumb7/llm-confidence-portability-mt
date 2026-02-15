@@ -1,14 +1,25 @@
 import time
 from typing import Any, Dict, Tuple
 
-from openai import OpenAI
 from openai import BadRequestError
+from openai import OpenAI
 
 TRANSLATE_SYSTEM = "You are a precise machine translation engine."
 CONF_SYSTEM = "You are a careful evaluator."
 
 # Runtime cache: models that reject the `temperature` parameter
 _NO_TEMPERATURE_MODELS: set[str] = set()
+# Runtime cache: clients keyed by (api_key, timeout_s)
+_CLIENTS: dict[tuple[str, float], OpenAI] = {}
+
+
+def _get_client(api_key: str, timeout_s: float) -> OpenAI:
+    key = (api_key, float(timeout_s))
+    client = _CLIENTS.get(key)
+    if client is None:
+        client = OpenAI(api_key=api_key, timeout=timeout_s)
+        _CLIENTS[key] = client
+    return client
 
 
 def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, Any]):
@@ -23,7 +34,6 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         "timeout": cfg["timeout_s"],
     }
 
-    # Add temperature only if configured AND model supports it
     temp = cfg.get("temperature", None)
     if temp is not None and model_id not in _NO_TEMPERATURE_MODELS:
         payload["temperature"] = temp
@@ -31,7 +41,6 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
     try:
         return client.responses.create(**payload)
     except BadRequestError as e:
-        # Some models reject temperature entirely (400 unsupported parameter).
         msg = str(e)
         if ("Unsupported parameter" in msg and "temperature" in msg) or ("param': 'temperature'" in msg):
             _NO_TEMPERATURE_MODELS.add(model_id)
@@ -62,10 +71,8 @@ def _usage(resp: Any) -> Dict[str, Any]:
     }
 
 
-def translate(
-    text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
-) -> Tuple[str, Dict[str, Any], float]:
-    client = OpenAI(api_key=api_key, timeout=global_cfg["timeout_s"])
+def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float]:
+    client = _get_client(api_key, global_cfg["timeout_s"])
     user = f"Translate the following sentence from English to German. Output ONLY the translation text.\n\n{text}"
     t0 = time.time()
     resp = _chat(client, model_id, TRANSLATE_SYSTEM, user, global_cfg)
@@ -75,7 +82,7 @@ def translate(
 def confidence(
     src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
 ) -> Tuple[str, Dict[str, Any], float]:
-    client = OpenAI(api_key=api_key, timeout=global_cfg["timeout_s"])
+    client = _get_client(api_key, global_cfg["timeout_s"])
     user = (
         "Return ONLY valid JSON with exactly one key 'confidence' whose value is a number between 0 and 1.\n\n"
         f"SOURCE: {src}\nTRANSLATION: {hyp}"

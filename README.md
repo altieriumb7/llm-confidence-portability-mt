@@ -1,21 +1,39 @@
 # Multi-provider MT Confidence–Difficulty Mismatch Study
 
-## Setup
+Code-only reproducible repository for the MT confidence–difficulty mismatch pipeline.
+
+## Reproducible setup
 ```bash
 python -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
+# Optional exact environment lock (if present)
+# pip install -r requirements.lock
 ```
 
-## Environment variables
+## API keys
 Create `.env` (or export shell vars):
 - `OPENAI_API_KEY`
 - `ANTHROPIC_API_KEY`
 - `GEMINI_API_KEY` (fallback: `GOOGLE_API_KEY`)
 
-See `.env.example`.
+Use `.env.example` as template. Do **not** commit `.env`.
 
-## Run end-to-end
+## Quick reviewer run
+```bash
+bash run_repro.sh --clean
+bash run_repro.sh
+```
+
+`run_repro.sh` will:
+1. (optional) clean generated outputs,
+2. create/use `.venv` and install dependencies,
+3. load keys from `.env` if present,
+4. execute steps 1→4 of the pipeline,
+5. write logs to `runs/logs/`.
+
+## Manual pipeline (steps 1→4)
 1. Build dataset:
 ```bash
 python src/01_make_dataset.py --config configs/models.yaml
@@ -40,32 +58,33 @@ python src/02_translate_and_confidence.py ... --models gpt-5.2,"Claude Sonnet 4.
 ```
 
 ## Dry-run mode
-Use dry-run to test pipeline without APIs:
+Use dry-run to test the pipeline without APIs:
 ```bash
 python src/02_translate_and_confidence.py ... --dry_run
 ```
 In dry-run, `hyp=ref` and `conf=0.5`.
 
-## Caching/resume
-Per-model cache files are stored at `runs/raw/{provider}__{model_id}.jsonl`.
-Already translated IDs are skipped on rerun.
-
-## Fairness notes
-- Identical translation/confidence prompts across providers.
-- Default `temperature=0.0`.
-- Shared config in `configs/models.yaml`.
-
-## Expected outputs
-
-Note: generated artifacts (figures and run outputs) are not meant to be versioned; they are produced locally when you run the pipeline.
+## Artifact policy (code-only repository)
+Generated artifacts are intentionally not versioned:
+- `runs/`
+- `figures/`
 - `data/wmt_sample.jsonl`
-- `runs/raw/{provider}__{model_id}.jsonl`
-- `runs/aggregated/dataframe.csv`
-- `runs/aggregated/results_by_model.json`
-- `runs/aggregated/summary_table.csv`
-- `figures/fig1_scatter_difficulty_vs_conf.png`
-- `figures/fig2_reliability_diagram_overlay.png`
-- `figures/fig3_mismatch_by_difficulty_bucket.png`
-- `figures/fig4_efficiency_frontier.png`
-- `paper/draft.md`
 - `paper/top_mismatch_examples.md`
+
+## Where outputs are written
+- Aggregated tables/metrics: `runs/aggregated/`
+- Logs: `runs/logs/`
+- Figures: `figures/`
+- Paper snippets/examples: `paper/`
+
+## Cost / rate-limit notes
+Running step 2 triggers paid API calls and may be rate-limited.
+For conservative reviewer runs, set `concurrency_per_provider: 1` in `configs/models.yaml`.
+
+## Prompts
+Prompt templates are defined in provider clients:
+- `src/providers/openai_client.py`
+- `src/providers/anthropic_client.py`
+- `src/providers/gemini_client.py`
+
+All providers use the same task structure for translation and confidence scoring.
