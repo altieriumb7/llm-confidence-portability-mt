@@ -1,10 +1,20 @@
 # Multi-provider MT Confidence–Difficulty Mismatch Study
 
+This repository keeps final paper-facing execution evidence committed for transparency:
+- `runs/aggregated/**` (final metrics/features tables)
+- `figures/**` (paper plots)
+- `paper/**` (paper markdown outputs, including generated examples)
+
 ## Setup
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Optional fully locked install:
+```bash
+pip install -r requirements.lock
 ```
 
 ## Environment variables
@@ -15,12 +25,13 @@ Create `.env` (or export shell vars):
 
 See `.env.example`.
 
-## Run end-to-end whole pipeline
+## Reproduce
+```bash
+bash run_repro.sh --clean
+bash run_repro.sh
+```
 
-run run_repro.sh
-
-
-## Run end-to-end
+## Pipeline steps
 1. Build dataset:
 ```bash
 python src/01_make_dataset.py --config configs/models.yaml
@@ -38,39 +49,24 @@ python src/03_features_and_metrics.py --config configs/models.yaml --input_dir r
 python src/04_analysis_and_plots.py --config configs/models.yaml --input runs/aggregated/dataframe.csv --outdir figures --results runs/aggregated/results_by_model.json --summary runs/aggregated/summary_table.csv --examples paper/top_mismatch_examples.md
 ```
 
-## Provider/model filters
+## Output locations and tracking policy
+- `runs/raw/` → local API cache only (**not committed**)
+- `runs/aggregated/` → final aggregated artifacts (**committed**)
+- `figures/` → final figures (**committed**)
+- `paper/*` outputs → paper-facing outputs (**committed**)
+- `data/wmt_sample.jsonl` is regenerated in Step 1 and is **not committed**
+
+## API cost / rate limit note
+- Step 2 makes external API calls and may incur cost.
+- Providers can rate-limit requests; for reviewer runs, prefer `concurrency_per_provider: 1` in `configs/models.yaml`.
+
+## Artifact policy and licensing note
+- Committed evidence is documented in `artifacts/README.md`.
+- Full `runs/raw/` caches are excluded by default for size/licensing safety and WMT text redistribution concerns.
+- Tiny debugging samples are kept in `runs/raw_sample/`.
+
+## Lockfile helper
+To regenerate `requirements.lock` from `requirements.txt` in a clean venv:
 ```bash
-python src/02_translate_and_confidence.py ... --providers openai,anthropic
-python src/02_translate_and_confidence.py ... --models gpt-5.2,"Claude Sonnet 4.5"
+bash tools/pin_requirements.sh
 ```
-
-## Dry-run mode
-Use dry-run to test pipeline without APIs:
-```bash
-python src/02_translate_and_confidence.py ... --dry_run
-```
-In dry-run, `hyp=ref` and `conf=0.5`.
-
-## Caching/resume
-Per-model cache files are stored at `runs/raw/{provider}__{model_id}.jsonl`.
-Already translated IDs are skipped on rerun.
-
-## Fairness notes
-- Identical translation/confidence prompts across providers.
-- Default `temperature=0.0`.
-- Shared config in `configs/models.yaml`.
-
-## Expected outputs
-
-Note: generated artifacts (figures and run outputs) are not meant to be versioned; they are produced locally when you run the pipeline.
-- `data/wmt_sample.jsonl`
-- `runs/raw/{provider}__{model_id}.jsonl`
-- `runs/aggregated/dataframe.csv`
-- `runs/aggregated/results_by_model.json`
-- `runs/aggregated/summary_table.csv`
-- `figures/fig1_scatter_difficulty_vs_conf.png`
-- `figures/fig2_reliability_diagram_overlay.png`
-- `figures/fig3_mismatch_by_difficulty_bucket.png`
-- `figures/fig4_efficiency_frontier.png`
-- `paper/draft.md`
-- `paper/top_mismatch_examples.md`

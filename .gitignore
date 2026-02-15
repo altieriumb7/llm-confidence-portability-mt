@@ -1,0 +1,36 @@
+# Python environments
+.venv/
+venv/
+env/
+
+# Editors / IDEs
+.idea/
+.vscode/
+
+# Python caches and build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Secrets / credentials
+.env
+*.pem
+*.key
+google*.json
+kaggle.json
+**/kaggle.json
+
+# Generated local outputs (Strategy A)
+data/wmt_sample.jsonl
+runs/raw/
+runs/logs/
+*.log
+
+# Keep a compact debug sample of raw responses
+!runs/raw_sample/
+!runs/raw_sample/**
