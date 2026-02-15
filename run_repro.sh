@@ -12,7 +12,16 @@ MODELS=""
 MODE="all"          # all | step1 | step2 | step3 | step4
 STEP2_BG=0
 SKIP_STEP2=0
-VENV_DIR=".venv"
+
+# Use system python (Vast.ai containers usually have python3)
+PYTHON="${PYTHON:-python3}"
+if ! command -v "$PYTHON" >/dev/null 2>&1; then
+  PYTHON="python"
+fi
+if ! command -v "$PYTHON" >/dev/null 2>&1; then
+  echo "ERROR: python3/python not found in PATH." >&2
+  exit 1
+fi
 
 log() {
   printf '\n[%s] %s\n' "$(date +"%Y-%m-%d %H:%M:%S")" "$*"
@@ -31,6 +40,7 @@ Options:
   --mode MODE             all | step1 | step2 | step3 | step4 (default: all)
   --skip_step2            Skip Step 2 (useful for re-running Step 3/4)
   --step2-bg              Run Step 2 in background (nohup), logs to runs/logs/step2.log
+  --python BIN            Python executable to use (default: python3; fallback: python)
   -h, --help              Show help
 USAGE
 }
@@ -45,10 +55,16 @@ while [[ $# -gt 0 ]]; do
     --mode) MODE="$2"; shift 2 ;;
     --skip_step2) SKIP_STEP2=1; shift ;;
     --step2-bg) STEP2_BG=1; shift ;;
+    --python) PYTHON="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1"; usage; exit 1 ;;
   esac
 done
+
+if ! command -v "$PYTHON" >/dev/null 2>&1; then
+  echo "ERROR: requested python '$PYTHON' not found in PATH." >&2
+  exit 1
+fi
 
 if [[ -f ".env" ]]; then
   set -a
@@ -57,28 +73,21 @@ if [[ -f ".env" ]]; then
   set +a
 fi
 
-if [[ ! -d "$VENV_DIR" ]]; then
-  log "Creating virtual environment at $VENV_DIR"
-  python -m venv "$VENV_DIR"
-fi
-
-# shellcheck disable=SC1091
-source "$VENV_DIR/bin/activate"
-
 mkdir -p runs/logs
 LOGFILE="runs/logs/repro_$(date +"%Y%m%d_%H%M%S").log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
-log "Installing dependencies"
-python -m pip install -U pip >/dev/null
-pip install -r requirements.txt >/dev/null
-
 log "Environment"
-python --version
-pip --version
+echo "Using: $PYTHON"
+"$PYTHON" --version
+"$PYTHON" -m pip -V || true
+
+log "Installing dependencies (no venv)"
+"$PYTHON" -m pip install -U pip
+"$PYTHON" -m pip install -r requirements.txt
 
 log "Config sanity check"
-python - "$CONFIG" <<'PY'
+"$PYTHON" - "$CONFIG" <<'PY'
 import sys
 import yaml
 cfg_path = sys.argv[1]
@@ -118,7 +127,7 @@ require_step2_keys() {
 
 run_step1() {
   log "Step 1/4: Build dataset"
-  python src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
+  "$PYTHON" src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
   wc -l data/wmt_sample.jsonl || true
 }
 
@@ -127,7 +136,7 @@ run_step2() {
   require_step2_keys
   mkdir -p runs/raw
 
-  CMD=(python src/02_translate_and_confidence.py
+  CMD=("$PYTHON" src/02_translate_and_confidence.py
     --config "$CONFIG"
     --input data/wmt_sample.jsonl
     --outdir runs/raw)
@@ -156,7 +165,7 @@ run_step2() {
 run_step3() {
   log "Step 3/4: Features + metrics"
   mkdir -p runs/aggregated
-  python src/03_features_and_metrics.py \
+  "$PYTHON" src/03_features_and_metrics.py \
     --config "$CONFIG" \
     --input_dir runs/raw \
     --output runs/aggregated/dataframe.csv \
@@ -166,7 +175,7 @@ run_step3() {
 run_step4() {
   log "Step 4/4: Analysis + paper outputs"
   mkdir -p figures
-  python src/04_analysis_and_plots.py \
+  "$PYTHON" src/04_analysis_and_plots.py \
     --config "$CONFIG" \
     --input runs/aggregated/dataframe.csv \
     --outdir figures \
