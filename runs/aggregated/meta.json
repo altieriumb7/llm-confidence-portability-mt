@@ -1,0 +1,17 @@
+{
+  "timestamp_utc": "2026-02-15T22:39:11.961001+00:00",
+  "config_hash_sha256": "7532929a6de627fd699f7e3f8c6f50ec717a03f19360987c7eb6021d4593a1ea",
+  "git_commit": "40e978e1792d4f04814577687e3cf85378d530a8",
+  "providers": [
+    "anthropic",
+    "gemini",
+    "openai"
+  ],
+  "models": [
+    "anthropic/claude-haiku-4-5-20251001",
+    "gemini/gemini-2.5-flash",
+    "openai/gpt-5-mini"
+  ],
+  "n": 15,
+  "seed": 123
+}

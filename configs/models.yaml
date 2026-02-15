@@ -14,6 +14,7 @@ global:
   quality_metric_main: chrf
   error_quantile_within_model: 0.2
   error_quantile_global: 0.2
+  mismatch_error_col: "error_within_model_q20"
 
 models:
   - provider: openai

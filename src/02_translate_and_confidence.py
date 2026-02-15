@@ -59,6 +59,7 @@ def main():
     ap.add_argument("--models", default=None)
     ap.add_argument("--max_samples", type=int, default=None)
     ap.add_argument("--dry_run", action="store_true")
+    ap.add_argument("--progress_every", type=int, default=25)
     args = ap.parse_args()
 
     load_env()
@@ -97,7 +98,8 @@ def main():
 
         logger.info("Running %s/%s existing=%d", provider, model_id, len(done_ids))
         total_pending = sum(1 for row in data if str(row["id"]) not in done_ids)
-        logger.info("Pending %s/%s samples=%d", provider, model_id, total_pending)
+        logger.info("Input samples: %d | Existing cached: %d | Pending: %d", len(data), len(done_ids), total_pending)
+        processed = 0
         for row in data:
             row_id = str(row["id"])
             if row_id in done_ids:
@@ -129,6 +131,9 @@ def main():
                     },
                 )
                 done_ids.add(row_id)
+                processed += 1
+                if processed % max(1, args.progress_every) == 0 or processed == total_pending:
+                    logger.info("Progress %s/%s: %d/%d completed", provider, model_id, processed, total_pending)
             except Exception as exc:
                 logger.exception("Failed %s/%s id=%s: %s", provider, model_id, row["id"], exc)
 
