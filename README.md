@@ -15,6 +15,11 @@ Create `.env` (or export shell vars):
 
 See `.env.example`.
 
+## Run end-to-end whole pipeline
+
+run run_repro.sh
+
+
 ## Run end-to-end
 1. Build dataset:
 ```bash
