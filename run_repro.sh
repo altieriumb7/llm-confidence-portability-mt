@@ -8,8 +8,10 @@ CONFIG="configs/models.yaml"
 CLEAN=0
 MAX_SAMPLES=""
 PROVIDERS=""
+MODELS=""
 MODE="all"          # all | step1 | step2 | step3 | step4
 STEP2_BG=0
+SKIP_STEP2=0
 VENV_DIR=".venv"
 
 log() {
@@ -23,9 +25,11 @@ Usage: bash run_repro.sh [options]
 Options:
   --config PATH           Path to config YAML (default: configs/models.yaml)
   --clean                 Remove generated outputs before running
-  --max-samples N         Limit Step 2 to N samples (smoke test)
+  --max_samples N         Limit Step 2 to N samples (smoke test)
   --providers LIST        Comma-separated providers for Step 2 (e.g. openai,anthropic)
+  --models LIST           Comma-separated model IDs/labels for Step 2
   --mode MODE             all | step1 | step2 | step3 | step4 (default: all)
+  --skip_step2            Skip Step 2 (useful for re-running Step 3/4)
   --step2-bg              Run Step 2 in background (nohup), logs to runs/logs/step2.log
   -h, --help              Show help
 USAGE
@@ -35,9 +39,11 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --config) CONFIG="$2"; shift 2 ;;
     --clean) CLEAN=1; shift ;;
-    --max-samples) MAX_SAMPLES="$2"; shift 2 ;;
+    --max-samples|--max_samples) MAX_SAMPLES="$2"; shift 2 ;;
     --providers) PROVIDERS="$2"; shift 2 ;;
+    --models) MODELS="$2"; shift 2 ;;
     --mode) MODE="$2"; shift 2 ;;
+    --skip_step2) SKIP_STEP2=1; shift ;;
     --step2-bg) STEP2_BG=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1"; usage; exit 1 ;;
@@ -59,38 +65,32 @@ fi
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
 
+mkdir -p runs/logs
+LOGFILE="runs/logs/repro_$(date +"%Y%m%d_%H%M%S").log"
+exec > >(tee -a "$LOGFILE") 2>&1
+
 log "Installing dependencies"
 python -m pip install -U pip >/dev/null
 pip install -r requirements.txt >/dev/null
-
-mkdir -p runs/logs
 
 log "Environment"
 python --version
 pip --version
 
 log "Config sanity check"
-python - "$CONFIG" <<'PY' || true
+python - "$CONFIG" <<'PY'
 import sys
+import yaml
 cfg_path = sys.argv[1]
-try:
-    import yaml
-except Exception:
-    print("WARN: PyYAML unavailable; skipping config parse check")
-    raise SystemExit(0)
-
 with open(cfg_path, "r", encoding="utf-8") as f:
     cfg = yaml.safe_load(f) or {}
 print(f"global.n = {(cfg.get('global') or {}).get('n')!r}")
 PY
 
 if [[ "$CLEAN" -eq 1 ]]; then
-  log "CLEAN: removing generated outputs only"
+  log "CLEAN: removing generated outputs"
   rm -f data/wmt_sample.jsonl
-  rm -rf runs/raw
-  rm -rf runs/logs
-  rm -rf runs/aggregated
-  rm -rf figures
+  rm -rf runs/raw runs/aggregated runs/logs figures
   rm -f paper/top_mismatch_examples.md
   rm -f paper/results_table.md paper/summary_table.md
 fi
@@ -138,6 +138,9 @@ run_step2() {
   if [[ -n "$PROVIDERS" ]]; then
     CMD+=(--providers "$PROVIDERS")
   fi
+  if [[ -n "$MODELS" ]]; then
+    CMD+=(--models "$MODELS")
+  fi
 
   log "Command: ${CMD[*]}"
 
@@ -169,6 +172,7 @@ run_step4() {
     --outdir figures \
     --results runs/aggregated/results_by_model.json \
     --summary runs/aggregated/summary_table.csv \
+    --meta runs/aggregated/meta.json \
     --examples paper/top_mismatch_examples.md \
     | tee runs/logs/step4.log
 
@@ -181,12 +185,16 @@ run_step4() {
 case "$MODE" in
   all)
     run_step1
-    run_step2
-    if [[ "$STEP2_BG" -eq 1 ]]; then
-      log "Step 2 is running in background. Continue later with:"
-      log "  bash run_repro.sh --mode step3"
-      log "  bash run_repro.sh --mode step4"
-      exit 0
+    if [[ "$SKIP_STEP2" -eq 0 ]]; then
+      run_step2
+      if [[ "$STEP2_BG" -eq 1 ]]; then
+        log "Step 2 is running in background. Continue later with:"
+        log "  bash run_repro.sh --mode step3"
+        log "  bash run_repro.sh --mode step4"
+        exit 0
+      fi
+    else
+      log "Skipping Step 2 as requested (--skip_step2)."
     fi
     run_step3
     run_step4

@@ -7,7 +7,7 @@ This repository intentionally keeps final paper-facing outputs under version con
 - `runs/aggregated/*`  
   Final aggregated dataset and metrics/features tables used for analysis.
 - `figures/*`  
-  Plots used in the paper.
+  Plots used in the paper (generated locally; binary outputs are not versioned).
 - `paper/*` (selected generated outputs)  
   Paper-facing markdown artifacts, including top mismatch examples.
 

@@ -34,3 +34,7 @@ runs/logs/
 # Keep a compact debug sample of raw responses
 !runs/raw_sample/
 !runs/raw_sample/**
+# Generated figures are not versioned (binary artifacts)
+figures/*.png
+figures/*.pdf
+

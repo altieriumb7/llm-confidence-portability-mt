@@ -1,9 +1,10 @@
 import argparse
 import csv
 import glob
-import math
 import statistics
 from pathlib import Path
+
+import sacrebleu
 
 from utils.common import load_config, read_jsonl
 
@@ -12,23 +13,14 @@ def tokenize(s):
     return [t for t in s.strip().split() if t]
 
 
-def chrf_simple(h, r):
-    hs, rs = set(h), set(r)
-    if not hs and not rs:
-        return 100.0
-    p = len(hs & rs) / (len(hs) or 1)
-    q = len(hs & rs) / (len(rs) or 1)
-    return 100 * (2 * p * q / (p + q + 1e-9))
-
-
-def bleu_simple(h, r):
-    ht, rt = tokenize(h.lower()), tokenize(r.lower())
-    if not ht:
-        return 0.0
-    overlap = sum(1 for t in ht if t in set(rt))
-    prec = overlap / len(ht)
-    bp = min(1.0, math.exp(1 - len(rt) / max(1, len(ht))))
-    return 100 * bp * prec
+def sentence_metrics(hyp: str, ref: str):
+    hyp = (hyp or "").strip()
+    ref = (ref or "").strip()
+    if not hyp or not ref:
+        return 0.0, 0.0
+    chrf = sacrebleu.sentence_chrf(hypothesis=hyp, references=[ref], char_order=6, word_order=2).score
+    bleu = sacrebleu.sentence_bleu(hypothesis=hyp, references=[ref]).score
+    return float(chrf), float(bleu)
 
 
 def zscores(vals):
@@ -74,7 +66,8 @@ def main():
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w", newline="", encoding="utf-8") as f:
-            w = csv.writer(f); w.writerow(["id","src","ref","hyp","conf","provider","model_id","latency_translate_s","latency_conf_s","input_tokens","output_tokens","timestamp_utc","quality","difficulty_score","difficulty_bucket","error_global_q20","error_within_model_q20"])
+            w = csv.writer(f)
+            w.writerow(["id", "src", "ref", "hyp", "conf", "provider", "model_id", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens", "timestamp_utc", "quality", "difficulty_score", "difficulty_bucket", "error_global_q20", "error_within_model_q20"])
         print(f"Wrote empty {out}")
         return
 
@@ -86,8 +79,9 @@ def main():
         r["ner_count"] = sum(1 for t in toks if t[:1].isupper())
         r["syntactic_depth"] = max(1, min(10, len(toks) // 4 + 1))
         r["rare_ratio"] = sum(1 for t in toks if len(t) >= 8) / (len(toks) or 1)
-        r["chrf"] = chrf_simple(r["hyp"], r["ref"])
-        r["bleu"] = bleu_simple(r["hyp"], r["ref"])
+        chrf, bleu = sentence_metrics(r.get("hyp", ""), r.get("ref", ""))
+        r["chrf"] = chrf
+        r["bleu"] = bleu
         r["quality"] = r["chrf"]
 
     for feat in ["src_len_tokens", "syntactic_depth", "rare_ratio", "ner_count"]:
@@ -112,7 +106,7 @@ def main():
         key = (r["provider"], r["model_id"])
         by_model.setdefault(key, []).append(i)
     q = cfg["global"]["error_quantile_within_model"]
-    for key, idxs in by_model.items():
+    for _, idxs in by_model.items():
         thr = quantile([rows[i]["quality"] for i in idxs], q)
         for i in idxs:
             rows[i]["error_within_model_q20"] = int(rows[i]["quality"] < thr)

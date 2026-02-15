@@ -1,8 +1,11 @@
 import time
+import logging
 from typing import Any, Dict, Tuple
 
 from openai import BadRequestError
 from openai import OpenAI
+
+from utils.json_parse import extract_first_json_object, parse_json_field
 
 TRANSLATE_SYSTEM = "You are a precise machine translation engine."
 CONF_SYSTEM = "You are a careful evaluator."
@@ -11,6 +14,7 @@ CONF_SYSTEM = "You are a careful evaluator."
 _NO_TEMPERATURE_MODELS: set[str] = set()
 # Runtime cache: clients keyed by (api_key, timeout_s)
 _CLIENTS: dict[tuple[str, float], OpenAI] = {}
+LOGGER = logging.getLogger(__name__)
 
 
 def _get_client(api_key: str, timeout_s: float) -> OpenAI:
@@ -71,17 +75,32 @@ def _usage(resp: Any) -> Dict[str, Any]:
     }
 
 
-def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float]:
+def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[Any, Dict[str, Any], float]:
     client = _get_client(api_key, global_cfg["timeout_s"])
-    user = f"Translate the following sentence from English to German. Output ONLY the translation text.\n\n{text}"
+    user = (
+        "Translate the following sentence from English to German. "
+        "Return ONLY valid JSON with exactly one key: {\"translation\": \"...\"}.\n\n"
+        f"SOURCE: {text}"
+    )
     t0 = time.time()
     resp = _chat(client, model_id, TRANSLATE_SYSTEM, user, global_cfg)
-    return _extract_text(resp), _usage(resp), time.time() - t0
+    raw = _extract_text(resp)
+    parsed = parse_json_field(raw, "translation")
+    if parsed is not None:
+        return str(parsed).strip(), _usage(resp), time.time() - t0
+    fallback_obj = extract_first_json_object(raw)
+    if fallback_obj:
+        parsed = parse_json_field(fallback_obj, "translation")
+        if parsed is not None:
+            LOGGER.warning("Recovered translation JSON from embedded object for %s", model_id)
+            return str(parsed).strip(), _usage(resp), time.time() - t0
+    LOGGER.warning("Translation JSON parse failed for %s; falling back to raw text", model_id)
+    return raw.strip(), _usage(resp), time.time() - t0
 
 
 def confidence(
     src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
-) -> Tuple[str, Dict[str, Any], float]:
+) -> Tuple[Any, Dict[str, Any], float]:
     client = _get_client(api_key, global_cfg["timeout_s"])
     user = (
         "Return ONLY valid JSON with exactly one key 'confidence' whose value is a number between 0 and 1.\n\n"
@@ -89,4 +108,20 @@ def confidence(
     )
     t0 = time.time()
     resp = _chat(client, model_id, CONF_SYSTEM, user, global_cfg)
-    return _extract_text(resp), _usage(resp), time.time() - t0
+    raw = _extract_text(resp)
+    parsed = parse_json_field(raw, "confidence")
+    if parsed is None:
+        fallback_obj = extract_first_json_object(raw)
+        if fallback_obj:
+            parsed = parse_json_field(fallback_obj, "confidence")
+            if parsed is not None:
+                LOGGER.warning("Recovered confidence JSON from embedded object for %s", model_id)
+        if parsed is None:
+            LOGGER.warning("Confidence JSON parse failed for %s; returning raw text", model_id)
+            return raw, _usage(resp), time.time() - t0
+    try:
+        parsed = max(0.0, min(1.0, float(parsed)))
+    except Exception:
+        LOGGER.warning("Confidence value invalid for %s; returning raw text", model_id)
+        return raw, _usage(resp), time.time() - t0
+    return parsed, _usage(resp), time.time() - t0
