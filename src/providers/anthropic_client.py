@@ -6,6 +6,17 @@ import anthropic
 TRANSLATE_SYSTEM = "You are a precise machine translation engine."
 CONF_SYSTEM = "You are a careful evaluator."
 
+# Runtime cache: clients keyed by api_key
+_CLIENTS: dict[str, anthropic.Anthropic] = {}
+
+
+def _get_client(api_key: str) -> anthropic.Anthropic:
+    client = _CLIENTS.get(api_key)
+    if client is None:
+        client = anthropic.Anthropic(api_key=api_key)
+        _CLIENTS[api_key] = client
+    return client
+
 
 def _message(client: anthropic.Anthropic, model_id: str, system: str, user: str, cfg: Dict[str, Any]):
     return client.messages.create(
@@ -38,7 +49,7 @@ def _usage(resp: Any) -> Dict[str, Any]:
 
 
 def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float]:
-    client = anthropic.Anthropic(api_key=api_key)
+    client = _get_client(api_key)
     user = f"Translate the following sentence from English to German. Output ONLY the translation text.\n\n{text}"
     t0 = time.time()
     resp = _message(client, model_id, TRANSLATE_SYSTEM, user, global_cfg)
@@ -46,7 +57,7 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
 
 
 def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float]:
-    client = anthropic.Anthropic(api_key=api_key)
+    client = _get_client(api_key)
     user = (
         "Return ONLY valid JSON with exactly one key 'confidence' whose value is a number between 0 and 1.\n\n"
         f"SOURCE: {src}\nTRANSLATION: {hyp}"

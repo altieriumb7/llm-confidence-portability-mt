@@ -40,10 +40,10 @@ models:
     label: Claude Haiku 4.5
     tier: fastest
   - provider: gemini
-    model_id: gemini-3-pro-preview
-    label: Gemini 3 Pro (preview)
+    model_id: gemini-2.5-pro
+    label: Gemini 2.5 Pro
     tier: flagship
   - provider: gemini
-    model_id: gemini-3-flash-preview
-    label: Gemini 3 Flash (preview)
+    model_id: gemini-2.5-flash
+    label: Gemini 2.5 Flash
     tier: efficient
