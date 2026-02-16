@@ -8,9 +8,11 @@ CONFIG="configs/models.yaml"
 CLEAN=0
 MAX_SAMPLES=""
 PROVIDERS=""
+MODELS=""
 MODE="all"          # all | step1 | step2 | step3 | step4
 STEP2_BG=0
-VENV_DIR=".venv"
+SKIP_STEP2=0
+PYTHON_BIN="${PYTHON_BIN:-python3}"
 
 log() {
   printf '\n[%s] %s\n' "$(date +"%Y-%m-%d %H:%M:%S")" "$*"
@@ -23,9 +25,11 @@ Usage: bash run_repro.sh [options]
 Options:
   --config PATH           Path to config YAML (default: configs/models.yaml)
   --clean                 Remove generated outputs before running
-  --max-samples N         Limit Step 2 to N samples (smoke test)
+  --max_samples N         Limit Step 2 to N samples (smoke test)
   --providers LIST        Comma-separated providers for Step 2 (e.g. openai,anthropic)
+  --models LIST           Comma-separated model IDs/labels for Step 2
   --mode MODE             all | step1 | step2 | step3 | step4 (default: all)
+  --skip_step2            Skip Step 2 (useful for re-running Step 3/4)
   --step2-bg              Run Step 2 in background (nohup), logs to runs/logs/step2.log
   -h, --help              Show help
 USAGE
@@ -35,9 +39,11 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --config) CONFIG="$2"; shift 2 ;;
     --clean) CLEAN=1; shift ;;
-    --max-samples) MAX_SAMPLES="$2"; shift 2 ;;
+    --max-samples|--max_samples) MAX_SAMPLES="$2"; shift 2 ;;
     --providers) PROVIDERS="$2"; shift 2 ;;
+    --models) MODELS="$2"; shift 2 ;;
     --mode) MODE="$2"; shift 2 ;;
+    --skip_step2) SKIP_STEP2=1; shift ;;
     --step2-bg) STEP2_BG=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1"; usage; exit 1 ;;
@@ -51,46 +57,32 @@ if [[ -f ".env" ]]; then
   set +a
 fi
 
-if [[ ! -d "$VENV_DIR" ]]; then
-  log "Creating virtual environment at $VENV_DIR"
-  python -m venv "$VENV_DIR"
-fi
-
-# shellcheck disable=SC1091
-source "$VENV_DIR/bin/activate"
+mkdir -p runs/logs
+LOGFILE="runs/logs/repro_$(date +"%Y%m%d_%H%M%S").log"
+exec > >(tee -a "$LOGFILE") 2>&1
 
 log "Installing dependencies"
-python -m pip install -U pip >/dev/null
-pip install -r requirements.txt >/dev/null
-
-mkdir -p runs/logs
+"$PYTHON_BIN" -m pip install --root-user-action=ignore -U pip >/dev/null
+"$PYTHON_BIN" -m pip install --root-user-action=ignore -r requirements.txt >/dev/null
 
 log "Environment"
-python --version
-pip --version
+"$PYTHON_BIN" --version
+"$PYTHON_BIN" -m pip --version
 
 log "Config sanity check"
-python - "$CONFIG" <<'PY' || true
+"$PYTHON_BIN" - "$CONFIG" <<'PY'
 import sys
+import yaml
 cfg_path = sys.argv[1]
-try:
-    import yaml
-except Exception:
-    print("WARN: PyYAML unavailable; skipping config parse check")
-    raise SystemExit(0)
-
 with open(cfg_path, "r", encoding="utf-8") as f:
     cfg = yaml.safe_load(f) or {}
 print(f"global.n = {(cfg.get('global') or {}).get('n')!r}")
 PY
 
 if [[ "$CLEAN" -eq 1 ]]; then
-  log "CLEAN: removing generated outputs only"
+  log "CLEAN: removing generated outputs"
   rm -f data/wmt_sample.jsonl
-  rm -rf runs/raw
-  rm -rf runs/logs
-  rm -rf runs/aggregated
-  rm -rf figures
+  rm -rf runs/raw runs/aggregated runs/logs figures
   rm -f paper/top_mismatch_examples.md
   rm -f paper/results_table.md paper/summary_table.md
 fi
@@ -118,7 +110,7 @@ require_step2_keys() {
 
 run_step1() {
   log "Step 1/4: Build dataset"
-  python src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
+  "$PYTHON_BIN" src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
   wc -l data/wmt_sample.jsonl || true
 }
 
@@ -127,7 +119,7 @@ run_step2() {
   require_step2_keys
   mkdir -p runs/raw
 
-  CMD=(python src/02_translate_and_confidence.py
+  CMD=("$PYTHON_BIN" src/02_translate_and_confidence.py
     --config "$CONFIG"
     --input data/wmt_sample.jsonl
     --outdir runs/raw)
@@ -137,6 +129,9 @@ run_step2() {
   fi
   if [[ -n "$PROVIDERS" ]]; then
     CMD+=(--providers "$PROVIDERS")
+  fi
+  if [[ -n "$MODELS" ]]; then
+    CMD+=(--models "$MODELS")
   fi
 
   log "Command: ${CMD[*]}"
@@ -153,7 +148,7 @@ run_step2() {
 run_step3() {
   log "Step 3/4: Features + metrics"
   mkdir -p runs/aggregated
-  python src/03_features_and_metrics.py \
+  "$PYTHON_BIN" src/03_features_and_metrics.py \
     --config "$CONFIG" \
     --input_dir runs/raw \
     --output runs/aggregated/dataframe.csv \
@@ -163,12 +158,13 @@ run_step3() {
 run_step4() {
   log "Step 4/4: Analysis + paper outputs"
   mkdir -p figures
-  python src/04_analysis_and_plots.py \
+  "$PYTHON_BIN" src/04_analysis_and_plots.py \
     --config "$CONFIG" \
     --input runs/aggregated/dataframe.csv \
     --outdir figures \
     --results runs/aggregated/results_by_model.json \
     --summary runs/aggregated/summary_table.csv \
+    --meta runs/aggregated/meta.json \
     --examples paper/top_mismatch_examples.md \
     | tee runs/logs/step4.log
 
@@ -181,12 +177,16 @@ run_step4() {
 case "$MODE" in
   all)
     run_step1
-    run_step2
-    if [[ "$STEP2_BG" -eq 1 ]]; then
-      log "Step 2 is running in background. Continue later with:"
-      log "  bash run_repro.sh --mode step3"
-      log "  bash run_repro.sh --mode step4"
-      exit 0
+    if [[ "$SKIP_STEP2" -eq 0 ]]; then
+      run_step2
+      if [[ "$STEP2_BG" -eq 1 ]]; then
+        log "Step 2 is running in background. Continue later with:"
+        log "  bash run_repro.sh --mode step3"
+        log "  bash run_repro.sh --mode step4"
+        exit 0
+      fi
+    else
+      log "Skipping Step 2 as requested (--skip_step2)."
     fi
     run_step3
     run_step4

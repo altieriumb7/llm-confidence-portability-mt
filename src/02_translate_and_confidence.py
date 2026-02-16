@@ -12,12 +12,12 @@ from utils.common import (
     load_config,
     load_env,
     now_utc_iso,
-    parse_confidence,
     read_jsonl,
     retry_with_backoff,
     setup_logging,
     usage_to_tokens,
 )
+from utils.parse import coerce_confidence, sanitize_translation
 
 ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 
@@ -50,6 +50,22 @@ def filter_models(models: List[Dict], providers: str, names: str):
     return out
 
 
+def _extract_translation(result) -> tuple[str, str | None]:
+    if isinstance(result, dict):
+        text = result.get("translation", "")
+        warn = result.get("parse_warning")
+        return sanitize_translation(str(text)), warn
+    return sanitize_translation(str(result)), "translation_result_unstructured"
+
+
+def _extract_confidence(result) -> tuple[float | None, str | None]:
+    if isinstance(result, dict):
+        parsed = coerce_confidence(result.get("confidence"))
+        warn = result.get("parse_warning")
+        return parsed, warn
+    return coerce_confidence(result), "confidence_result_unstructured"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/models.yaml")
@@ -59,6 +75,8 @@ def main():
     ap.add_argument("--models", default=None)
     ap.add_argument("--max_samples", type=int, default=None)
     ap.add_argument("--dry_run", action="store_true")
+    ap.add_argument("--progress_every", type=int, default=25)
+    ap.add_argument("--fail_on_parse_rate", type=float, default=None)
     args = ap.parse_args()
 
     load_env()
@@ -72,16 +90,11 @@ def main():
 
     selected_models = filter_models(cfg["models"], args.providers, args.models)
     if not args.models and not args.providers and len(selected_models) > 1:
-        logger.info(
-            "No --models/--providers filter set: processing %d configured models.",
-            len(selected_models),
-        )
+        logger.info("No --models/--providers filter set: processing %d configured models.", len(selected_models))
 
     for m in selected_models:
         provider, model_id = m["provider"], m["model_id"]
         out_path = Path(args.outdir) / f"{provider}__{model_id}.jsonl"
-        # Normalize IDs to string so resume works even if previous runs used a
-        # different JSON type (e.g. "1" vs 1).
         done_ids = {str(r["id"]) for r in read_jsonl(out_path) if "id" in r}
 
         key_name = ENV_KEYS[provider]
@@ -97,40 +110,103 @@ def main():
 
         logger.info("Running %s/%s existing=%d", provider, model_id, len(done_ids))
         total_pending = sum(1 for row in data if str(row["id"]) not in done_ids)
-        logger.info("Pending %s/%s samples=%d", provider, model_id, total_pending)
+        logger.info("Input samples: %d | Existing cached: %d | Pending: %d", len(data), len(done_ids), total_pending)
+
+        processed = 0
+        parse_fail_translation = 0
+        parse_fail_confidence = 0
+        missing_confidence = 0
+
         for row in data:
             row_id = str(row["id"])
             if row_id in done_ids:
                 continue
+
+            warnings = []
             try:
                 if args.dry_run:
-                    hyp, conf = row["ref"], 0.5
+                    hyp = row["ref"]
+                    conf = 0.5
                     tr_usage = cf_usage = {}
                     tr_lat = cf_lat = 0.0
                 else:
-                    hyp, tr_usage, tr_lat = retry_with_backoff(
-                        lambda: client.translate(row["src"], model_id, g, api_key), g["max_retries"], logger, "translate"
+                    tr_result, tr_usage, tr_lat = retry_with_backoff(
+                        lambda: client.translate(row["src"], model_id, g, api_key),
+                        g["max_retries"],
+                        logger,
+                        "translate",
                     )
-                    conf_raw, cf_usage, cf_lat = retry_with_backoff(
-                        lambda: client.confidence(row["src"], hyp, model_id, g, api_key), g["max_retries"], logger, "confidence"
+                    hyp, tr_warn = _extract_translation(tr_result)
+                    if tr_warn:
+                        parse_fail_translation += 1
+                        warnings.append(tr_warn)
+
+                    cf_result, cf_usage, cf_lat = retry_with_backoff(
+                        lambda: client.confidence(row["src"], hyp, model_id, g, api_key),
+                        g["max_retries"],
+                        logger,
+                        "confidence",
                     )
-                    conf = parse_confidence(conf_raw)
+                    conf, cf_warn = _extract_confidence(cf_result)
+                    if cf_warn:
+                        parse_fail_confidence += 1
+                        warnings.append(cf_warn)
+
+                    if conf is None:
+                        missing_confidence += 1
 
                 u1, u2 = usage_to_tokens(tr_usage), usage_to_tokens(cf_usage)
                 append_jsonl(
                     out_path,
                     {
-                        "id": row["id"], "src": row["src"], "ref": row["ref"], "hyp": hyp, "conf": conf,
-                        "provider": provider, "model_id": model_id,
-                        "latency_translate_s": tr_lat, "latency_conf_s": cf_lat,
-                        "input_tokens": (u1["input_tokens"] or 0) + (u2["input_tokens"] or 0) if (u1["input_tokens"] is not None or u2["input_tokens"] is not None) else None,
-                        "output_tokens": (u1["output_tokens"] or 0) + (u2["output_tokens"] or 0) if (u1["output_tokens"] is not None or u2["output_tokens"] is not None) else None,
+                        "id": row["id"],
+                        "src": row["src"],
+                        "ref": row["ref"],
+                        "hyp": hyp,
+                        "translation": hyp,
+                        "conf": conf,
+                        "confidence": conf,
+                        "provider": provider,
+                        "model_id": model_id,
+                        "parse_warnings": " | ".join(warnings) if warnings else None,
+                        "latency_translate_s": tr_lat,
+                        "latency_conf_s": cf_lat,
+                        "input_tokens": (u1["input_tokens"] or 0) + (u2["input_tokens"] or 0)
+                        if (u1["input_tokens"] is not None or u2["input_tokens"] is not None)
+                        else None,
+                        "output_tokens": (u1["output_tokens"] or 0) + (u2["output_tokens"] or 0)
+                        if (u1["output_tokens"] is not None or u2["output_tokens"] is not None)
+                        else None,
                         "timestamp_utc": now_utc_iso(),
                     },
                 )
                 done_ids.add(row_id)
+                processed += 1
+                if processed % max(1, args.progress_every) == 0 or processed == total_pending:
+                    logger.info("Progress %s/%s: %d/%d completed", provider, model_id, processed, total_pending)
             except Exception as exc:
                 logger.exception("Failed %s/%s id=%s: %s", provider, model_id, row["id"], exc)
+
+        translation_fail_rate = (parse_fail_translation / max(1, total_pending)) * 100.0
+        confidence_fail_rate = (parse_fail_confidence / max(1, total_pending)) * 100.0
+        logger.info(
+            "Summary %s/%s | parse_fail_translation=%d (%.1f%%) | parse_fail_confidence=%d (%.1f%%) | missing_confidence=%d",
+            provider,
+            model_id,
+            parse_fail_translation,
+            translation_fail_rate,
+            parse_fail_confidence,
+            confidence_fail_rate,
+            missing_confidence,
+        )
+
+        if args.fail_on_parse_rate is not None:
+            threshold = float(args.fail_on_parse_rate)
+            worst = max(translation_fail_rate, confidence_fail_rate)
+            if worst > threshold:
+                raise RuntimeError(
+                    f"Parse failure rate too high for {provider}/{model_id}: {worst:.1f}% > {threshold:.1f}%"
+                )
 
 
 if __name__ == "__main__":
