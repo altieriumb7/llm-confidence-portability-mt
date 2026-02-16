@@ -1,15 +1,18 @@
-import time
 import logging
+import time
 from typing import Any, Dict, Tuple
 
 import anthropic
 
-from utils.json_parse import extract_first_json_object, parse_json_field
+from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
 
-TRANSLATE_SYSTEM = "You are a precise machine translation engine."
-CONF_SYSTEM = "You are a careful evaluator."
+STRICT_JSON_SYSTEM = (
+    "You are a strict JSON generator. Return ONLY valid JSON. "
+    "No prose. No markdown. No code fences. Output must be a single JSON object on one line."
+)
+TRANSLATION_SCHEMA_HINT = '{"translation": "<German translation string>"}'
+CONFIDENCE_SCHEMA_HINT = '{"confidence": 0.73}'
 
-# Runtime cache: clients keyed by api_key
 _CLIENTS: dict[str, anthropic.Anthropic] = {}
 LOGGER = logging.getLogger(__name__)
 
@@ -22,10 +25,16 @@ def _get_client(api_key: str) -> anthropic.Anthropic:
     return client
 
 
-def _message(client: anthropic.Anthropic, model_id: str, system: str, user: str, cfg: Dict[str, Any]):
+def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
+    key = f"{kind}_max_output_tokens"
+    default = 256 if kind == "translation" else 64
+    return int(cfg.get(key, default))
+
+
+def _message(client: anthropic.Anthropic, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
     return client.messages.create(
         model=model_id,
-        max_tokens=cfg["max_output_tokens"],
+        max_tokens=_max_tokens(cfg, kind),
         temperature=cfg["temperature"],
         system=system,
         messages=[{"role": "user", "content": user}],
@@ -52,51 +61,44 @@ def _usage(resp: Any) -> Dict[str, Any]:
     }
 
 
-def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[Any, Dict[str, Any], float]:
+def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key)
     user = (
-        "Translate the following sentence from English to German. "
-        "Return ONLY valid JSON with exactly one key: {\"translation\": \"...\"}.\n\n"
+        "Translate from English to German. "
+        f"Return exactly this JSON shape: {TRANSLATION_SCHEMA_HINT}. "
+        "Output must be a single JSON object on one line.\n\n"
         f"SOURCE: {text}"
     )
     t0 = time.time()
-    resp = _message(client, model_id, TRANSLATE_SYSTEM, user, global_cfg)
+    resp = _message(client, model_id, STRICT_JSON_SYSTEM, user, global_cfg, "translation")
     raw = _extract_text(resp)
-    parsed = parse_json_field(raw, "translation")
+    parsed, err = parse_json_field(raw, "translation")
     if parsed is not None:
-        return str(parsed).strip(), _usage(resp), time.time() - t0
-    fallback_obj = extract_first_json_object(raw)
-    if fallback_obj:
-        parsed = parse_json_field(fallback_obj, "translation")
-        if parsed is not None:
-            LOGGER.warning("Recovered translation JSON from embedded object for %s", model_id)
-            return str(parsed).strip(), _usage(resp), time.time() - t0
-    LOGGER.warning("Translation JSON parse failed for %s; falling back to raw text", model_id)
-    return raw.strip(), _usage(resp), time.time() - t0
+        return str(parsed).strip(), _usage(resp), time.time() - t0, None
+    warning = f"translation parse fallback: {err or 'unknown error'}"
+    LOGGER.warning("Translation JSON parse failed for %s: %s", model_id, err)
+    return sanitize_translation(raw), _usage(resp), time.time() - t0, warning
 
 
-def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[Any, Dict[str, Any], float]:
+def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[float | None, Dict[str, Any], float, str | None]:
     client = _get_client(api_key)
     user = (
-        "Return ONLY valid JSON with exactly one key 'confidence' whose value is a number between 0 and 1.\n\n"
+        "Evaluate how likely this translation is correct. "
+        f"Return exactly this JSON shape: {CONFIDENCE_SCHEMA_HINT}. "
+        "Confidence must be a number in [0,1]. "
+        "Output must be a single JSON object on one line.\n\n"
         f"SOURCE: {src}\nTRANSLATION: {hyp}"
     )
     t0 = time.time()
-    resp = _message(client, model_id, CONF_SYSTEM, user, global_cfg)
+    resp = _message(client, model_id, STRICT_JSON_SYSTEM, user, global_cfg, "confidence")
     raw = _extract_text(resp)
-    parsed = parse_json_field(raw, "confidence")
-    if parsed is None:
-        fallback_obj = extract_first_json_object(raw)
-        if fallback_obj:
-            parsed = parse_json_field(fallback_obj, "confidence")
-            if parsed is not None:
-                LOGGER.warning("Recovered confidence JSON from embedded object for %s", model_id)
-        if parsed is None:
-            LOGGER.warning("Confidence JSON parse failed for %s; returning raw text", model_id)
-            return raw, _usage(resp), time.time() - t0
-    try:
-        parsed = max(0.0, min(1.0, float(parsed)))
-    except Exception:
-        LOGGER.warning("Confidence value invalid for %s; returning raw text", model_id)
-        return raw, _usage(resp), time.time() - t0
-    return parsed, _usage(resp), time.time() - t0
+    parsed, err = parse_json_field(raw, "confidence")
+    conf = coerce_confidence(parsed if parsed is not None else raw)
+    if conf is None:
+        warning = f"confidence parse failed: {err or 'could not coerce value'}"
+        LOGGER.warning("Confidence JSON parse failed for %s: %s", model_id, err)
+        return None, _usage(resp), time.time() - t0, warning
+    warning = None if parsed is not None else f"confidence coerced from fallback text: {err or 'json parse failed'}"
+    if warning:
+        LOGGER.warning("Confidence JSON parse fallback used for %s: %s", model_id, err)
+    return conf, _usage(resp), time.time() - t0, warning

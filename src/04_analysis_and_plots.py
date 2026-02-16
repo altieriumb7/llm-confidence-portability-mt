@@ -16,6 +16,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from utils.common import load_config
+from utils.parse import coerce_confidence
 
 
 def as_float(x, d=0.0):
@@ -120,6 +121,13 @@ def _write_meta(path: Path, cfg_path: str, cfg: dict, rows: list):
     path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
 
+def _mismatch_rate(rows, err_col: str, tau: float) -> float:
+    if not rows:
+        return float("nan")
+    mism = [1 if (r[err_col] == 1 and r["conf"] > tau) else 0 for r in rows]
+    return sum(mism) / len(mism)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/models.yaml")
@@ -154,11 +162,13 @@ def main():
         return
 
     for r in rows:
-        r["conf"] = None if r["conf"] in ("", "None") else as_float(r["conf"], 0.5)
+        r["conf"] = coerce_confidence(r.get("conf"))
+        if r["conf"] is None:
+            r["conf"] = coerce_confidence(r.get("confidence"))
         for k in ["difficulty_score", "quality", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens"]:
             r[k] = as_float(r.get(k), 0.0)
         for k in ["error_global_q20", "error_within_model_q20"]:
-            r[k] = int(as_float(r[k], 0))
+            r[k] = int(as_float(r.get(k), 0))
 
     grouped = defaultdict(list)
     for r in rows:
@@ -170,44 +180,82 @@ def main():
 
     mismatch_all = []
     ece_bucket_values = []
+    tau_values = [0.6, 0.7, 0.8, 0.9]
+    configured_tau = float(g["tau"])
+    if configured_tau not in tau_values:
+        tau_values.append(configured_tau)
+        tau_values.sort()
 
     for label, d in grouped.items():
+        valid_conf = [r for r in d if r["conf"] is not None and 0.0 <= r["conf"] <= 1.0]
+        conf_stats = {
+            "num_rows_total": len(d),
+            "num_rows_with_valid_conf": len(valid_conf),
+            "min_conf": min((r["conf"] for r in valid_conf), default=float("nan")),
+            "median_conf": sorted((r["conf"] for r in valid_conf))[len(valid_conf) // 2] if valid_conf else float("nan"),
+            "max_conf": max((r["conf"] for r in valid_conf), default=float("nan")),
+        }
+        print(
+            f"[analysis] {label}: total={conf_stats['num_rows_total']} "
+            f"valid_conf={conf_stats['num_rows_with_valid_conf']} "
+            f"min/median/max={conf_stats['min_conf']:.3f}/{conf_stats['median_conf']:.3f}/{conf_stats['max_conf']:.3f}"
+            if valid_conf
+            else f"[analysis] {label}: total={conf_stats['num_rows_total']} valid_conf=0"
+        )
+
         x = [r["difficulty_score"] for r in d]
-        conf = [0.5 if r["conf"] is None else r["conf"] for r in d]
+        conf_for_corr = [0.5 if r["conf"] is None else r["conf"] for r in d]
         qual = [r["quality"] for r in d]
-        ece_g = ece(d, "error_global_q20", g["conf_bins"])
-        ece_w = ece(d, "error_within_model_q20", g["conf_bins"])
 
-        mism = [1 if (r[mismatch_error_col] == 1 and (r["conf"] or 0) > g["tau"]) else 0 for r in d]
-        mism_within = [1 if (r["error_within_model_q20"] == 1 and (r["conf"] or 0) > g["tau"]) else 0 for r in d]
-        mism_global = [1 if (r["error_global_q20"] == 1 and (r["conf"] or 0) > g["tau"]) else 0 for r in d]
+        if not valid_conf:
+            warnings.warn(f"{label}: no valid confidence values; skipping mismatch/ECE metrics")
+            ece_g = float("nan")
+            ece_w = float("nan")
+            mismatch_by_bucket = {b: float("nan") for b in ["Q1", "Q2", "Q3", "Q4"]}
+            ece_by_bucket = {b: float("nan") for b in ["Q1", "Q2", "Q3", "Q4"]}
+            mism = []
+            mism_within = []
+            mism_global = []
+        else:
+            ece_g = ece(valid_conf, "error_global_q20", g["conf_bins"])
+            ece_w = ece(valid_conf, "error_within_model_q20", g["conf_bins"])
+            mism = [1 if (r[mismatch_error_col] == 1 and r["conf"] > configured_tau) else 0 for r in valid_conf]
+            mism_within = [1 if (r["error_within_model_q20"] == 1 and r["conf"] > configured_tau) else 0 for r in valid_conf]
+            mism_global = [1 if (r["error_global_q20"] == 1 and r["conf"] > configured_tau) else 0 for r in valid_conf]
 
-        mismatch_by_bucket = {}
-        ece_by_bucket = {}
-        for b in ["Q1", "Q2", "Q3", "Q4"]:
-            subset = [r for r in d if r["difficulty_bucket"] == b]
-            mb = [1 if (r[mismatch_error_col] == 1 and (r["conf"] or 0) > g["tau"]) else 0 for r in subset]
-            mismatch_by_bucket[b] = (sum(mb) / len(mb)) if mb else float("nan")
-            ece_by_bucket[b] = ece(subset, mismatch_error_col, g["conf_bins"]) if subset else float("nan")
+            mismatch_by_bucket = {}
+            ece_by_bucket = {}
+            for b in ["Q1", "Q2", "Q3", "Q4"]:
+                subset = [r for r in valid_conf if r["difficulty_bucket"] == b]
+                mb = [1 if (r[mismatch_error_col] == 1 and r["conf"] > configured_tau) else 0 for r in subset]
+                mismatch_by_bucket[b] = (sum(mb) / len(mb)) if mb else float("nan")
+                ece_by_bucket[b] = ece(subset, mismatch_error_col, g["conf_bins"]) if subset else float("nan")
+
+        multi_tau = {}
+        for tau in tau_values:
+            multi_tau[f"mismatch_rate_overall_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, mismatch_error_col, tau)
+            multi_tau[f"mismatch_rate_overall_within_model_q20_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, "error_within_model_q20", tau)
+            multi_tau[f"mismatch_rate_overall_global_q20_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, "error_global_q20", tau)
 
         ece_bucket_values.extend([v for v in ece_by_bucket.values() if not math.isnan(v)])
-        mismatch_all.append(sum(mism) / len(mism))
+        mismatch_all.append((sum(mism) / len(mism)) if mism else 0.0)
 
         results[label] = {
             "correlations": {
-                "pearson_difficulty_conf": corr(x, conf),
-                "spearman_difficulty_conf": corr(rank(x), rank(conf)),
+                "pearson_difficulty_conf": corr(x, conf_for_corr),
+                "spearman_difficulty_conf": corr(rank(x), rank(conf_for_corr)),
                 "pearson_difficulty_quality": corr(x, qual),
                 "spearman_difficulty_quality": corr(rank(x), rank(qual)),
-                "pearson_conf_quality": corr(conf, qual),
-                "spearman_conf_quality": corr(rank(conf), rank(qual)),
+                "pearson_conf_quality": corr(conf_for_corr, qual),
+                "spearman_conf_quality": corr(rank(conf_for_corr), rank(qual)),
             },
+            "confidence_stats": conf_stats,
             "ece_global_q20": ece_g,
             "ece_within_model_q20": ece_w,
             "ece_by_difficulty_bucket": ece_by_bucket,
-            "mismatch_rate_overall": sum(mism) / len(mism),
-            "mismatch_rate_overall_within_model_q20": sum(mism_within) / len(mism_within),
-            "mismatch_rate_overall_global_q20": sum(mism_global) / len(mism_global),
+            "mismatch_rate_overall": (sum(mism) / len(mism)) if mism else float("nan"),
+            "mismatch_rate_overall_within_model_q20": (sum(mism_within) / len(mism_within)) if mism_within else float("nan"),
+            "mismatch_rate_overall_global_q20": (sum(mism_global) / len(mism_global)) if mism_global else float("nan"),
             "mismatch_rate_by_bucket": mismatch_by_bucket,
             "efficiency": {
                 "avg_latency_translate_s": sum(r["latency_translate_s"] for r in d) / len(d),
@@ -219,26 +267,35 @@ def main():
             },
             "bootstrap_ci": {
                 "mean_quality": bootstrap_ci(qual, g["bootstrap_samples"]),
-                "ece": bootstrap_ci([abs((1 - r[mismatch_error_col]) - (r["conf"] or 0.5)) for r in d], g["bootstrap_samples"]),
+                "ece": bootstrap_ci(
+                    [abs((1 - r[mismatch_error_col]) - r["conf"]) for r in valid_conf],
+                    g["bootstrap_samples"],
+                ),
                 "mismatch_rate_overall": bootstrap_ci(mism, g["bootstrap_samples"]),
             },
+            **multi_tau,
         }
 
-        summary.append({
-            "model": label,
-            "mean_quality": sum(qual) / len(qual),
-            "ece_global_q20": ece_g,
-            "ece_within_model_q20": ece_w,
-            "mismatch_rate_overall": sum(mism) / len(mism),
-            "avg_total_latency_s": results[label]["efficiency"]["avg_total_latency_s"],
-        })
+        summary.append(
+            {
+                "model": label,
+                "mean_quality": sum(qual) / len(qual),
+                "ece_global_q20": ece_g,
+                "ece_within_model_q20": ece_w,
+                "mismatch_rate_overall": (sum(mism) / len(mism)) if mism else float("nan"),
+                "avg_total_latency_s": results[label]["efficiency"]["avg_total_latency_s"],
+            }
+        )
 
-        bad = [r for r in d if r[mismatch_error_col] == 1 and r["conf"] is not None]
+        bad = [r for r in valid_conf if r[mismatch_error_col] == 1]
         bad.sort(key=lambda r: (-r["conf"], r["quality"]))
         lines.append(f"\n## {label}\n")
         lines.append("| id | bucket | conf | quality | src | hyp | ref |\n|---|---|---:|---:|---|---|---|\n")
         for r in bad[:10]:
-            lines.append(f"| {r['id']} | {r['difficulty_bucket']} | {r['conf']:.3f} | {r['quality']:.2f} | {r['src'].replace('|','/')} | {r['hyp'].replace('|','/')} | {r['ref'].replace('|','/')} |\n")
+            lines.append(
+                f"| {r['id']} | {r['difficulty_bucket']} | {r['conf']:.3f} | {r['quality']:.2f} "
+                f"| {r['src'].replace('|','/')} | {r['hyp'].replace('|','/')} | {r['ref'].replace('|','/')} |\n"
+            )
 
     Path(args.results).parent.mkdir(parents=True, exist_ok=True)
     with open(args.results, "w", encoding="utf-8") as f:
@@ -246,7 +303,10 @@ def main():
 
     Path(args.summary).parent.mkdir(parents=True, exist_ok=True)
     with open(args.summary, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["model", "mean_quality", "ece_global_q20", "ece_within_model_q20", "mismatch_rate_overall", "avg_total_latency_s"])
+        w = csv.DictWriter(
+            f,
+            fieldnames=["model", "mean_quality", "ece_global_q20", "ece_within_model_q20", "mismatch_rate_overall", "avg_total_latency_s"],
+        )
         w.writeheader()
         w.writerows(summary)
 
@@ -259,7 +319,6 @@ def main():
 
     plt.style.use("seaborn-v0_8-whitegrid")
 
-    # Figure 1: confidence vs difficulty
     plt.figure(figsize=(8, 5))
     for label, d in grouped.items():
         plt.scatter([r["difficulty_score"] for r in d], [r["conf"] if r["conf"] is not None else 0.5 for r in d], s=10, alpha=0.5, label=label)
@@ -272,10 +331,10 @@ def main():
     plt.savefig(outdir / "fig1_scatter_difficulty_vs_conf.pdf")
     plt.close()
 
-    # Figure 2: reliability (overlay and per model)
     plt.figure(figsize=(8, 5))
     for label, d in grouped.items():
-        xs, ys = reliability_curve(d, mismatch_error_col, g["conf_bins"])
+        valid_conf = [r for r in d if r["conf"] is not None]
+        xs, ys = reliability_curve(valid_conf, mismatch_error_col, g["conf_bins"])
         if xs:
             plt.plot(xs, ys, marker="o", linewidth=1, label=label)
         slug = _safe_slug(label)
@@ -304,7 +363,6 @@ def main():
     plt.savefig(outdir / "fig2_reliability_diagram_overlay.pdf")
     plt.close()
 
-    # Figure 3: mismatch by difficulty bucket
     buckets = ["Q1", "Q2", "Q3", "Q4"]
     labels = list(grouped.keys())
     x = list(range(len(buckets)))
@@ -324,7 +382,6 @@ def main():
     plt.savefig(outdir / "fig3_mismatch_by_difficulty_bucket.pdf")
     plt.close()
 
-    # Figure 4: efficiency frontier
     plt.figure(figsize=(7, 5))
     for label in labels:
         qv = next(s["mean_quality"] for s in summary if s["model"] == label)
@@ -339,7 +396,6 @@ def main():
     plt.savefig(outdir / "fig4_efficiency_frontier.pdf")
     plt.close()
 
-    # Sanity warnings
     if mismatch_all and all(v == 0.0 for v in mismatch_all):
         warnings.warn("mismatch_rate_overall is 0.0 for all models; mismatch definition or tau may be too strict")
     if not ece_bucket_values or all((v == 0.0 or math.isnan(v)) for v in ece_bucket_values):

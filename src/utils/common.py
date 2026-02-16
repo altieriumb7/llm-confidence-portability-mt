@@ -2,11 +2,12 @@ import json
 import logging
 import os
 import random
-import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, Optional
+
+from utils.parse import coerce_confidence
 
 try:
     import yaml
@@ -111,28 +112,9 @@ def append_jsonl(path: Path, row: Dict[str, Any]) -> None:
 
 
 def parse_confidence(raw: Any) -> Optional[float]:
-    if raw is None:
-        return None
     if isinstance(raw, dict):
-        value = raw.get("confidence")
-    else:
-        text = str(raw).strip()
-        try:
-            obj = json.loads(text)
-            if isinstance(obj, dict) and "confidence" in obj:
-                value = obj["confidence"]
-            else:
-                value = None
-        except Exception:
-            m = re.search(r"-?\d+(?:\.\d+)?", text)
-            value = float(m.group(0)) if m else None
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        return max(0.0, min(1.0, value))
-    except Exception:
-        return None
+        raw = raw.get("confidence")
+    return coerce_confidence(raw)
 
 
 def usage_to_tokens(usage: Optional[Dict[str, Any]]) -> Dict[str, Optional[int]]:

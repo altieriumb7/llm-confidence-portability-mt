@@ -83,8 +83,8 @@ echo "Using: $PYTHON"
 "$PYTHON" -m pip -V || true
 
 log "Installing dependencies (no venv)"
-"$PYTHON" -m pip install -U pip
-"$PYTHON" -m pip install -r requirements.txt
+"$PYTHON" -m pip install --root-user-action=ignore -U pip
+"$PYTHON" -m pip install --root-user-action=ignore -r requirements.txt
 
 log "Config sanity check"
 "$PYTHON" - "$CONFIG" <<'PY'
