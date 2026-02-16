@@ -12,7 +12,6 @@ from utils.common import (
     load_config,
     load_env,
     now_utc_iso,
-    parse_confidence,
     read_jsonl,
     retry_with_backoff,
     setup_logging,
@@ -50,6 +49,12 @@ def filter_models(models: List[Dict], providers: str, names: str):
     return out
 
 
+def _rate(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return numerator / denominator
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/models.yaml")
@@ -60,6 +65,7 @@ def main():
     ap.add_argument("--max_samples", type=int, default=None)
     ap.add_argument("--dry_run", action="store_true")
     ap.add_argument("--progress_every", type=int, default=25)
+    ap.add_argument("--fail_on_parse_rate", type=float, default=None)
     args = ap.parse_args()
 
     load_env()
@@ -81,8 +87,6 @@ def main():
     for m in selected_models:
         provider, model_id = m["provider"], m["model_id"]
         out_path = Path(args.outdir) / f"{provider}__{model_id}.jsonl"
-        # Normalize IDs to string so resume works even if previous runs used a
-        # different JSON type (e.g. "1" vs 1).
         done_ids = {str(r["id"]) for r in read_jsonl(out_path) if "id" in r}
 
         key_name = ENV_KEYS[provider]
@@ -100,42 +104,88 @@ def main():
         total_pending = sum(1 for row in data if str(row["id"]) not in done_ids)
         logger.info("Input samples: %d | Existing cached: %d | Pending: %d", len(data), len(done_ids), total_pending)
         processed = 0
+        parse_fail_translation = 0
+        parse_fail_confidence = 0
+        missing_confidence = 0
+
         for row in data:
             row_id = str(row["id"])
             if row_id in done_ids:
                 continue
             try:
+                warnings = []
                 if args.dry_run:
                     hyp, conf = row["ref"], 0.5
                     tr_usage = cf_usage = {}
                     tr_lat = cf_lat = 0.0
+                    tr_warn = cf_warn = None
                 else:
-                    hyp, tr_usage, tr_lat = retry_with_backoff(
+                    hyp, tr_usage, tr_lat, tr_warn = retry_with_backoff(
                         lambda: client.translate(row["src"], model_id, g, api_key), g["max_retries"], logger, "translate"
                     )
-                    conf_raw, cf_usage, cf_lat = retry_with_backoff(
+                    conf, cf_usage, cf_lat, cf_warn = retry_with_backoff(
                         lambda: client.confidence(row["src"], hyp, model_id, g, api_key), g["max_retries"], logger, "confidence"
                     )
-                    conf = parse_confidence(conf_raw)
+
+                if tr_warn:
+                    parse_fail_translation += 1
+                    warnings.append(tr_warn)
+                if cf_warn:
+                    parse_fail_confidence += 1
+                    warnings.append(cf_warn)
+                if conf is None:
+                    missing_confidence += 1
 
                 u1, u2 = usage_to_tokens(tr_usage), usage_to_tokens(cf_usage)
-                append_jsonl(
-                    out_path,
-                    {
-                        "id": row["id"], "src": row["src"], "ref": row["ref"], "hyp": hyp, "conf": conf,
-                        "provider": provider, "model_id": model_id,
-                        "latency_translate_s": tr_lat, "latency_conf_s": cf_lat,
-                        "input_tokens": (u1["input_tokens"] or 0) + (u2["input_tokens"] or 0) if (u1["input_tokens"] is not None or u2["input_tokens"] is not None) else None,
-                        "output_tokens": (u1["output_tokens"] or 0) + (u2["output_tokens"] or 0) if (u1["output_tokens"] is not None or u2["output_tokens"] is not None) else None,
-                        "timestamp_utc": now_utc_iso(),
-                    },
-                )
+                payload = {
+                    "id": row["id"],
+                    "src": row["src"],
+                    "ref": row["ref"],
+                    "hyp": hyp,
+                    "translation": hyp,
+                    "conf": conf,
+                    "confidence": conf,
+                    "provider": provider,
+                    "model_id": model_id,
+                    "latency_translate_s": tr_lat,
+                    "latency_conf_s": cf_lat,
+                    "input_tokens": (u1["input_tokens"] or 0) + (u2["input_tokens"] or 0)
+                    if (u1["input_tokens"] is not None or u2["input_tokens"] is not None)
+                    else None,
+                    "output_tokens": (u1["output_tokens"] or 0) + (u2["output_tokens"] or 0)
+                    if (u1["output_tokens"] is not None or u2["output_tokens"] is not None)
+                    else None,
+                    "timestamp_utc": now_utc_iso(),
+                }
+                if warnings:
+                    payload["parse_warnings"] = " | ".join(warnings)
+                append_jsonl(out_path, payload)
+
                 done_ids.add(row_id)
                 processed += 1
                 if processed % max(1, args.progress_every) == 0 or processed == total_pending:
                     logger.info("Progress %s/%s: %d/%d completed", provider, model_id, processed, total_pending)
             except Exception as exc:
                 logger.exception("Failed %s/%s id=%s: %s", provider, model_id, row["id"], exc)
+
+        logger.info(
+            "Summary %s/%s: processed=%d parse_fail_translation=%d parse_fail_confidence=%d missing_confidence=%d",
+            provider,
+            model_id,
+            processed,
+            parse_fail_translation,
+            parse_fail_confidence,
+            missing_confidence,
+        )
+        if args.fail_on_parse_rate is not None and processed > 0:
+            combined_parse_fail = parse_fail_translation + parse_fail_confidence
+            rate = _rate(combined_parse_fail, 2 * processed)
+            logger.info("Combined parse fail rate for %s/%s: %.2f%%", provider, model_id, rate * 100)
+            if rate > args.fail_on_parse_rate:
+                raise RuntimeError(
+                    f"Parse failure rate {rate:.3f} exceeded --fail_on_parse_rate {args.fail_on_parse_rate:.3f} "
+                    f"for {provider}/{model_id}"
+                )
 
 
 if __name__ == "__main__":

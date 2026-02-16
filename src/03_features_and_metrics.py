@@ -7,6 +7,7 @@ from pathlib import Path
 import sacrebleu
 
 from utils.common import load_config, read_jsonl
+from utils.parse import coerce_confidence
 
 
 def tokenize(s):
@@ -70,6 +71,14 @@ def main():
             w.writerow(["id", "src", "ref", "hyp", "conf", "provider", "model_id", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens", "timestamp_utc", "quality", "difficulty_score", "difficulty_bucket", "error_global_q20", "error_within_model_q20"])
         print(f"Wrote empty {out}")
         return
+
+    for r in rows:
+        r["hyp"] = r.get("hyp") or r.get("translation") or ""
+        coerced_conf = coerce_confidence(r.get("conf"))
+        if coerced_conf is None:
+            coerced_conf = coerce_confidence(r.get("confidence"))
+        r["conf"] = coerced_conf
+        r["confidence"] = coerced_conf
 
     for r in rows:
         toks = tokenize(r["src"])
