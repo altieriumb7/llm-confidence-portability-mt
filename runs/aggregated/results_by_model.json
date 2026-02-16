@@ -1,0 +1,394 @@
+{
+  "openai/gpt-5.2": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.0,
+      "spearman_difficulty_conf": 0.03667157068628274,
+      "pearson_difficulty_quality": 0.0024630360425784066,
+      "spearman_difficulty_quality": 0.007485245940983763,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": -0.017876711506846023
+    },
+    "ece_global_q20": NaN,
+    "ece_within_model_q20": NaN,
+    "ece_by_difficulty_bucket": {
+      "Q1": NaN,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": NaN
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 1.6243118553161622,
+      "avg_latency_conf_s": 1.2600935921669005,
+      "avg_total_latency_s": 2.8844054474830627,
+      "avg_input_tokens": 167.06,
+      "avg_output_tokens": 49.2,
+      "median_output_tokens": 46.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        57.47052826395571,
+        60.13592028163217
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "openai/gpt-5-mini": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.0,
+      "spearman_difficulty_conf": 0.03667157068628274,
+      "pearson_difficulty_quality": -0.4435710758927344,
+      "spearman_difficulty_quality": -0.40290151560606235,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": 0.2582021528086112
+    },
+    "ece_global_q20": NaN,
+    "ece_within_model_q20": NaN,
+    "ece_by_difficulty_bucket": {
+      "Q1": NaN,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": NaN
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 4.152001690864563,
+      "avg_latency_conf_s": 3.6346591877937318,
+      "avg_total_latency_s": 7.786660878658295,
+      "avg_input_tokens": 146.44,
+      "avg_output_tokens": 809.306,
+      "median_output_tokens": 826.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        23.842832263746494,
+        29.064887717393727
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "openai/gpt-5-nano": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.04001565675733266,
+      "spearman_difficulty_conf": 0.041367909471637876,
+      "pearson_difficulty_quality": -0.3078441549220158,
+      "spearman_difficulty_quality": -0.10704474817899269,
+      "pearson_conf_quality": -0.08089022309883424,
+      "spearman_conf_quality": 0.8552372769491077
+    },
+    "ece_global_q20": 0.77,
+    "ece_within_model_q20": 0.77,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.6933333333333332,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": 1.0
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 4.5149931650161745,
+      "avg_latency_conf_s": 4.517456198692321,
+      "avg_total_latency_s": 9.032449363708496,
+      "avg_input_tokens": 138.834,
+      "avg_output_tokens": 1006.022,
+      "median_output_tokens": 1024.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        3.0955741567427344,
+        6.217200263502363
+      ],
+      "ece": [
+        0.49663999999999997,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "anthropic/claude-opus-4-6": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.0,
+      "spearman_difficulty_conf": 0.03667157068628274,
+      "pearson_difficulty_quality": 0.05164161835038015,
+      "spearman_difficulty_quality": 0.05155844623378492,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": 0.04344487777951111
+    },
+    "ece_global_q20": NaN,
+    "ece_within_model_q20": NaN,
+    "ece_by_difficulty_bucket": {
+      "Q1": NaN,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": NaN
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 2.4205690116882326,
+      "avg_latency_conf_s": 1.8108240823745727,
+      "avg_total_latency_s": 4.231393094062805,
+      "avg_input_tokens": 189.696,
+      "avg_output_tokens": 62.426,
+      "median_output_tokens": 59.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        59.29496204112935,
+        61.97974253254669
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "anthropic/claude-sonnet-4-5-20250929": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.0,
+      "spearman_difficulty_conf": 0.03667157068628274,
+      "pearson_difficulty_quality": 0.04015654611381116,
+      "spearman_difficulty_quality": 0.046533978135912535,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": 0.025912999651998603
+    },
+    "ece_global_q20": NaN,
+    "ece_within_model_q20": NaN,
+    "ece_by_difficulty_bucket": {
+      "Q1": NaN,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": NaN
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 2.1394239473342895,
+      "avg_latency_conf_s": 1.620765863418579,
+      "avg_total_latency_s": 3.760189810752869,
+      "avg_input_tokens": 187.726,
+      "avg_output_tokens": 67.212,
+      "median_output_tokens": 64.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        58.42581567906821,
+        61.051983453416895
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "anthropic/claude-haiku-4-5-20251001": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.0,
+      "spearman_difficulty_conf": 0.03667157068628274,
+      "pearson_difficulty_quality": 0.0304126885810076,
+      "spearman_difficulty_quality": 0.03761535046140184,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": 0.03341014964059855
+    },
+    "ece_global_q20": NaN,
+    "ece_within_model_q20": NaN,
+    "ece_by_difficulty_bucket": {
+      "Q1": NaN,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": NaN
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 1.3525996084213256,
+      "avg_latency_conf_s": 0.9297465867996216,
+      "avg_total_latency_s": 2.2823461952209474,
+      "avg_input_tokens": 186.998,
+      "avg_output_tokens": 75.992,
+      "median_output_tokens": 73.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        56.79076164124428,
+        59.49950457855359
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "gemini/gemini-2.5-pro": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.005726605095218874,
+      "spearman_difficulty_conf": 0.03335909887477357,
+      "pearson_difficulty_quality": 0.0,
+      "spearman_difficulty_quality": 0.034888214920018645,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": 0.9841524218625536
+    },
+    "ece_global_q20": 1.0,
+    "ece_within_model_q20": 1.0,
+    "ece_by_difficulty_bucket": {
+      "Q1": 1.0,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": 1.0
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 5.7549512818936375,
+      "avg_latency_conf_s": 5.189529428078282,
+      "avg_total_latency_s": 10.94448070997192,
+      "avg_input_tokens": 125.91532258064517,
+      "avg_output_tokens": 10.643145161290322,
+      "median_output_tokens": 15.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        0.0,
+        0.0
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "gemini/gemini-2.5-flash": {
+    "correlations": {
+      "pearson_difficulty_conf": 0.0,
+      "spearman_difficulty_conf": 0.03667157068628274,
+      "pearson_difficulty_quality": -0.47420163256232123,
+      "spearman_difficulty_quality": -0.495441853767415,
+      "pearson_conf_quality": 0.0,
+      "spearman_conf_quality": -0.05106807627230508
+    },
+    "ece_global_q20": NaN,
+    "ece_within_model_q20": NaN,
+    "ece_by_difficulty_bucket": {
+      "Q1": NaN,
+      "Q2": NaN,
+      "Q3": NaN,
+      "Q4": NaN
+    },
+    "mismatch_rate_overall": 0.0,
+    "mismatch_rate_overall_within_model_q20": 0.0,
+    "mismatch_rate_overall_global_q20": 0.0,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.0,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 2.83531086063385,
+      "avg_latency_conf_s": 2.4489322447776796,
+      "avg_total_latency_s": 5.284243105411529,
+      "avg_input_tokens": 146.046,
+      "avg_output_tokens": 43.732,
+      "median_output_tokens": 39.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        38.41415296805794,
+        42.63417167191264
+      ],
+      "ece": [
+        0.5,
+        0.5
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.0
+      ]
+    }
+  }
+}
