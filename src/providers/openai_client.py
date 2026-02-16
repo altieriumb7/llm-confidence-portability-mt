@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple
 from openai import BadRequestError
 from openai import OpenAI
 
-from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
+from utils.parse import coerce_confidence, ensure_translation, parse_json_field
 
 STRICT_JSON_SYSTEM = (
     "You are a strict JSON generator. Return ONLY valid JSON. "
@@ -51,7 +51,7 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         payload["temperature"] = temp
 
     if model_id not in _JSON_FORMAT_UNSUPPORTED_MODELS:
-        payload["text"] = {"format": {"type": "json_object"}}
+        payload["response_format"] = {"type": "json_object"}
 
     try:
         return client.responses.create(**payload)
@@ -61,9 +61,12 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
             _NO_TEMPERATURE_MODELS.add(model_id)
             payload.pop("temperature", None)
             return client.responses.create(**payload)
-        if "json" in msg.lower() and "format" in msg.lower() and "text" in payload:
+        if "json" in msg.lower() and "format" in msg.lower() and "response_format" in payload:
             _JSON_FORMAT_UNSUPPORTED_MODELS.add(model_id)
-            payload.pop("text", None)
+            payload.pop("response_format", None)
+            return client.responses.create(**payload)
+        if "json" in msg.lower() and "format" in msg.lower() and "response_format" not in payload:
+            payload["text"] = {"format": {"type": "json_object"}}
             return client.responses.create(**payload)
         raise
 
@@ -94,8 +97,9 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
     client = _get_client(api_key, global_cfg["timeout_s"])
     user = (
         "Translate from English to German. "
-        f"Return exactly this JSON shape: {TRANSLATION_SCHEMA_HINT}. "
-        "Output must be a single JSON object on one line.\n\n"
+        f"Schema: {TRANSLATION_SCHEMA_HINT}. "
+        "Return ONLY valid JSON object with exactly one key: translation. "
+        "No markdown, no code fences, no explanation, one line only.\n\n"
         f"SOURCE: {text}"
     )
     t0 = time.time()
@@ -106,7 +110,7 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
         return str(parsed).strip(), _usage(resp), time.time() - t0, None
     warning = f"translation parse fallback: {err or 'unknown error'}"
     LOGGER.warning("Translation JSON parse failed for %s: %s", model_id, err)
-    return sanitize_translation(raw), _usage(resp), time.time() - t0, warning
+    return ensure_translation(raw, fallback=text), _usage(resp), time.time() - t0, warning
 
 
 def confidence(
@@ -115,9 +119,10 @@ def confidence(
     client = _get_client(api_key, global_cfg["timeout_s"])
     user = (
         "Evaluate how likely this translation is correct. "
-        f"Return exactly this JSON shape: {CONFIDENCE_SCHEMA_HINT}. "
+        f"Schema: {CONFIDENCE_SCHEMA_HINT}. "
         "Confidence must be a number in [0,1]. "
-        "Output must be a single JSON object on one line.\n\n"
+        "Return ONLY valid JSON object with exactly one key: confidence. "
+        "No markdown, no code fences, no explanation, one line only.\n\n"
         f"SOURCE: {src}\nTRANSLATION: {hyp}"
     )
     t0 = time.time()

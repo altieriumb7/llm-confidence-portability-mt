@@ -121,3 +121,15 @@ def sanitize_translation(text: str) -> str:
         if ln:
             return ln
     return ""
+
+
+def ensure_translation(text: str, fallback: str = "") -> str:
+    sanitized = sanitize_translation(text)
+    if sanitized:
+        return sanitized
+
+    raw = str(text or "").strip()
+    if raw:
+        return raw
+
+    return str(fallback or "").strip() or "[translation unavailable]"
