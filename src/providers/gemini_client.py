@@ -83,7 +83,45 @@ def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict
 
 
 def _extract_text(resp: Any) -> str:
-    text = (getattr(resp, "text", "") or "").strip()
+    def _as_text(x: Any) -> str | None:
+        if x is None:
+            return None
+        if isinstance(x, dict):
+            if "value" in x and isinstance(x["value"], str):
+                s = x["value"].strip()
+                return s or None
+            if "text" in x:
+                tv = x["text"]
+                if isinstance(tv, str):
+                    s = tv.strip()
+                    return s or None
+                if isinstance(tv, dict) and "value" in tv and isinstance(tv["value"], str):
+                    s = tv["value"].strip()
+                    return s or None
+        if isinstance(x, str):
+            s = x.strip()
+            return s or None
+        if isinstance(x, (dict, list)):
+            return json.dumps(x, ensure_ascii=False)
+        v = getattr(x, "value", None)
+        if isinstance(v, str) and v.strip():
+            return v.strip()
+        t = getattr(x, "text", None)
+        tv = getattr(t, "value", None) if t is not None else None
+        if isinstance(tv, str) and tv.strip():
+            return tv.strip()
+        try:
+            s = str(x).strip()
+            return s or None
+        except Exception:
+            return None
+
+    parsed_top = _obj_get(resp, "parsed")
+    pt = _as_text(parsed_top)
+    if pt:
+        return pt
+
+    text = _as_text(_obj_get(resp, "text"))
     if text:
         return text
 
@@ -92,24 +130,116 @@ def _extract_text(resp: Any) -> str:
     for candidate in candidates:
         content = _obj_get(candidate, "content")
         for part in (_obj_get(content, "parts") or []):
-            part_text = _obj_get(part, "text")
-            if isinstance(part_text, str) and part_text.strip():
-                chunks.append(str(part_text))
+            part_text = _as_text(_obj_get(part, "text"))
+            if part_text:
+                chunks.append(part_text)
                 continue
-            if isinstance(part_text, (dict, list)):
-                chunks.append(json.dumps(part_text, ensure_ascii=False))
-                continue
-            for json_key in ("parsed", "json"):
-                parsed = _obj_get(part, json_key)
-                if isinstance(parsed, (dict, list)):
-                    chunks.append(json.dumps(parsed, ensure_ascii=False))
-                    break
-                if isinstance(parsed, str) and parsed.strip():
+            for key in ("parsed", "json", "data"):
+                parsed = _as_text(_obj_get(part, key))
+                if parsed:
                     chunks.append(parsed)
                     break
-            if isinstance(part, (dict, list)):
-                chunks.append(json.dumps(part, ensure_ascii=False))
-    return "\n".join(chunks).strip()
+            fc = _obj_get(part, "function_call")
+            if fc is not None:
+                args = _obj_get(fc, "args")
+                if args is None:
+                    args = _obj_get(fc, "arguments")
+                at = _as_text(args)
+                if at:
+                    chunks.append(at)
+            fr = _obj_get(part, "function_response")
+            if fr is not None:
+                rt = _as_text(_obj_get(fr, "response"))
+                if rt:
+                    chunks.append(rt)
+
+    joined = "\n".join(chunks).strip()
+    if joined:
+        return joined
+
+    def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
+        yielded = 0
+        total = 0
+
+        def walk(x: Any):
+            nonlocal yielded, total
+            if x is None or yielded >= max_items or total >= max_total_chars:
+                return
+            if isinstance(x, str):
+                yielded += 1
+                total += len(x)
+                if yielded <= max_items and total <= max_total_chars:
+                    yield x
+                return
+            if isinstance(x, (int, float, bool)):
+                s = str(x)
+                yielded += 1
+                total += len(s)
+                if yielded <= max_items and total <= max_total_chars:
+                    yield s
+                return
+            if isinstance(x, dict):
+                keys = set(x.keys())
+                for k in ("confidence", "translation"):
+                    if k in keys:
+                        v = x.get(k)
+                        if isinstance(v, (str, int, float, bool)) or v is None:
+                            s = json.dumps({k: v}, ensure_ascii=False)
+                            yielded += 1
+                            total += len(s)
+                            if yielded <= max_items and total <= max_total_chars:
+                                yield s
+                for v in x.values():
+                    if yielded >= max_items or total >= max_total_chars:
+                        return
+                    yield from walk(v)
+                return
+            if isinstance(x, (list, tuple, set)):
+                for v in x:
+                    if yielded >= max_items or total >= max_total_chars:
+                        return
+                    yield from walk(v)
+                return
+            try:
+                yield from walk(vars(x))
+            except Exception:
+                for attr in (
+                    "candidates",
+                    "content",
+                    "parts",
+                    "text",
+                    "parsed",
+                    "function_call",
+                    "function_response",
+                    "args",
+                    "arguments",
+                    "response",
+                    "value",
+                ):
+                    xv = getattr(x, attr, None)
+                    if xv is not None:
+                        yield from walk(xv)
+
+        yield from walk(obj)
+
+    leaves = [_as_text(x) for x in _iter_leaf_strings(resp)]
+    leaves = [s for s in leaves if s]
+    best = ""
+    best_score = (-1, -1)
+    for s in leaves:
+        ss = s.strip()
+        score = 0
+        if "confidence" in ss or "translation" in ss:
+            score += 10
+        if "{" in ss and "}" in ss:
+            score += 6
+        if any(ch.isdigit() for ch in ss):
+            score += 1
+        score2 = min(len(ss), 5000)
+        if (score, score2) > best_score:
+            best_score = (score, score2)
+            best = ss
+    return best
 
 
 def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
