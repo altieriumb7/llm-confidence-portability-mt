@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple
 from openai import BadRequestError
 from openai import OpenAI
 
-from utils.parse import coerce_confidence, ensure_translation, parse_json_field
+from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
 
 STRICT_JSON_SYSTEM = (
     "Return ONLY a single JSON object on ONE line. "
@@ -35,7 +35,6 @@ def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
 
 
 def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
-    # Do not pass response_format to responses.create; not supported in openai==2.21.0.
     payload: Dict[str, Any] = {
         "model": model_id,
         "input": [
@@ -50,9 +49,6 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
     if temp is not None and model_id not in _NO_TEMPERATURE_MODELS:
         payload["temperature"] = temp
 
-    if model_id not in _JSON_FORMAT_UNSUPPORTED_MODELS:
-        payload["response_format"] = {"type": "json_object"}
-
     try:
         return client.responses.create(**payload)
     except BadRequestError as e:
@@ -60,13 +56,6 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         if (("Unsupported parameter" in msg and "temperature" in msg) or ("param': 'temperature'" in msg)) and "temperature" in payload:
             _NO_TEMPERATURE_MODELS.add(model_id)
             payload.pop("temperature", None)
-            return client.responses.create(**payload)
-        if "json" in msg.lower() and "format" in msg.lower() and "response_format" in payload:
-            _JSON_FORMAT_UNSUPPORTED_MODELS.add(model_id)
-            payload.pop("response_format", None)
-            return client.responses.create(**payload)
-        if "json" in msg.lower() and "format" in msg.lower() and "response_format" not in payload:
-            payload["text"] = {"format": {"type": "json_object"}}
             return client.responses.create(**payload)
         raise
 
@@ -110,7 +99,13 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
         return str(parsed).strip(), _usage(resp), time.time() - t0, None
     warning = f"translation parse fallback: {err or 'unknown error'}"
     LOGGER.warning("Translation JSON parse failed for %s: %s", model_id, err)
-    return ensure_translation(raw, fallback=text), _usage(resp), time.time() - t0, warning
+    sanitized = sanitize_translation(raw)
+    if sanitized:
+        return sanitized, _usage(resp), time.time() - t0, warning
+
+    raw_fallback = str(raw or "").strip()[:1000]
+    source_fallback = str(text or "").strip()[:1000]
+    return (raw_fallback or source_fallback or "[translation unavailable]"), _usage(resp), time.time() - t0, warning
 
 
 def confidence(
