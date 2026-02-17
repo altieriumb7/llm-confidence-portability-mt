@@ -34,7 +34,7 @@ def _usage(resp: Any) -> Dict[str, Any]:
 def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     key = f"{kind}_max_output_tokens"
     default = 256 if kind == "translation" else 64
-    cap = 256 if kind == "translation" else 64
+    cap = 2048 if kind == "translation" else 256
     return min(int(cfg.get(key, default)), cap)
 
 
@@ -314,7 +314,7 @@ def format_fix(
         "Convert your previous answer into EXACT JSON: {\"translation\": \"...\"}; output JSON only.\n\n"
         f"SOURCE: {original_input}\nPREVIOUS_ANSWER: {previous_answer}"
     )
-    cfg = {**global_cfg, "translation_max_output_tokens": 64}
+    cfg = {**global_cfg, "translation_max_output_tokens": max(256, int(global_cfg.get("translation_max_output_tokens", 256)))}
     t0 = time.time()
     resp = _call(client, model_id, system, user, cfg, "translation")
     return _extract_text(resp), _usage(resp), time.time() - t0, None

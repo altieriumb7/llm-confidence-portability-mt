@@ -169,6 +169,7 @@ def main():
 
                     translation = ""
                     parsed_tr = find_first_json(raw_translation)
+                    tr_json_detected = parsed_tr is not None
                     if parsed_tr is not None:
                         normalized_tr, tr_norm_warnings = normalize_json_obj(parsed_tr[0], "translation")
                         warnings.extend(tr_norm_warnings)
@@ -176,31 +177,32 @@ def main():
                             translation = normalized_tr["translation"]
 
                     fx_tr_usage, fx_tr_lat = {}, 0.0
-                    if not translation:
+                    if not tr_json_detected:
                         warnings.append("translation_no_json")
-                        translation = coerce_translation(raw_translation)
+                        if hasattr(client, "format_fix"):
+                            fixed_translation, fx_tr_usage, fx_tr_lat, _ = retry_with_backoff(
+                                lambda: client.format_fix(
+                                    task="translation",
+                                    previous_answer=raw_translation,
+                                    original_input=row["src"],
+                                    model_id=model_id,
+                                    global_cfg=g,
+                                    api_key=api_key,
+                                ),
+                                g["max_retries"],
+                                logger,
+                                "format_fix_translation",
+                            )
+                            fixed_tr = find_first_json(fixed_translation)
+                            if fixed_tr is not None:
+                                normalized_tr, tr_norm_warnings = normalize_json_obj(fixed_tr[0], "translation")
+                                warnings.extend(tr_norm_warnings)
+                                if normalized_tr:
+                                    translation = normalized_tr["translation"]
+                                    warnings.append("translation_format_fix")
 
-                    if not translation and hasattr(client, "format_fix"):
-                        fixed_translation, fx_tr_usage, fx_tr_lat, _ = retry_with_backoff(
-                            lambda: client.format_fix(
-                                task="translation",
-                                previous_answer=raw_translation,
-                                original_input=row["src"],
-                                model_id=model_id,
-                                global_cfg=g,
-                                api_key=api_key,
-                            ),
-                            g["max_retries"],
-                            logger,
-                            "format_fix_translation",
-                        )
-                        fixed_tr = find_first_json(fixed_translation)
-                        if fixed_tr is not None:
-                            normalized_tr, tr_norm_warnings = normalize_json_obj(fixed_tr[0], "translation")
-                            warnings.extend(tr_norm_warnings)
-                            if normalized_tr:
-                                translation = normalized_tr["translation"]
-                                warnings.append("translation_format_fix")
+                    if not translation:
+                        translation = coerce_translation(raw_translation)
 
                     if not translation:
                         translation = _truncate(raw_translation, 1000) or _truncate(row["src"], 1000) or "[translation unavailable]"
