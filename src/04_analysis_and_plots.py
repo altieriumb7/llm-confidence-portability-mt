@@ -241,6 +241,8 @@ def main():
         mismatch_all.append((sum(mism) / len(mism)) if mism else 0.0)
 
         results[label] = {
+            "valid_conf_count": len(valid_conf),
+            "total_count": len(d),
             "correlations": {
                 "pearson_difficulty_conf": corr(x, conf_for_corr),
                 "spearman_difficulty_conf": corr(rank(x), rank(conf_for_corr)),

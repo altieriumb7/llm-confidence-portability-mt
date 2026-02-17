@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple
 from google import genai
 from google.genai import types
 
-from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
+from utils.parse import coerce_confidence, ensure_translation, parse_json_field, sanitize_translation
 
 STRICT_JSON_SYSTEM = (
     "You are a strict JSON generator. Return ONLY valid JSON. "
@@ -78,8 +78,9 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
     client = _get_client(api_key)
     user = (
         "Translate from English to German. "
-        f"Return exactly this JSON shape: {TRANSLATION_SCHEMA_HINT}. "
-        "Output must be a single JSON object on one line.\n\n"
+        f"Schema: {TRANSLATION_SCHEMA_HINT}. "
+        "Return ONLY valid JSON object with exactly one key: translation. "
+        "No markdown, no code fences, no explanation, one line only.\n\n"
         f"SOURCE: {text}"
     )
     t0 = time.time()
@@ -90,23 +91,24 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
         return str(parsed).strip(), _usage(resp), time.time() - t0, None
     warning = f"translation parse fallback: {err or 'unknown error'}"
     LOGGER.warning("Translation JSON parse failed for %s: %s", model_id, err)
-    return sanitize_translation(raw), _usage(resp), time.time() - t0, warning
+    return ensure_translation(sanitize_translation(raw), fallback=text), _usage(resp), time.time() - t0, warning
 
 
 def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[float | None, Dict[str, Any], float, str | None]:
     client = _get_client(api_key)
     user = (
         "Evaluate how likely this translation is correct. "
-        f"Return exactly this JSON shape: {CONFIDENCE_SCHEMA_HINT}. "
+        f"Schema: {CONFIDENCE_SCHEMA_HINT}. "
         "Confidence must be a number in [0,1]. "
-        "Output must be a single JSON object on one line.\n\n"
+        "Return ONLY valid JSON object with exactly one key: confidence. "
+        "No markdown, no code fences, no explanation, one line only.\n\n"
         f"SOURCE: {src}\nTRANSLATION: {hyp}"
     )
     t0 = time.time()
     resp = _call(client, model_id, STRICT_JSON_SYSTEM, user, global_cfg, "confidence")
     raw = _extract_text(resp)
     parsed, err = parse_json_field(raw, "confidence")
-    conf = coerce_confidence(parsed if parsed is not None else raw)
+    conf = coerce_confidence(parsed) if parsed is not None else coerce_confidence(raw)
     if conf is None:
         warning = f"confidence parse failed: {err or 'could not coerce value'}"
         LOGGER.warning("Confidence JSON parse failed for %s: %s", model_id, err)

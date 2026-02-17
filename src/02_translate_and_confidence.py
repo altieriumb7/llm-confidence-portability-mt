@@ -18,6 +18,8 @@ from utils.common import (
     usage_to_tokens,
 )
 
+
+from utils.parse import coerce_confidence, ensure_translation
 ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 
 
@@ -123,10 +125,12 @@ def main():
                     hyp, tr_usage, tr_lat, tr_warn = retry_with_backoff(
                         lambda: client.translate(row["src"], model_id, g, api_key), g["max_retries"], logger, "translate"
                     )
+                    hyp = ensure_translation(hyp, fallback=row["src"])
                     conf, cf_usage, cf_lat, cf_warn = retry_with_backoff(
                         lambda: client.confidence(row["src"], hyp, model_id, g, api_key), g["max_retries"], logger, "confidence"
                     )
 
+                conf = coerce_confidence(conf)
                 if tr_warn:
                     parse_fail_translation += 1
                     warnings.append(tr_warn)
