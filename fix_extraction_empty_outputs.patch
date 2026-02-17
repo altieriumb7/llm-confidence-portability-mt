@@ -1,0 +1,94 @@
+diff --git a/src/providers/openai_client.py b/src/providers/openai_client.py
+index 64dfee0..d7ded6a 100644
+--- a/src/providers/openai_client.py
++++ b/src/providers/openai_client.py
+@@ -15,7 +15,7 @@ _CLIENTS: dict[tuple[str, float], OpenAI] = {}
+ LOGGER = logging.getLogger(__name__)
+ 
+ 
+-def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
++def _iter_leaf_strings(obj: Any, *, prefer_key: str | None = None, max_items: int = 4000, max_total_chars: int = 200_000):
+     """Yield leaf strings from arbitrary nested objects/dicts/lists.
+ 
+     Used only as a fallback when normal extraction returns empty.
+@@ -44,6 +44,19 @@ def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int
+             return
+ 
+         if isinstance(x, dict):
++            # If the SDK produced parsed output as a dict (e.g., {"confidence": 0.73})
++            # but did not populate any text fields, emit a minimal JSON object for downstream parsing.
++            keys = set(x.keys())
++            for k in ([prefer_key] if prefer_key else []) + ['confidence', 'translation']:
++                if not k or k not in keys:
++                    continue
++                v = x.get(k)
++                if isinstance(v, (str, int, float, bool)) or v is None:
++                    s = json.dumps({k: v}, ensure_ascii=False)
++                    yielded += 1
++                    total += len(s)
++                    if yielded <= max_items and total <= max_total_chars:
++                        yield s
+             for v in x.values():
+                 if yielded >= max_items or total >= max_total_chars:
+                     return
+@@ -206,7 +219,7 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
+         return best
+ 
+     # Deep fallback: schema can vary across models; find any leaf string that looks like output.
+-    leaves = list(_iter_leaf_strings(resp))
++    leaves = list(_iter_leaf_strings(resp, prefer_key=prefer_key))
+     best = pick_best(leaves)
+     return best.strip()
+ 
+diff --git a/src/providers/gemini_client.py b/src/providers/gemini_client.py
+index 0892b18..2d4ff7e 100644
+--- a/src/providers/gemini_client.py
++++ b/src/providers/gemini_client.py
+@@ -173,6 +173,18 @@ def _extract_text(resp: Any) -> str:
+                 return
+ 
+             if isinstance(x, dict):
++                # If structured output exists only as a dict with numeric values (no text),
++                # emit minimal JSON objects for downstream parsing.
++                keys = set(x.keys())
++                for k in ('confidence', 'translation'):
++                    if k in keys:
++                        v = x.get(k)
++                        if isinstance(v, (str, int, float, bool)) or v is None:
++                            s = json.dumps({k: v}, ensure_ascii=False)
++                            yielded += 1
++                            total += len(s)
++                            if yielded <= max_items and total <= max_total_chars:
++                                yield s
+                 for v in x.values():
+                     if yielded >= max_items or total >= max_total_chars:
+                         return
+@@ -202,10 +214,25 @@ def _extract_text(resp: Any) -> str:
+         yield from walk(obj)
+ 
+     leaves = list(_iter_leaf_strings(resp))
++    # Prefer JSON-like leaves or ones that mention target keys.
++    best = ''
++    best_score = (-1, -1)
+     for s in leaves:
+-        if "{" in s and "}" in s:
+-            return s.strip()
+-    return (leaves[0].strip() if leaves else "")
++        ss = (s or '').strip()
++        if not ss:
++            continue
++        score = 0
++        if 'confidence' in ss or 'translation' in ss:
++            score += 10
++        if '{' in ss and '}' in ss:
++            score += 6
++        if any(ch.isdigit() for ch in ss):
++            score += 1
++        score2 = min(len(ss), 5000)
++        if (score, score2) > best_score:
++            best_score = (score, score2)
++            best = ss
++    return best.strip() if best else ''
+ 
+ 
+ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
