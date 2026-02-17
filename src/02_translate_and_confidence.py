@@ -17,7 +17,7 @@ from utils.common import (
     setup_logging,
     usage_to_tokens,
 )
-from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
+from utils.llm_parse import coerce_confidence, coerce_translation, ensure_confidence, extract_first_json
 
 ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 
@@ -56,6 +56,31 @@ def _rate(numerator: int, denominator: int) -> float:
 
 def _truncate(text: str, limit: int = 500) -> str:
     return str(text or "").strip()[:limit]
+
+
+def _debug_dump_raw(base_outdir: str, provider: str, model_id: str, row_id: str, kind: str, raw_text: str):
+    model_tag = model_id.replace("/", "_")
+    debug_dir = Path(base_outdir) / "_debug" / f"{provider}_{model_tag}"
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    debug_path = debug_dir / f"id_{row_id}_{kind}.txt"
+    debug_path.write_text(str(raw_text or ""), encoding="utf-8")
+
+
+def _json_translation(obj) -> str:
+    if isinstance(obj, dict):
+        for key in ("translation", "output", "text", "translated_text"):
+            val = obj.get(key)
+            if isinstance(val, str) and val.strip():
+                return val.strip()
+    return ""
+
+
+def _json_confidence(obj):
+    if isinstance(obj, dict):
+        for key in ("confidence", "conf", "score", "probability"):
+            if key in obj:
+                return ensure_confidence(obj.get(key))
+    return None
 
 
 def main():
@@ -113,9 +138,10 @@ def main():
             if row_id in done_ids:
                 continue
             try:
-                warnings = []
+                warnings: list[str] = []
                 raw_translation = ""
                 raw_confidence = ""
+                repaired_conf = ""
 
                 if args.dry_run:
                     translation = row["ref"]
@@ -123,56 +149,77 @@ def main():
                     tr_usage = cf_usage = fx_tr_usage = fx_cf_usage = {}
                     tr_lat = cf_lat = fx_tr_lat = fx_cf_lat = 0.0
                 else:
-                    raw_translation, tr_usage, tr_lat, _ = retry_with_backoff(
+                    raw_translation, tr_usage, tr_lat, tr_warn = retry_with_backoff(
                         lambda: client.translate(row["src"], model_id, g, api_key), g["max_retries"], logger, "translate"
                     )
-                    parsed_translation, tr_err = parse_json_field(raw_translation, "translation")
-                    if parsed_translation is not None and str(parsed_translation).strip():
-                        translation = str(parsed_translation).strip()
-                        fx_tr_usage, fx_tr_lat = {}, 0.0
-                    else:
+                    if tr_warn:
+                        warnings.append(str(tr_warn))
+
+                    fx_tr_usage, fx_tr_lat = {}, 0.0
+                    tr_obj = extract_first_json(raw_translation)
+                    translation = _json_translation(tr_obj)
+                    if not translation:
                         parse_fail_translation += 1
                         warnings.append("translation_no_json")
-                        translation = sanitize_translation(raw_translation)
-                        fx_tr_usage, fx_tr_lat = {}, 0.0
-                        if hasattr(client, "format_fix"):
-                            fixed_translation, fx_tr_usage, fx_tr_lat, _ = retry_with_backoff(
-                                lambda: client.format_fix(
-                                    task="translation",
-                                    previous_answer=raw_translation,
-                                    original_input=row["src"],
+                        translation = coerce_translation(raw_translation)
+
+                    if not translation and hasattr(client, "format_fix"):
+                        fixed_translation, fx_tr_usage, fx_tr_lat, _ = retry_with_backoff(
+                            lambda: client.format_fix(
+                                task="translation",
+                                previous_answer=raw_translation,
+                                original_input=row["src"],
+                                model_id=model_id,
+                                global_cfg=g,
+                                api_key=api_key,
+                            ),
+                            g["max_retries"],
+                            logger,
+                            "format_fix_translation",
+                        )
+                        translation = _json_translation(extract_first_json(fixed_translation)) or coerce_translation(fixed_translation)
+                        if translation:
+                            warnings.append("translation_format_fix")
+
+                    if not translation:
+                        translation = _truncate(raw_translation, 1000) or _truncate(row["src"], 1000) or "[translation unavailable]"
+
+                    raw_confidence, cf_usage, cf_lat, cf_warn = retry_with_backoff(
+                        lambda: client.confidence(row["src"], translation, model_id, g, api_key),
+                        g["max_retries"],
+                        logger,
+                        "confidence",
+                    )
+                    if cf_warn:
+                        warnings.append(str(cf_warn))
+
+                    fx_cf_usage, fx_cf_lat = {}, 0.0
+                    cf_obj = extract_first_json(raw_confidence)
+                    confidence = _json_confidence(cf_obj)
+                    if confidence is None:
+                        parse_fail_confidence += 1
+                        warnings.append("confidence_no_json")
+                        confidence, cf_warn2 = coerce_confidence(raw_confidence)
+                        if cf_warn2:
+                            warnings.append(cf_warn2)
+
+                    if confidence is None:
+                        if hasattr(client, "repair_confidence"):
+                            repaired_conf, fx_cf_usage, fx_cf_lat, _ = retry_with_backoff(
+                                lambda: client.repair_confidence(
+                                    src=row["src"],
+                                    hyp=translation,
+                                    previous_answer=raw_confidence,
                                     model_id=model_id,
                                     global_cfg=g,
                                     api_key=api_key,
                                 ),
                                 g["max_retries"],
                                 logger,
-                                "format_fix_translation",
+                                "repair_confidence",
                             )
-                            fixed_parsed, _ = parse_json_field(fixed_translation, "translation")
-                            if fixed_parsed is not None and str(fixed_parsed).strip():
-                                translation = str(fixed_parsed).strip()
-                                warnings.append("translation_format_fix")
-
-                    if not translation:
-                        translation = _truncate(raw_translation, 1000) or _truncate(row["src"], 1000) or "[translation unavailable]"
-
-                    raw_confidence, cf_usage, cf_lat, _ = retry_with_backoff(
-                        lambda: client.confidence(row["src"], translation, model_id, g, api_key),
-                        g["max_retries"],
-                        logger,
-                        "confidence",
-                    )
-                    parsed_confidence, cf_err = parse_json_field(raw_confidence, "confidence")
-                    confidence = coerce_confidence(parsed_confidence)
-                    fx_cf_usage, fx_cf_lat = {}, 0.0
-                    if confidence is None:
-                        confidence = coerce_confidence(raw_confidence)
-                    if confidence is None:
-                        parse_fail_confidence += 1
-                        warnings.append("confidence_no_json")
-                        if hasattr(client, "format_fix"):
-                            fixed_conf, fx_cf_usage, fx_cf_lat, _ = retry_with_backoff(
+                        elif hasattr(client, "format_fix"):
+                            repaired_conf, fx_cf_usage, fx_cf_lat, _ = retry_with_backoff(
                                 lambda: client.format_fix(
                                     task="confidence",
                                     previous_answer=raw_confidence,
@@ -186,15 +233,23 @@ def main():
                                 logger,
                                 "format_fix_confidence",
                             )
-                            fixed_parsed_conf, _ = parse_json_field(fixed_conf, "confidence")
-                            confidence = coerce_confidence(fixed_parsed_conf)
-                            if confidence is None:
-                                confidence = coerce_confidence(fixed_conf)
-                            if confidence is not None:
-                                warnings.append("confidence_format_fix")
+                        warnings.append("repair_call_used")
 
-                if confidence is None:
-                    missing_confidence += 1
+                        if repaired_conf:
+                            confidence = _json_confidence(extract_first_json(repaired_conf))
+                            if confidence is None:
+                                confidence, cf_warn3 = coerce_confidence(repaired_conf)
+                                if cf_warn3:
+                                    warnings.append(cf_warn3)
+
+                    if confidence is None:
+                        missing_confidence += 1
+                        confidence = 0.5
+                        warnings.append("defaulted_0.5")
+                        _debug_dump_raw(args.outdir, provider, model_id, row_id, "translation", raw_translation)
+                        _debug_dump_raw(args.outdir, provider, model_id, row_id, "confidence", raw_confidence)
+                        if repaired_conf:
+                            _debug_dump_raw(args.outdir, provider, model_id, row_id, "confidence_repair", repaired_conf)
 
                 u1, u2 = usage_to_tokens(tr_usage), usage_to_tokens(cf_usage)
                 uf1, uf2 = usage_to_tokens(fx_tr_usage), usage_to_tokens(fx_cf_usage)
@@ -217,7 +272,7 @@ def main():
                     "timestamp_utc": now_utc_iso(),
                 }
                 if warnings:
-                    payload["parse_warnings"] = ";".join(warnings)
+                    payload["parse_warnings"] = ";".join(dict.fromkeys(warnings))
                 if raw_translation:
                     payload["raw_translation_preview"] = _truncate(raw_translation)
                 if raw_confidence:
