@@ -127,9 +127,10 @@ def main():
             if row_id in done_ids:
                 continue
             try:
-                warnings = []
+                warnings: list[str] = []
                 raw_translation = ""
                 raw_confidence = ""
+                repaired_conf = ""
 
                 if args.dry_run:
                     translation = row["ref"]
