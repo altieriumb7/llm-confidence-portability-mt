@@ -68,7 +68,7 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
-            w.writerow(["id", "src", "ref", "hyp", "conf", "provider", "model_id", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens", "timestamp_utc", "quality", "difficulty_score", "difficulty_bucket", "error_global_q20", "error_within_model_q20"])
+            w.writerow(["id", "src", "ref", "hyp", "conf", "provider", "model_id", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens", "timestamp_utc", "parse_warnings", "quality", "difficulty_score", "difficulty_bucket", "error_global_q20", "error_within_model_q20"])
         print(f"Wrote empty {out}")
         return
 
@@ -123,7 +123,7 @@ def main():
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     # writer must not crash if raw schema changes
-    cols = sorted({k for r in rows for k in r.keys()})
+    cols = sorted({"parse_warnings", *{k for r in rows for k in r.keys()}})
     normalized_rows = [{k: r.get(k, "") for k in cols} for r in rows]
     with open(out, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")

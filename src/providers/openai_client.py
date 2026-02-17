@@ -8,6 +8,7 @@ from openai import OpenAI
 from utils.parse import build_strict_json_system
 
 _NO_TEMPERATURE_MODELS: set[str] = set()
+_NO_TEXT_FORMAT_MODELS: set[str] = set()
 _CLIENTS: dict[tuple[str, float], OpenAI] = {}
 LOGGER = logging.getLogger(__name__)
 
@@ -24,7 +25,8 @@ def _get_client(api_key: str, timeout_s: float) -> OpenAI:
 def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     key = f"{kind}_max_output_tokens"
     default = 256 if kind == "translation" else 64
-    return int(cfg.get(key, default))
+    cap = 256 if kind == "translation" else 64
+    return min(int(cfg.get(key, default)), cap)
 
 
 def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
@@ -36,11 +38,10 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         ],
         "max_output_tokens": _max_tokens(cfg, kind),
         "timeout": cfg["timeout_s"],
+        "temperature": 0,
     }
-
-    temp = cfg.get("temperature", None)
-    if temp is not None and model_id not in _NO_TEMPERATURE_MODELS:
-        payload["temperature"] = temp
+    if model_id not in _NO_TEXT_FORMAT_MODELS:
+        payload["text"] = {"format": {"type": "json_object"}}
 
     try:
         return client.responses.create(**payload)
@@ -49,6 +50,10 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         if (("Unsupported parameter" in msg and "temperature" in msg) or ("param': 'temperature'" in msg)) and "temperature" in payload:
             _NO_TEMPERATURE_MODELS.add(model_id)
             payload.pop("temperature", None)
+            return client.responses.create(**payload)
+        if (("text.format" in msg) or ("json_object" in msg) or ("format" in msg and "Unsupported" in msg)) and "text" in payload:
+            _NO_TEXT_FORMAT_MODELS.add(model_id)
+            payload.pop("text", None)
             return client.responses.create(**payload)
         raise
 
@@ -79,8 +84,8 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
     client = _get_client(api_key, global_cfg["timeout_s"])
     system = build_strict_json_system("translation")
     user = (
-        "Translate English to German. "
-        'Return JSON with exactly one key: {"translation":"..."}.\n\n'
+        "Translate English to German. Return ONLY one JSON object with exactly this key: "
+        '{"translation":"..."}. No explanations, no markdown, no code fences.\n\n'
         f"SOURCE: {text}"
     )
     t0 = time.time()
@@ -95,12 +100,32 @@ def confidence(
     client = _get_client(api_key, global_cfg["timeout_s"])
     system = build_strict_json_system("confidence")
     user = (
-        "Rate translation correctness confidence from 0 to 1. "
-        'Return JSON with exactly one key: {"confidence":0.73}.\n\n'
+        "Rate translation correctness confidence from 0 to 1. Return ONLY one JSON object "
+        'with exactly this key: {"confidence":0.73}. No explanations, no markdown, no code fences.\n\n'
         f"SOURCE: {src}\nTRANSLATION: {hyp}"
     )
     t0 = time.time()
     resp = _chat(client, model_id, system, user, global_cfg, "confidence")
+    return _extract_text(resp), _usage(resp), time.time() - t0, None
+
+
+def repair_confidence(
+    src: str,
+    hyp: str,
+    previous_answer: str,
+    model_id: str,
+    global_cfg: Dict[str, Any],
+    api_key: str,
+) -> Tuple[str, Dict[str, Any], float, str | None]:
+    client = _get_client(api_key, global_cfg["timeout_s"])
+    system = "Return ONLY a JSON object. No code fences. No prose."
+    user = (
+        'Give confidence for your translation quality as a number in [0,1]. Output exactly: {"confidence": <number>}.\n\n'
+        f"SOURCE: {src}\nTRANSLATION: {hyp}\nPREVIOUS_ANSWER: {previous_answer}"
+    )
+    t0 = time.time()
+    cfg = {**global_cfg, "confidence_max_output_tokens": 48}
+    resp = _chat(client, model_id, system, user, cfg, "confidence")
     return _extract_text(resp), _usage(resp), time.time() - t0, None
 
 
@@ -116,20 +141,20 @@ def format_fix(
     client = _get_client(api_key, global_cfg["timeout_s"])
     task = (task or "").lower()
     if task == "confidence":
-        system = build_strict_json_system("confidence")
-        user = (
-            'Convert your previous answer into EXACT JSON: {"confidence": <number 0..1>}. '
-            "Return ONLY JSON.\n\n"
-            f"SOURCE: {original_input}\nTRANSLATION: {translation or ''}\nPREVIOUS_ANSWER: {previous_answer}"
+        return repair_confidence(
+            src=original_input,
+            hyp=translation or "",
+            previous_answer=previous_answer,
+            model_id=model_id,
+            global_cfg=global_cfg,
+            api_key=api_key,
         )
-        kind = "confidence"
-    else:
-        system = build_strict_json_system("translation")
-        user = (
-            'Convert your previous answer into EXACT JSON: {"translation": "..."}; output JSON only.\n\n'
-            f"SOURCE: {original_input}\nPREVIOUS_ANSWER: {previous_answer}"
-        )
-        kind = "translation"
+
+    system = build_strict_json_system("translation")
+    user = (
+        'Convert your previous answer into EXACT JSON: {"translation": "..."}; output JSON only.\n\n'
+        f"SOURCE: {original_input}\nPREVIOUS_ANSWER: {previous_answer}"
+    )
     t0 = time.time()
-    resp = _chat(client, model_id, system, user, {**global_cfg, "translation_max_output_tokens": 64, "confidence_max_output_tokens": 64}, kind)
+    resp = _chat(client, model_id, system, user, {**global_cfg, "translation_max_output_tokens": 64}, "translation")
     return _extract_text(resp), _usage(resp), time.time() - t0, None
