@@ -1,4 +1,6 @@
 import logging
+import json
+import re
 import time
 from typing import Any, Dict, Tuple
 
@@ -9,6 +11,7 @@ from utils.parse import build_strict_json_system
 
 _NO_TEMPERATURE_MODELS: set[str] = set()
 _NO_TEXT_FORMAT_MODELS: set[str] = set()
+_SIMPLE_INPUT_MODELS: set[str] = set()
 _CLIENTS: dict[tuple[str, float], OpenAI] = {}
 LOGGER = logging.getLogger(__name__)
 
@@ -29,44 +32,100 @@ def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     return min(int(cfg.get(key, default)), cap)
 
 
-def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
-    payload: Dict[str, Any] = {
-        "model": model_id,
-        "input": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": user},
-        ],
-        "max_output_tokens": _max_tokens(cfg, kind),
-        "timeout": cfg["timeout_s"],
-        "temperature": 0,
-    }
-    if model_id not in _NO_TEXT_FORMAT_MODELS:
-        payload["text"] = {"format": {"type": "json_object"}}
+def _obj_get(obj: Any, key: str) -> Any:
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)
 
+
+def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
+    use_simple_input = model_id in _SIMPLE_INPUT_MODELS
+
+    def _make_payload() -> Dict[str, Any]:
+        payload: Dict[str, Any] = {
+            "model": model_id,
+            "max_output_tokens": _max_tokens(cfg, kind),
+            "timeout": cfg["timeout_s"],
+        }
+        if model_id not in _NO_TEMPERATURE_MODELS:
+            payload["temperature"] = 0
+        if use_simple_input:
+            payload["instructions"] = system
+            payload["input"] = user
+        else:
+            payload["input"] = [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ]
+        if model_id not in _NO_TEXT_FORMAT_MODELS:
+            payload["text"] = {"format": {"type": "json_object"}}
+        return payload
+
+    payload = _make_payload()
     try:
-        return client.responses.create(**payload)
+        resp = client.responses.create(**payload)
     except BadRequestError as e:
         msg = str(e)
-        if (("Unsupported parameter" in msg and "temperature" in msg) or ("param': 'temperature'" in msg)) and "temperature" in payload:
+        if ("temperature" in msg and "temperature" in payload) or ("param': 'temperature'" in msg):
             _NO_TEMPERATURE_MODELS.add(model_id)
             payload.pop("temperature", None)
-            return client.responses.create(**payload)
-        if (("text.format" in msg) or ("json_object" in msg) or ("format" in msg and "Unsupported" in msg)) and "text" in payload:
+            resp = client.responses.create(**payload)
+        elif (("text.format" in msg) or ("json_object" in msg) or ("format" in msg and "Unsupported" in msg)) and "text" in payload:
             _NO_TEXT_FORMAT_MODELS.add(model_id)
             payload.pop("text", None)
-            return client.responses.create(**payload)
-        raise
+            resp = client.responses.create(**payload)
+        else:
+            raise
+
+    extracted = _extract_text(resp)
+    if not extracted:
+        if model_id not in _NO_TEXT_FORMAT_MODELS:
+            _NO_TEXT_FORMAT_MODELS.add(model_id)
+            retry_payload = _make_payload()
+            retry_payload.pop("text", None)
+            resp = client.responses.create(**retry_payload)
+            extracted = _extract_text(resp)
+        if not extracted and not use_simple_input:
+            _SIMPLE_INPUT_MODELS.add(model_id)
+            use_simple_input = True
+            retry_payload = _make_payload()
+            retry_payload.pop("text", None)
+            resp = client.responses.create(**retry_payload)
+            extracted = _extract_text(resp)
+
+    if kind == "confidence" and extracted and "{" not in extracted and not re.search(r"\d", extracted):
+        if model_id not in _NO_TEXT_FORMAT_MODELS:
+            _NO_TEXT_FORMAT_MODELS.add(model_id)
+        if not use_simple_input:
+            _SIMPLE_INPUT_MODELS.add(model_id)
+            use_simple_input = True
+        retry_payload = _make_payload()
+        retry_payload.pop("text", None)
+        resp = client.responses.create(**retry_payload)
+
+    return resp
 
 
 def _extract_text(resp: Any) -> str:
     if hasattr(resp, "output_text") and resp.output_text:
         return resp.output_text.strip()
+
     text_chunks = []
     for item in getattr(resp, "output", []) or []:
-        for c in getattr(item, "content", []) or []:
-            t = getattr(c, "text", None)
+        for c in (_obj_get(item, "content") or []):
+            t = _obj_get(c, "text")
             if t:
-                text_chunks.append(t)
+                text_chunks.append(str(t))
+                continue
+            for json_key in ("json", "parsed"):
+                j = _obj_get(c, json_key)
+                if isinstance(j, (dict, list)):
+                    text_chunks.append(json.dumps(j, ensure_ascii=False))
+                    break
+                if isinstance(j, str) and j.strip():
+                    text_chunks.append(j)
     return "\n".join(text_chunks).strip()
 
 
@@ -124,7 +183,7 @@ def repair_confidence(
         f"SOURCE: {src}\nTRANSLATION: {hyp}\nPREVIOUS_ANSWER: {previous_answer}"
     )
     t0 = time.time()
-    cfg = {**global_cfg, "confidence_max_output_tokens": 48}
+    cfg = {**global_cfg, "confidence_max_output_tokens": max(64, int(global_cfg.get("confidence_max_output_tokens", 64)))}
     resp = _chat(client, model_id, system, user, cfg, "confidence")
     return _extract_text(resp), _usage(resp), time.time() - t0, None
 

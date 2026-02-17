@@ -58,12 +58,35 @@ def _truncate(text: str, limit: int = 500) -> str:
     return str(text or "").strip()[:limit]
 
 
-def _debug_dump_raw(base_outdir: str, provider: str, model_id: str, row_id: str, raw_translation: str, raw_confidence: str):
+def _debug_dump_raw(
+    base_outdir: str,
+    provider: str,
+    model_id: str,
+    row_id: str,
+    raw_translation: str,
+    raw_confidence: str,
+    raw_translation_preview: str = "",
+    raw_confidence_preview: str = "",
+):
     model_tag = model_id.replace("/", "_")
     debug_dir = Path(base_outdir) / "_debug" / f"{provider}_{model_tag}"
     debug_dir.mkdir(parents=True, exist_ok=True)
     debug_path = debug_dir / f"id_{row_id}_raw.txt"
+
+    has_translation_json = find_first_json(raw_translation) is not None
+    has_confidence_json = find_first_json(raw_confidence) is not None
+
     debug_path.write_text(
+        "=== metadata ===\n"
+        f"provider: {provider}\n"
+        f"model_id: {model_id}\n"
+        f"row_id: {row_id}\n"
+        f"translation_json_detected: {has_translation_json}\n"
+        f"confidence_json_detected: {has_confidence_json}\n\n"
+        "=== translation_preview ===\n"
+        f"{raw_translation_preview or ''}\n\n"
+        "=== confidence_preview ===\n"
+        f"{raw_confidence_preview or ''}\n\n"
         "=== translation_raw ===\n"
         f"{raw_translation or ''}\n\n"
         "=== confidence_raw ===\n"
@@ -257,7 +280,16 @@ def main():
 
                 if confidence is None:
                     missing_confidence += 1
-                    _debug_dump_raw(args.outdir, provider, model_id, row_id, raw_translation, raw_confidence)
+                    _debug_dump_raw(
+                        args.outdir,
+                        provider,
+                        model_id,
+                        row_id,
+                        raw_translation,
+                        raw_confidence,
+                        raw_translation_preview=_truncate(raw_translation),
+                        raw_confidence_preview=_truncate(raw_confidence),
+                    )
 
                 u1, u2 = usage_to_tokens(tr_usage), usage_to_tokens(cf_usage)
                 uf1, uf2 = usage_to_tokens(fx_tr_usage), usage_to_tokens(fx_cf_usage)
