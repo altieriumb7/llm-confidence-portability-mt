@@ -5,7 +5,7 @@ from typing import Any, Dict, Tuple
 from google import genai
 from google.genai import types
 
-from utils.parse import coerce_confidence, ensure_translation, parse_json_field
+from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
 
 STRICT_JSON_SYSTEM = (
     "You are a strict JSON generator. Return ONLY valid JSON. "
@@ -91,7 +91,12 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
         return str(parsed).strip(), _usage(resp), time.time() - t0, None
     warning = f"translation parse fallback: {err or 'unknown error'}"
     LOGGER.warning("Translation JSON parse failed for %s: %s", model_id, err)
-    return ensure_translation(raw, fallback=text), _usage(resp), time.time() - t0, warning
+    sanitized = sanitize_translation(raw)
+    if sanitized:
+        return sanitized, _usage(resp), time.time() - t0, warning
+    raw_fallback = str(raw or "").strip()[:1000]
+    source_fallback = str(text or "").strip()[:1000]
+    return (raw_fallback or source_fallback or "[translation unavailable]"), _usage(resp), time.time() - t0, warning
 
 
 def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[float | None, Dict[str, Any], float, str | None]:
