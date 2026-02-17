@@ -126,7 +126,7 @@ def main():
     cols = sorted({k for r in rows for k in r.keys()})
     normalized_rows = [{k: r.get(k, "") for k in cols} for r in rows]
     with open(out, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=cols)
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
         w.writeheader()
         w.writerows(normalized_rows)
     print(f"Wrote {out} ({len(rows)} rows)")

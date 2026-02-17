@@ -116,6 +116,7 @@ def _write_meta(path: Path, cfg_path: str, cfg: dict, rows: list):
         "models": models,
         "n": len(rows),
         "seed": (cfg.get("global") or {}).get("seed"),
+        "mismatch_tau": (cfg.get("global") or {}).get("mismatch_tau", (cfg.get("global") or {}).get("tau")),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
@@ -165,6 +166,8 @@ def main():
         r["conf"] = coerce_confidence(r.get("conf"))
         if r["conf"] is None:
             r["conf"] = coerce_confidence(r.get("confidence"))
+        if not isinstance(r["conf"], (int, float)) or not (0.0 <= float(r["conf"]) <= 1.0):
+            r["conf"] = None
         for k in ["difficulty_score", "quality", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens"]:
             r[k] = as_float(r.get(k), 0.0)
         for k in ["error_global_q20", "error_within_model_q20"]:
@@ -181,16 +184,18 @@ def main():
     mismatch_all = []
     ece_bucket_values = []
     tau_values = [0.6, 0.7, 0.8, 0.9]
-    configured_tau = float(g["tau"])
+    configured_tau = float(g.get("mismatch_tau", g.get("tau", 0.1)))
     if configured_tau not in tau_values:
         tau_values.append(configured_tau)
         tau_values.sort()
 
     for label, d in grouped.items():
         valid_conf = [r for r in d if r["conf"] is not None and 0.0 <= r["conf"] <= 1.0]
+        parse_warn_count = sum(1 for r in d if str(r.get("parse_warnings", "")).strip())
         conf_stats = {
             "num_rows_total": len(d),
             "num_rows_with_valid_conf": len(valid_conf),
+            "parse_warning_rows": parse_warn_count,
             "min_conf": min((r["conf"] for r in valid_conf), default=float("nan")),
             "median_conf": sorted((r["conf"] for r in valid_conf))[len(valid_conf) // 2] if valid_conf else float("nan"),
             "max_conf": max((r["conf"] for r in valid_conf), default=float("nan")),
@@ -200,7 +205,7 @@ def main():
             f"valid_conf={conf_stats['num_rows_with_valid_conf']} "
             f"min/median/max={conf_stats['min_conf']:.3f}/{conf_stats['median_conf']:.3f}/{conf_stats['max_conf']:.3f}"
             if valid_conf
-            else f"[analysis] {label}: total={conf_stats['num_rows_total']} valid_conf=0"
+            else f"[analysis] {label}: total={conf_stats['num_rows_total']} valid_conf=0 parse_warning_rows={parse_warn_count}"
         )
 
         x = [r["difficulty_score"] for r in d]
@@ -252,6 +257,7 @@ def main():
                 "spearman_conf_quality": corr(rank(conf_for_corr), rank(qual)),
             },
             "confidence_stats": conf_stats,
+            "parse_warning_count": parse_warn_count,
             "ece_global_q20": ece_g,
             "ece_within_model_q20": ece_w,
             "ece_by_difficulty_bucket": ece_by_bucket,
@@ -399,7 +405,7 @@ def main():
     plt.close()
 
     if mismatch_all and all(v == 0.0 for v in mismatch_all):
-        warnings.warn("mismatch_rate_overall is 0.0 for all models; mismatch definition or tau may be too strict")
+        warnings.warn(f"mismatch_rate_overall is 0.0 for all models; mismatch definition or tau={configured_tau} may be too strict")
     if not ece_bucket_values or all((v == 0.0 or math.isnan(v)) for v in ece_bucket_values):
         warnings.warn("ECE-by-difficulty buckets are all 0 or NaN; check confidence and error labels")
     for label, metrics in results.items():

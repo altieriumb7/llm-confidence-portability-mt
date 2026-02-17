@@ -5,14 +5,7 @@ from typing import Any, Dict, Tuple
 from openai import BadRequestError
 from openai import OpenAI
 
-from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
-
-STRICT_JSON_SYSTEM = (
-    "Return ONLY a single JSON object on ONE line. "
-    "No markdown, no code fences, no extra keys."
-)
-TRANSLATION_SCHEMA_HINT = '{"translation": "<German translation string>"}'
-CONFIDENCE_SCHEMA_HINT = '{"confidence": 0.73}'
+from utils.parse import build_strict_json_system
 
 _NO_TEMPERATURE_MODELS: set[str] = set()
 _CLIENTS: dict[tuple[str, float], OpenAI] = {}
@@ -84,52 +77,59 @@ def _usage(resp: Any) -> Dict[str, Any]:
 
 def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key, global_cfg["timeout_s"])
+    system = build_strict_json_system("translation")
     user = (
-        "Translate from English to German. "
-        f"Schema: {TRANSLATION_SCHEMA_HINT}. "
-        "Return ONLY valid JSON object with exactly one key: translation. "
-        "No markdown, no code fences, no explanation, one line only.\n\n"
+        "Translate English to German. "
+        'Return JSON with exactly one key: {"translation":"..."}.\n\n'
         f"SOURCE: {text}"
     )
     t0 = time.time()
-    resp = _chat(client, model_id, STRICT_JSON_SYSTEM, user, global_cfg, "translation")
+    resp = _chat(client, model_id, system, user, global_cfg, "translation")
     raw = _extract_text(resp)
-    parsed, err = parse_json_field(raw, "translation")
-    if parsed is not None:
-        return str(parsed).strip(), _usage(resp), time.time() - t0, None
-    warning = f"translation parse fallback: {err or 'unknown error'}"
-    LOGGER.warning("Translation JSON parse failed for %s: %s", model_id, err)
-    sanitized = sanitize_translation(raw)
-    if sanitized:
-        return sanitized, _usage(resp), time.time() - t0, warning
-
-    raw_fallback = str(raw or "").strip()[:1000]
-    source_fallback = str(text or "").strip()[:1000]
-    return (raw_fallback or source_fallback or "[translation unavailable]"), _usage(resp), time.time() - t0, warning
+    return raw, _usage(resp), time.time() - t0, None
 
 
 def confidence(
     src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
-) -> Tuple[float | None, Dict[str, Any], float, str | None]:
+) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key, global_cfg["timeout_s"])
+    system = build_strict_json_system("confidence")
     user = (
-        "Evaluate how likely this translation is correct. "
-        f"Schema: {CONFIDENCE_SCHEMA_HINT}. "
-        "Confidence must be a number in [0,1]. "
-        "Return ONLY valid JSON object with exactly one key: confidence. "
-        "No markdown, no code fences, no explanation, one line only.\n\n"
+        "Rate translation correctness confidence from 0 to 1. "
+        'Return JSON with exactly one key: {"confidence":0.73}.\n\n'
         f"SOURCE: {src}\nTRANSLATION: {hyp}"
     )
     t0 = time.time()
-    resp = _chat(client, model_id, STRICT_JSON_SYSTEM, user, global_cfg, "confidence")
-    raw = _extract_text(resp)
-    parsed, err = parse_json_field(raw, "confidence")
-    conf = coerce_confidence(parsed if parsed is not None else raw)
-    if conf is None:
-        warning = f"confidence parse failed: {err or 'could not coerce value'}"
-        LOGGER.warning("Confidence JSON parse failed for %s: %s", model_id, err)
-        return None, _usage(resp), time.time() - t0, warning
-    warning = None if parsed is not None else f"confidence coerced from fallback text: {err or 'json parse failed'}"
-    if warning:
-        LOGGER.warning("Confidence JSON parse fallback used for %s: %s", model_id, err)
-    return conf, _usage(resp), time.time() - t0, warning
+    resp = _chat(client, model_id, system, user, global_cfg, "confidence")
+    return _extract_text(resp), _usage(resp), time.time() - t0, None
+
+
+def format_fix(
+    task: str,
+    previous_answer: str,
+    original_input: str,
+    model_id: str,
+    global_cfg: Dict[str, Any],
+    api_key: str,
+    translation: str | None = None,
+) -> Tuple[str, Dict[str, Any], float, str | None]:
+    client = _get_client(api_key, global_cfg["timeout_s"])
+    task = (task or "").lower()
+    if task == "confidence":
+        system = build_strict_json_system("confidence")
+        user = (
+            'Convert your previous answer into EXACT JSON: {"confidence": <number 0..1>}. '
+            "Return ONLY JSON.\n\n"
+            f"SOURCE: {original_input}\nTRANSLATION: {translation or ''}\nPREVIOUS_ANSWER: {previous_answer}"
+        )
+        kind = "confidence"
+    else:
+        system = build_strict_json_system("translation")
+        user = (
+            'Convert your previous answer into EXACT JSON: {"translation": "..."}; output JSON only.\n\n'
+            f"SOURCE: {original_input}\nPREVIOUS_ANSWER: {previous_answer}"
+        )
+        kind = "translation"
+    t0 = time.time()
+    resp = _chat(client, model_id, system, user, {**global_cfg, "translation_max_output_tokens": 64, "confidence_max_output_tokens": 64}, kind)
+    return _extract_text(resp), _usage(resp), time.time() - t0, None

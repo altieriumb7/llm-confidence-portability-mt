@@ -5,9 +5,10 @@ global:
   seed: 123
   temperature: 0.0
   max_output_tokens: 512
-  translation_max_output_tokens: 256
-  confidence_max_output_tokens: 64
+  translation_max_output_tokens: 220
+  confidence_max_output_tokens: 48
   tau: 0.8
+  mismatch_tau: 0.1
   conf_bins: 10
   timeout_s: 60
   max_retries: 6
