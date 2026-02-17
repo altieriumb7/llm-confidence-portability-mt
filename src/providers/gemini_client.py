@@ -108,7 +108,7 @@ def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], ap
     resp = _call(client, model_id, STRICT_JSON_SYSTEM, user, global_cfg, "confidence")
     raw = _extract_text(resp)
     parsed, err = parse_json_field(raw, "confidence")
-    conf = coerce_confidence(parsed if parsed is not None else raw)
+    conf = coerce_confidence(parsed) if parsed is not None else coerce_confidence(raw)
     if conf is None:
         warning = f"confidence parse failed: {err or 'could not coerce value'}"
         LOGGER.warning("Confidence JSON parse failed for %s: %s", model_id, err)

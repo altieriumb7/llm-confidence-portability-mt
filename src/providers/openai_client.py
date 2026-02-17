@@ -8,14 +8,13 @@ from openai import OpenAI
 from utils.parse import coerce_confidence, ensure_translation, parse_json_field
 
 STRICT_JSON_SYSTEM = (
-    "You are a strict JSON generator. Return ONLY valid JSON. "
-    "No prose. No markdown. No code fences. Output must be a single JSON object on one line."
+    "Return ONLY a single JSON object on ONE line. "
+    "No markdown, no code fences, no extra keys."
 )
 TRANSLATION_SCHEMA_HINT = '{"translation": "<German translation string>"}'
 CONFIDENCE_SCHEMA_HINT = '{"confidence": 0.73}'
 
 _NO_TEMPERATURE_MODELS: set[str] = set()
-_JSON_FORMAT_UNSUPPORTED_MODELS: set[str] = set()
 _CLIENTS: dict[tuple[str, float], OpenAI] = {}
 LOGGER = logging.getLogger(__name__)
 
@@ -36,6 +35,7 @@ def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
 
 
 def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
+    # Do not pass response_format to responses.create; not supported in openai==2.21.0.
     payload: Dict[str, Any] = {
         "model": model_id,
         "input": [
