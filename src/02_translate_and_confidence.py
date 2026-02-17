@@ -17,9 +17,8 @@ from utils.common import (
     setup_logging,
     usage_to_tokens,
 )
+from utils.parse import coerce_confidence, parse_json_field, sanitize_translation
 
-
-from utils.parse import coerce_confidence, ensure_translation
 ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 
 
@@ -52,9 +51,11 @@ def filter_models(models: List[Dict], providers: str, names: str):
 
 
 def _rate(numerator: int, denominator: int) -> float:
-    if denominator <= 0:
-        return 0.0
-    return numerator / denominator
+    return 0.0 if denominator <= 0 else numerator / denominator
+
+
+def _truncate(text: str, limit: int = 500) -> str:
+    return str(text or "").strip()[:limit]
 
 
 def main():
@@ -81,10 +82,7 @@ def main():
 
     selected_models = filter_models(cfg["models"], args.providers, args.models)
     if not args.models and not args.providers and len(selected_models) > 1:
-        logger.info(
-            "No --models/--providers filter set: processing %d configured models.",
-            len(selected_models),
-        )
+        logger.info("No --models/--providers filter set: processing %d configured models.", len(selected_models))
 
     for m in selected_models:
         provider, model_id = m["provider"], m["model_id"]
@@ -116,53 +114,114 @@ def main():
                 continue
             try:
                 warnings = []
+                raw_translation = ""
+                raw_confidence = ""
+
                 if args.dry_run:
-                    hyp, conf = row["ref"], 0.5
-                    tr_usage = cf_usage = {}
-                    tr_lat = cf_lat = 0.0
-                    tr_warn = cf_warn = None
+                    translation = row["ref"]
+                    confidence = 0.5
+                    tr_usage = cf_usage = fx_tr_usage = fx_cf_usage = {}
+                    tr_lat = cf_lat = fx_tr_lat = fx_cf_lat = 0.0
                 else:
-                    hyp, tr_usage, tr_lat, tr_warn = retry_with_backoff(
+                    raw_translation, tr_usage, tr_lat, _ = retry_with_backoff(
                         lambda: client.translate(row["src"], model_id, g, api_key), g["max_retries"], logger, "translate"
                     )
-                    hyp = ensure_translation(hyp, fallback=row["src"])
-                    conf, cf_usage, cf_lat, cf_warn = retry_with_backoff(
-                        lambda: client.confidence(row["src"], hyp, model_id, g, api_key), g["max_retries"], logger, "confidence"
-                    )
+                    parsed_translation, tr_err = parse_json_field(raw_translation, "translation")
+                    if parsed_translation is not None and str(parsed_translation).strip():
+                        translation = str(parsed_translation).strip()
+                        fx_tr_usage, fx_tr_lat = {}, 0.0
+                    else:
+                        parse_fail_translation += 1
+                        warnings.append("translation_no_json")
+                        translation = sanitize_translation(raw_translation)
+                        fx_tr_usage, fx_tr_lat = {}, 0.0
+                        if hasattr(client, "format_fix"):
+                            fixed_translation, fx_tr_usage, fx_tr_lat, _ = retry_with_backoff(
+                                lambda: client.format_fix(
+                                    task="translation",
+                                    previous_answer=raw_translation,
+                                    original_input=row["src"],
+                                    model_id=model_id,
+                                    global_cfg=g,
+                                    api_key=api_key,
+                                ),
+                                g["max_retries"],
+                                logger,
+                                "format_fix_translation",
+                            )
+                            fixed_parsed, _ = parse_json_field(fixed_translation, "translation")
+                            if fixed_parsed is not None and str(fixed_parsed).strip():
+                                translation = str(fixed_parsed).strip()
+                                warnings.append("translation_format_fix")
 
-                conf = coerce_confidence(conf)
-                if tr_warn:
-                    parse_fail_translation += 1
-                    warnings.append(tr_warn)
-                if cf_warn:
-                    parse_fail_confidence += 1
-                    warnings.append(cf_warn)
-                if conf is None:
+                    if not translation:
+                        translation = _truncate(raw_translation, 1000) or _truncate(row["src"], 1000) or "[translation unavailable]"
+
+                    raw_confidence, cf_usage, cf_lat, _ = retry_with_backoff(
+                        lambda: client.confidence(row["src"], translation, model_id, g, api_key),
+                        g["max_retries"],
+                        logger,
+                        "confidence",
+                    )
+                    parsed_confidence, cf_err = parse_json_field(raw_confidence, "confidence")
+                    confidence = coerce_confidence(parsed_confidence)
+                    fx_cf_usage, fx_cf_lat = {}, 0.0
+                    if confidence is None:
+                        confidence = coerce_confidence(raw_confidence)
+                    if confidence is None:
+                        parse_fail_confidence += 1
+                        warnings.append("confidence_no_json")
+                        if hasattr(client, "format_fix"):
+                            fixed_conf, fx_cf_usage, fx_cf_lat, _ = retry_with_backoff(
+                                lambda: client.format_fix(
+                                    task="confidence",
+                                    previous_answer=raw_confidence,
+                                    original_input=row["src"],
+                                    translation=translation,
+                                    model_id=model_id,
+                                    global_cfg=g,
+                                    api_key=api_key,
+                                ),
+                                g["max_retries"],
+                                logger,
+                                "format_fix_confidence",
+                            )
+                            fixed_parsed_conf, _ = parse_json_field(fixed_conf, "confidence")
+                            confidence = coerce_confidence(fixed_parsed_conf)
+                            if confidence is None:
+                                confidence = coerce_confidence(fixed_conf)
+                            if confidence is not None:
+                                warnings.append("confidence_format_fix")
+
+                if confidence is None:
                     missing_confidence += 1
 
                 u1, u2 = usage_to_tokens(tr_usage), usage_to_tokens(cf_usage)
+                uf1, uf2 = usage_to_tokens(fx_tr_usage), usage_to_tokens(fx_cf_usage)
+                input_total = sum(v for v in [u1["input_tokens"], u2["input_tokens"], uf1["input_tokens"], uf2["input_tokens"]] if v is not None)
+                output_total = sum(v for v in [u1["output_tokens"], u2["output_tokens"], uf1["output_tokens"], uf2["output_tokens"]] if v is not None)
                 payload = {
                     "id": row["id"],
                     "src": row["src"],
                     "ref": row["ref"],
-                    "hyp": hyp,
-                    "translation": hyp,
-                    "conf": conf,
-                    "confidence": conf,
+                    "hyp": translation,
+                    "translation": translation,
+                    "conf": confidence,
+                    "confidence": confidence,
                     "provider": provider,
                     "model_id": model_id,
-                    "latency_translate_s": tr_lat,
-                    "latency_conf_s": cf_lat,
-                    "input_tokens": (u1["input_tokens"] or 0) + (u2["input_tokens"] or 0)
-                    if (u1["input_tokens"] is not None or u2["input_tokens"] is not None)
-                    else None,
-                    "output_tokens": (u1["output_tokens"] or 0) + (u2["output_tokens"] or 0)
-                    if (u1["output_tokens"] is not None or u2["output_tokens"] is not None)
-                    else None,
+                    "latency_translate_s": tr_lat + fx_tr_lat,
+                    "latency_conf_s": cf_lat + fx_cf_lat,
+                    "input_tokens": input_total if any(v is not None for v in [u1["input_tokens"], u2["input_tokens"], uf1["input_tokens"], uf2["input_tokens"]]) else None,
+                    "output_tokens": output_total if any(v is not None for v in [u1["output_tokens"], u2["output_tokens"], uf1["output_tokens"], uf2["output_tokens"]]) else None,
                     "timestamp_utc": now_utc_iso(),
                 }
                 if warnings:
-                    payload["parse_warnings"] = " | ".join(warnings)
+                    payload["parse_warnings"] = ";".join(warnings)
+                if raw_translation:
+                    payload["raw_translation_preview"] = _truncate(raw_translation)
+                if raw_confidence:
+                    payload["raw_confidence_preview"] = _truncate(raw_confidence)
                 append_jsonl(out_path, payload)
 
                 done_ids.add(row_id)
