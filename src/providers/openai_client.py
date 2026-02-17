@@ -118,9 +118,9 @@ def repair_confidence(
     api_key: str,
 ) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key, global_cfg["timeout_s"])
-    system = "Return ONLY a JSON object. No code fences. No prose."
+    system = build_strict_json_system("confidence")
     user = (
-        'Give confidence for your translation quality as a number in [0,1]. Output exactly: {"confidence": <number>}.\n\n'
+        'Return ONLY a JSON object: {"confidence": <number between 0 and 1>} with no extra text.\n\n'
         f"SOURCE: {src}\nTRANSLATION: {hyp}\nPREVIOUS_ANSWER: {previous_answer}"
     )
     t0 = time.time()

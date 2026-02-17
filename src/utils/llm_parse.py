@@ -1,13 +1,10 @@
 import json
 import re
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 _FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
-_LEADING_LABEL_RE = re.compile(r"^\s*(?:translation|output|answer)\s*[:=-]\s*", re.IGNORECASE)
-_CONF_LABEL_RE = re.compile(r"(?i)confidence\s*[:= ]+(-?\d+(?:\.\d+)?)")
-_PERCENT_RE = re.compile(r"(-?\d+(?:\.\d+)?)\s*%")
-_DECIMAL_RE = re.compile(r"(?<!\d)(0(?:\.\d+)?|1(?:\.0+)?)(?!\d)")
-_NUMBER_RE = re.compile(r"-?\d+(?:\.\d+)?")
+_LABEL_RE = re.compile(r"^\s*(?:translation|output|answer)\s*[:=-]\s*", re.IGNORECASE)
+_NUMBER_RE = re.compile(r"(?i)(?:confidence|conf|score|probability)?\s*[:=]?\s*(-?\d+(?:\.\d+)?)\s*%?")
 
 
 def strip_code_fences(text: str) -> str:
@@ -24,94 +21,116 @@ def strip_code_fences(text: str) -> str:
     return cleaned.strip()
 
 
-def extract_first_json(text: str) -> dict | list | None:
+def find_first_json(text: str) -> Optional[Tuple[Any, str]]:
     cleaned = strip_code_fences(text)
     if not cleaned:
         return None
 
     decoder = json.JSONDecoder()
-    for idx, ch in enumerate(cleaned):
-        if ch not in "[{":
-            continue
+    starts = [idx for idx, ch in enumerate(cleaned) if ch in "[{"]
+    for start in starts:
         try:
-            obj, _ = decoder.raw_decode(cleaned[idx:])
-            if isinstance(obj, (dict, list)):
-                return obj
+            obj, end = decoder.raw_decode(cleaned[start:])
         except Exception:
             continue
+        return obj, cleaned[start : start + end]
     return None
 
 
-def ensure_confidence(value: Any) -> Optional[float]:
-    if value is None or isinstance(value, bool):
-        return None
+def coerce_translation(resp_text: str) -> str:
+    parsed = find_first_json(resp_text)
+    if parsed is not None:
+        obj, _ = parsed
+        if isinstance(obj, dict):
+            for key in ("translation", "translated_text", "output", "text"):
+                val = obj.get(key)
+                if isinstance(val, str) and val.strip():
+                    return val.strip()
 
-    out: Optional[float]
+    cleaned = strip_code_fences(resp_text)
+    cleaned = _LABEL_RE.sub("", cleaned).strip()
+    cleaned = cleaned.strip('"\'“”')
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
+def _coerce_numeric(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return None
     if isinstance(value, (int, float)):
         out = float(value)
     elif isinstance(value, str):
-        text = value.strip()
-        if not text:
+        txt = value.strip()
+        if not txt:
             return None
-        pct = _PERCENT_RE.search(text)
-        if pct:
-            out = float(pct.group(1)) / 100.0
+        pct_match = re.search(r"(-?\d+(?:\.\d+)?)\s*%", txt)
+        if pct_match:
+            out = float(pct_match.group(1)) / 100.0
         else:
-            m = _NUMBER_RE.search(text)
-            if not m:
+            num_match = re.search(r"-?\d+(?:\.\d+)?", txt)
+            if not num_match:
                 return None
-            out = float(m.group(0))
+            out = float(num_match.group(0))
     else:
         return None
 
     if 1 < out <= 100:
-        out /= 100.0
-    if out < 0:
-        out = 0.0
-    if out > 1:
-        out = 1.0
-    return out
+        out = out / 100.0
+    return max(0.0, min(1.0, out))
 
 
-def coerce_translation(text: str) -> str:
-    obj = extract_first_json(text)
-    if isinstance(obj, dict):
-        for key in ("translation", "output", "text", "translated_text"):
-            val = obj.get(key)
-            if isinstance(val, str) and val.strip():
-                return val.strip()
+def coerce_confidence(resp_text: str) -> Tuple[Optional[float], Optional[str]]:
+    parsed = find_first_json(resp_text)
+    if parsed is not None:
+        obj, _ = parsed
+        if isinstance(obj, dict):
+            for key in ("confidence", "conf", "score", "probability"):
+                if key in obj:
+                    value = _coerce_numeric(obj.get(key))
+                    if value is not None:
+                        return value, None
+                    return None, f"invalid_{key}_value"
 
-    cleaned = strip_code_fences(text)
-    cleaned = _LEADING_LABEL_RE.sub("", cleaned).strip()
-    return cleaned.strip('"\'“”').strip()
+    cleaned = strip_code_fences(resp_text)
+    for match in _NUMBER_RE.finditer(cleaned):
+        token = match.group(1)
+        if token is None:
+            continue
+        value = _coerce_numeric(token if "%" not in match.group(0) else f"{token}%")
+        if value is not None:
+            return value, "confidence_from_regex"
+    return None, "no_confidence_found"
 
 
-def coerce_confidence(text: str) -> tuple[Optional[float], Optional[str]]:
-    obj = extract_first_json(text)
+def normalize_json_obj(obj: Any, kind: str) -> Tuple[Optional[dict], list[str]]:
+    warnings: list[str] = []
+    kind = (kind or "").strip().lower()
+    if kind not in {"translation", "confidence"}:
+        return None, ["unsupported_kind"]
+
+    if kind == "translation":
+        if isinstance(obj, dict):
+            for key in ("translation", "translated_text", "output", "text"):
+                if key in obj:
+                    text = str(obj.get(key) or "").strip()
+                    if text:
+                        if key != "translation":
+                            warnings.append(f"mapped_{key}_to_translation")
+                        return {"translation": text}, warnings
+        warnings.append("translation_not_found")
+        return None, warnings
+
     if isinstance(obj, dict):
         for key in ("confidence", "conf", "score", "probability"):
             if key in obj:
-                val = ensure_confidence(obj.get(key))
-                if val is not None:
-                    return val, None
+                value = _coerce_numeric(obj.get(key))
+                if value is not None:
+                    if key != "confidence":
+                        warnings.append(f"mapped_{key}_to_confidence")
+                    return {"confidence": value}, warnings
+                warnings.append(f"invalid_{key}_value")
+                return None, warnings
 
-    cleaned = strip_code_fences(text)
-    label_match = _CONF_LABEL_RE.search(cleaned)
-    if label_match:
-        val = ensure_confidence(label_match.group(1))
-        if val is not None:
-            return val, "confidence_coerced_regex"
-
-    percent_match = _PERCENT_RE.search(cleaned)
-    if percent_match:
-        val = ensure_confidence(f"{percent_match.group(1)}%")
-        if val is not None:
-            return val, "confidence_coerced_regex"
-
-    decimal_match = _DECIMAL_RE.search(cleaned)
-    if decimal_match:
-        val = ensure_confidence(decimal_match.group(1))
-        if val is not None:
-            return val, "confidence_coerced_regex"
-
-    return None, "confidence_unparsed"
+    warnings.append("confidence_not_found")
+    return None, warnings
