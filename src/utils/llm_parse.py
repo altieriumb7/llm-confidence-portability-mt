@@ -4,7 +4,14 @@ from typing import Any, Optional, Tuple
 
 _FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
 _LABEL_RE = re.compile(r"^\s*(?:translation|output|answer)\s*[:=-]\s*", re.IGNORECASE)
-_NUMBER_RE = re.compile(r"(?i)(?:confidence|conf|score|probability)?\s*[:=]?\s*(-?\d+(?:\.\d+)?)\s*%?")
+_NUMBER_RE = re.compile(
+    r"(?ix)(?:confidence|conf|score|probability)?\s*[:=]?\s*"
+    r"("
+    r"-?(?:\d+(?:[\.,]\d+)?|[\.,]\d+)(?:e[+-]?\d+)?"
+    r"|"
+    r"-?\d+\s*/\s*\d+"
+    r")\s*%?"
+)
 
 
 def strip_code_fences(text: str) -> str:
@@ -64,20 +71,42 @@ def _coerce_numeric(value: Any) -> Optional[float]:
         txt = value.strip()
         if not txt:
             return None
-        pct_match = re.search(r"(-?\d+(?:\.\d+)?)\s*%", txt)
-        if pct_match:
-            out = float(pct_match.group(1)) / 100.0
-        else:
-            num_match = re.search(r"-?\d+(?:\.\d+)?", txt)
-            if not num_match:
+
+        fraction_match = re.search(r"(-?\d+)\s*/\s*(\d+)", txt)
+        if fraction_match:
+            den = float(fraction_match.group(2))
+            if den == 0:
                 return None
-            out = float(num_match.group(0))
+            out = float(fraction_match.group(1)) / den
+        else:
+            normalized = txt.replace(",", ".")
+            pct_match = re.search(r"(-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?)\s*%", normalized, re.IGNORECASE)
+            if pct_match:
+                out = float(pct_match.group(1)) / 100.0
+            else:
+                num_match = re.search(r"-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?", normalized, re.IGNORECASE)
+                if not num_match:
+                    return None
+                out = float(num_match.group(0))
     else:
         return None
 
     if 1 < out <= 100:
         out = out / 100.0
     return max(0.0, min(1.0, out))
+
+
+def _coerce_confidence_word(text: str) -> Optional[float]:
+    lowered = (text or "").lower()
+    if not lowered.strip():
+        return None
+    if re.search(r"\b(?:very\s+high|high)\b", lowered):
+        return 0.9
+    if re.search(r"\b(?:medium|moderate)\b", lowered):
+        return 0.6
+    if re.search(r"\blow\b", lowered):
+        return 0.3
+    return None
 
 
 def coerce_confidence(resp_text: str) -> Tuple[Optional[float], Optional[str]]:
@@ -90,6 +119,9 @@ def coerce_confidence(resp_text: str) -> Tuple[Optional[float], Optional[str]]:
                     value = _coerce_numeric(obj.get(key))
                     if value is not None:
                         return value, None
+                    word_value = _coerce_confidence_word(str(obj.get(key)))
+                    if word_value is not None:
+                        return word_value, "confidence_from_word"
                     return None, f"invalid_{key}_value"
 
     cleaned = strip_code_fences(resp_text)
@@ -100,6 +132,11 @@ def coerce_confidence(resp_text: str) -> Tuple[Optional[float], Optional[str]]:
         value = _coerce_numeric(token if "%" not in match.group(0) else f"{token}%")
         if value is not None:
             return value, "confidence_from_regex"
+
+    word_value = _coerce_confidence_word(cleaned)
+    if word_value is not None:
+        return word_value, "confidence_from_word"
+
     return None, "no_confidence_found"
 
 

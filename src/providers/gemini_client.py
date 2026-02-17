@@ -1,4 +1,5 @@
 import logging
+import json
 import time
 from typing import Any, Dict, Tuple
 
@@ -37,6 +38,14 @@ def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     return min(int(cfg.get(key, default)), cap)
 
 
+def _obj_get(obj: Any, key: str) -> Any:
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)
+
+
 def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
     config_kwargs = {
         "system_instruction": system,
@@ -47,11 +56,20 @@ def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict
         config_kwargs["response_mime_type"] = "application/json"
 
     try:
-        return client.models.generate_content(
+        resp = client.models.generate_content(
             model=model_id,
             contents=user,
             config=types.GenerateContentConfig(**config_kwargs),
         )
+        if config_kwargs.get("response_mime_type") == "application/json" and not _extract_text(resp):
+            _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
+            config_kwargs.pop("response_mime_type", None)
+            return client.models.generate_content(
+                model=model_id,
+                contents=user,
+                config=types.GenerateContentConfig(**config_kwargs),
+            )
+        return resp
     except Exception as exc:
         if "response_mime_type" in config_kwargs and "mime" in str(exc).lower():
             _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
@@ -65,7 +83,27 @@ def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict
 
 
 def _extract_text(resp: Any) -> str:
-    return (getattr(resp, "text", "") or "").strip()
+    text = (getattr(resp, "text", "") or "").strip()
+    if text:
+        return text
+
+    chunks: list[str] = []
+    candidates = _obj_get(resp, "candidates") or []
+    for candidate in candidates:
+        content = _obj_get(candidate, "content")
+        for part in (_obj_get(content, "parts") or []):
+            part_text = _obj_get(part, "text")
+            if part_text:
+                chunks.append(str(part_text))
+                continue
+            for json_key in ("parsed", "json"):
+                parsed = _obj_get(part, json_key)
+                if isinstance(parsed, (dict, list)):
+                    chunks.append(json.dumps(parsed, ensure_ascii=False))
+                    break
+                if isinstance(parsed, str) and parsed.strip():
+                    chunks.append(parsed)
+    return "\n".join(chunks).strip()
 
 
 def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
@@ -108,7 +146,7 @@ def repair_confidence(
         'Return ONLY a JSON object: {"confidence": <number between 0 and 1>} with no extra text.\n\n'
         f"SOURCE: {src}\nTRANSLATION: {hyp}\nPREVIOUS_ANSWER: {previous_answer}"
     )
-    cfg = {**global_cfg, "confidence_max_output_tokens": 48}
+    cfg = {**global_cfg, "confidence_max_output_tokens": max(64, int(global_cfg.get("confidence_max_output_tokens", 64)))}
     t0 = time.time()
     resp = _call(client, model_id, system, user, cfg, "confidence")
     return _extract_text(resp), _usage(resp), time.time() - t0, None
