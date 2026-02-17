@@ -109,23 +109,30 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
 
 
 def _extract_text(resp: Any) -> str:
-    if hasattr(resp, "output_text") and resp.output_text:
-        return resp.output_text.strip()
+    output_text = _obj_get(resp, "output_text")
+    if isinstance(output_text, str) and output_text.strip():
+        return output_text.strip()
 
-    text_chunks = []
-    for item in getattr(resp, "output", []) or []:
-        for c in (_obj_get(item, "content") or []):
-            t = _obj_get(c, "text")
-            if t:
-                text_chunks.append(str(t))
+    text_chunks: list[str] = []
+    for item in (_obj_get(resp, "output") or []):
+        for block in (_obj_get(item, "content") or []):
+            txt = _obj_get(block, "text")
+            if isinstance(txt, str) and txt.strip():
+                text_chunks.append(txt)
                 continue
+            if isinstance(txt, (dict, list)):
+                text_chunks.append(json.dumps(txt, ensure_ascii=False))
+                continue
+
             for json_key in ("json", "parsed"):
-                j = _obj_get(c, json_key)
-                if isinstance(j, (dict, list)):
-                    text_chunks.append(json.dumps(j, ensure_ascii=False))
+                parsed = _obj_get(block, json_key)
+                if isinstance(parsed, (dict, list)):
+                    text_chunks.append(json.dumps(parsed, ensure_ascii=False))
                     break
-                if isinstance(j, str) and j.strip():
-                    text_chunks.append(j)
+                if isinstance(parsed, str) and parsed.strip():
+                    text_chunks.append(parsed)
+                    break
+
     return "\n".join(text_chunks).strip()
 
 

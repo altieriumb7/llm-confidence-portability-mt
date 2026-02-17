@@ -9,7 +9,7 @@ _NUMBER_RE = re.compile(
     r"("
     r"-?(?:\d+(?:[\.,]\d+)?|[\.,]\d+)(?:e[+-]?\d+)?"
     r"|"
-    r"-?\d+\s*/\s*\d+"
+    r"-?(?:\d+(?:[\.,]\d+)?)\s*/\s*(?:\d+(?:[\.,]\d+)?)"
     r")\s*%?"
 )
 
@@ -72,19 +72,31 @@ def _coerce_numeric(value: Any) -> Optional[float]:
         if not txt:
             return None
 
-        fraction_match = re.search(r"(-?\d+)\s*/\s*(\d+)", txt)
+        normalized = txt.replace(",", ".")
+
+        fraction_match = re.search(
+            r"(-?(?:\d+(?:\.\d+)?|\.\d+))\s*/\s*(\d+(?:\.\d+)?)",
+            normalized,
+        )
         if fraction_match:
             den = float(fraction_match.group(2))
             if den == 0:
                 return None
             out = float(fraction_match.group(1)) / den
         else:
-            normalized = txt.replace(",", ".")
-            pct_match = re.search(r"(-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?)\s*%", normalized, re.IGNORECASE)
+            pct_match = re.search(
+                r"(-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?)\s*%",
+                normalized,
+                re.IGNORECASE,
+            )
             if pct_match:
                 out = float(pct_match.group(1)) / 100.0
             else:
-                num_match = re.search(r"-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?", normalized, re.IGNORECASE)
+                num_match = re.search(
+                    r"-?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?",
+                    normalized,
+                    re.IGNORECASE,
+                )
                 if not num_match:
                     return None
                 out = float(num_match.group(0))

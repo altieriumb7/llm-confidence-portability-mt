@@ -93,8 +93,11 @@ def _extract_text(resp: Any) -> str:
         content = _obj_get(candidate, "content")
         for part in (_obj_get(content, "parts") or []):
             part_text = _obj_get(part, "text")
-            if part_text:
+            if isinstance(part_text, str) and part_text.strip():
                 chunks.append(str(part_text))
+                continue
+            if isinstance(part_text, (dict, list)):
+                chunks.append(json.dumps(part_text, ensure_ascii=False))
                 continue
             for json_key in ("parsed", "json"):
                 parsed = _obj_get(part, json_key)
@@ -103,6 +106,9 @@ def _extract_text(resp: Any) -> str:
                     break
                 if isinstance(parsed, str) and parsed.strip():
                     chunks.append(parsed)
+                    break
+            if isinstance(part, (dict, list)):
+                chunks.append(json.dumps(part, ensure_ascii=False))
     return "\n".join(chunks).strip()
 
 

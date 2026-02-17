@@ -140,7 +140,7 @@ def retry_with_backoff(func: Callable[[], Any], max_retries: int, logger: loggin
             return func()
         except Exception as exc:
             msg = str(exc)
-            retryable = any(code in msg for code in ["429", "500", "502", "503", "504", "timeout"])
+            retryable = any(code in msg for code in ["429", "500", "502", "503", "504", "529", "timeout"]) or ("overloaded" in msg.lower())
             if attempt >= max_retries or not retryable:
                 raise
             logger.warning("%s failed (%s). retry %s/%s in %.1fs", label, msg, attempt + 1, max_retries, delay)
