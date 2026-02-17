@@ -28,7 +28,7 @@ def _get_client(api_key: str, timeout_s: float) -> OpenAI:
 def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     key = f"{kind}_max_output_tokens"
     default = 256 if kind == "translation" else 64
-    cap = 256 if kind == "translation" else 64
+    cap = 2048 if kind == "translation" else 256
     return min(int(cfg.get(key, default)), cap)
 
 

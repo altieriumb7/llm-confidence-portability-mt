@@ -4,6 +4,11 @@ from typing import Any, Optional, Tuple
 
 _FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
 _LABEL_RE = re.compile(r"^\s*(?:translation|output|answer)\s*[:=-]\s*", re.IGNORECASE)
+_PARTIAL_TRANSLATION_RE = re.compile(r'"translation"\s*:\s*"((?:\\.|[^"\\])*)', re.IGNORECASE | re.DOTALL)
+_PARTIAL_CONFIDENCE_RE = re.compile(
+    r'"(?:confidence|conf|score|probability)"\s*:\s*(-?(?:\d+(?:[\.,]\d+)?|[\.,]\d+)(?:e[+-]?\d+)?)',
+    re.IGNORECASE,
+)
 _NUMBER_RE = re.compile(
     r"(?ix)(?:confidence|conf|score|probability)?\s*[:=]?\s*"
     r"("
@@ -55,6 +60,12 @@ def coerce_translation(resp_text: str) -> str:
                     return val.strip()
 
     cleaned = strip_code_fences(resp_text)
+    partial = _PARTIAL_TRANSLATION_RE.search(cleaned)
+    if partial:
+        value = partial.group(1).encode("utf-8").decode("unicode_escape").strip()
+        if value:
+            return value
+
     cleaned = _LABEL_RE.sub("", cleaned).strip()
     cleaned = cleaned.strip('"\'“”')
     return re.sub(r"\s+", " ", cleaned).strip()
@@ -137,6 +148,12 @@ def coerce_confidence(resp_text: str) -> Tuple[Optional[float], Optional[str]]:
                     return None, f"invalid_{key}_value"
 
     cleaned = strip_code_fences(resp_text)
+    partial = _PARTIAL_CONFIDENCE_RE.search(cleaned)
+    if partial:
+        value = _coerce_numeric(partial.group(1))
+        if value is not None:
+            return value, "confidence_from_partial_json"
+
     for match in _NUMBER_RE.finditer(cleaned):
         token = match.group(1)
         if token is None:
