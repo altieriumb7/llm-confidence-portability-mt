@@ -37,9 +37,9 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 2.1305956840515137,
-      "avg_latency_conf_s": 1.428194284439087,
-      "avg_total_latency_s": 3.5587899684906006,
+      "avg_latency_translate_s": 1.9205029010772705,
+      "avg_latency_conf_s": 1.263819694519043,
+      "avg_total_latency_s": 3.1843225955963135,
       "avg_input_tokens": 235.0,
       "avg_output_tokens": 35.0,
       "median_output_tokens": 35.0
@@ -112,17 +112,17 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 9.714207172393799,
-      "avg_latency_conf_s": 3.494873046875,
-      "avg_total_latency_s": 13.209080219268799,
-      "avg_input_tokens": 358.0,
-      "avg_output_tokens": 264.0,
-      "median_output_tokens": 264.0
+      "avg_latency_translate_s": 11.008298873901367,
+      "avg_latency_conf_s": 2.8252015113830566,
+      "avg_total_latency_s": 13.833500385284424,
+      "avg_input_tokens": 451.0,
+      "avg_output_tokens": 320.0,
+      "median_output_tokens": 320.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        45.0342516556522,
-        45.0342516556522
+        10.864265859098243,
+        10.864265859098243
       ],
       "ece": [
         NaN,
@@ -187,9 +187,9 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 9.127504110336304,
-      "avg_latency_conf_s": 3.828099012374878,
-      "avg_total_latency_s": 12.955603122711182,
+      "avg_latency_translate_s": 10.10605525970459,
+      "avg_latency_conf_s": 2.0064144134521484,
+      "avg_total_latency_s": 12.112469673156738,
       "avg_input_tokens": 451.0,
       "avg_output_tokens": 320.0,
       "median_output_tokens": 320.0
@@ -223,81 +223,6 @@
     "mismatch_rate_overall_tau_0.9": NaN,
     "mismatch_rate_overall_within_model_q20_tau_0.9": NaN,
     "mismatch_rate_overall_global_q20_tau_0.9": NaN
-  },
-  "anthropic/claude-opus-4-6": {
-    "valid_conf_count": 1,
-    "total_count": 1,
-    "correlations": {
-      "pearson_difficulty_conf": NaN,
-      "spearman_difficulty_conf": NaN,
-      "pearson_difficulty_quality": NaN,
-      "spearman_difficulty_quality": NaN,
-      "pearson_conf_quality": NaN,
-      "spearman_conf_quality": NaN
-    },
-    "confidence_stats": {
-      "num_rows_total": 1,
-      "num_rows_with_valid_conf": 1,
-      "parse_warning_rows": 0,
-      "min_conf": 0.92,
-      "median_conf": 0.92,
-      "max_conf": 0.92
-    },
-    "parse_warning_count": 0,
-    "ece_global_q20": 0.07999999999999996,
-    "ece_within_model_q20": 0.07999999999999996,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.07999999999999996,
-      "Q2": NaN,
-      "Q3": NaN,
-      "Q4": NaN
-    },
-    "mismatch_rate_overall": 0.0,
-    "mismatch_rate_overall_within_model_q20": 0.0,
-    "mismatch_rate_overall_global_q20": 0.0,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.0,
-      "Q2": NaN,
-      "Q3": NaN,
-      "Q4": NaN
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 4.123578310012817,
-      "avg_latency_conf_s": 2.6547605991363525,
-      "avg_total_latency_s": 6.77833890914917,
-      "avg_input_tokens": 229.0,
-      "avg_output_tokens": 39.0,
-      "median_output_tokens": 39.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        45.26219986697196,
-        45.26219986697196
-      ],
-      "ece": [
-        0.07999999999999996,
-        0.07999999999999996
-      ],
-      "mismatch_rate_overall": [
-        0.0,
-        0.0
-      ]
-    },
-    "mismatch_rate_overall_tau_0.1": 0.0,
-    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.0,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.0,
-    "mismatch_rate_overall_tau_0.6": 0.0,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.0,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.0,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.0,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.0,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.0
   },
   "anthropic/claude-sonnet-4-5-20250929": {
     "valid_conf_count": 1,
@@ -337,9 +262,9 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 1.7466509342193604,
-      "avg_latency_conf_s": 1.5720767974853516,
-      "avg_total_latency_s": 3.318727731704712,
+      "avg_latency_translate_s": 1.8965704441070557,
+      "avg_latency_conf_s": 1.677386999130249,
+      "avg_total_latency_s": 3.5739574432373047,
       "avg_input_tokens": 227.0,
       "avg_output_tokens": 40.0,
       "median_output_tokens": 40.0
@@ -412,9 +337,9 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 1.9073927402496338,
-      "avg_latency_conf_s": 1.6773681640625,
-      "avg_total_latency_s": 3.584760904312134,
+      "avg_latency_translate_s": 1.553558349609375,
+      "avg_latency_conf_s": 1.7076616287231445,
+      "avg_total_latency_s": 3.2612199783325195,
       "avg_input_tokens": 227.0,
       "avg_output_tokens": 39.0,
       "median_output_tokens": 39.0
@@ -487,9 +412,9 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 9.180125713348389,
-      "avg_latency_conf_s": 7.539397954940796,
-      "avg_total_latency_s": 16.719523668289185,
+      "avg_latency_translate_s": 9.014110088348389,
+      "avg_latency_conf_s": 4.057290315628052,
+      "avg_total_latency_s": 13.07140040397644,
       "avg_input_tokens": 430.0,
       "avg_output_tokens": 0.0,
       "median_output_tokens": 0.0
@@ -562,9 +487,9 @@
       "Q4": NaN
     },
     "efficiency": {
-      "avg_latency_translate_s": 2.479703903198242,
-      "avg_latency_conf_s": 3.5075137615203857,
-      "avg_total_latency_s": 5.987217664718628,
+      "avg_latency_translate_s": 2.3953757286071777,
+      "avg_latency_conf_s": 3.7337348461151123,
+      "avg_total_latency_s": 6.12911057472229,
       "avg_input_tokens": 328.0,
       "avg_output_tokens": 8.0,
       "median_output_tokens": 8.0

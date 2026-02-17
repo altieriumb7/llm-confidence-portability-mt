@@ -1,0 +1,214 @@
+diff --git a/src/providers/openai_client.py b/src/providers/openai_client.py
+--- a/src/providers/openai_client.py
++++ b/src/providers/openai_client.py
+@@
+ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
+@@
+     def _as_text(x: Any) -> str | None:
+         if x is None:
+             return None
++        # Unwrap common SDK wrappers:
++        # - {"value": "..."}
++        # - {"text": {"value": "..."}} or {"text": "..."}
++        if isinstance(x, dict):
++            if "value" in x and isinstance(x["value"], str):
++                s = x["value"].strip()
++                return s or None
++            if "text" in x:
++                tv = x["text"]
++                if isinstance(tv, str):
++                    s = tv.strip()
++                    return s or None
++                if isinstance(tv, dict) and "value" in tv and isinstance(tv["value"], str):
++                    s = tv["value"].strip()
++                    return s or None
+         if isinstance(x, str):
+             s = x.strip()
+             return s or None
+         if isinstance(x, (dict, list)):
+             return json.dumps(x, ensure_ascii=False)
++        # Objects with `.value` (common in content blocks)
++        v = getattr(x, "value", None)
++        if isinstance(v, str):
++            s = v.strip()
++            if s:
++                return s
++        # Objects with `.text.value`
++        t = getattr(x, "text", None)
++        tv = getattr(t, "value", None) if t is not None else None
++        if isinstance(tv, str):
++            s = tv.strip()
++            if s:
++                return s
+         try:
+             s = str(x).strip()
+             return s or None
+         except Exception:
+             return None
+
+diff --git a/src/providers/gemini_client.py b/src/providers/gemini_client.py
+--- a/src/providers/gemini_client.py
++++ b/src/providers/gemini_client.py
+@@
+ def _extract_text(resp: Any) -> str:
+     def _get(obj: Any, key: str, default=None):
+         if isinstance(obj, dict):
+             return obj.get(key, default)
+         return getattr(obj, key, default)
+ 
++    def _as_text(x: Any) -> str | None:
++        if x is None:
++            return None
++        # dict wrappers
++        if isinstance(x, dict):
++            if "value" in x and isinstance(x["value"], str):
++                s = x["value"].strip()
++                return s or None
++            if "text" in x:
++                tv = x["text"]
++                if isinstance(tv, str):
++                    s = tv.strip()
++                    return s or None
++                if isinstance(tv, dict) and "value" in tv and isinstance(tv["value"], str):
++                    s = tv["value"].strip()
++                    return s or None
++        if isinstance(x, str):
++            s = x.strip()
++            return s or None
++        if isinstance(x, (dict, list)):
++            return json.dumps(x, ensure_ascii=False)
++        # objects with `.value` / `.text.value`
++        v = getattr(x, "value", None)
++        if isinstance(v, str) and v.strip():
++            return v.strip()
++        t = getattr(x, "text", None)
++        tv = getattr(t, "value", None) if t is not None else None
++        if isinstance(tv, str) and tv.strip():
++            return tv.strip()
++        try:
++            s = str(x).strip()
++            return s or None
++        except Exception:
++            return None
++
+     # 0) Some google-genai responses expose structured output here
+-    parsed_top = _get(resp, "parsed", None)
+-    if isinstance(parsed_top, (dict, list)):
+-        return json.dumps(parsed_top, ensure_ascii=False)
++    parsed_top = _get(resp, "parsed", None)
++    pt = _as_text(parsed_top)
++    if pt:
++        # If parsed is already JSON-like dict/list it becomes a JSON string here.
++        return pt
+ 
+     # Fast path
+-    txt = _get(resp, "text", "")
+-    if isinstance(txt, str) and txt.strip():
+-        return txt.strip()
++    txt = _as_text(_get(resp, "text", ""))
++    if txt:
++        return txt
+ 
+     chunks: list[str] = []
+@@
+         for part in parts or []:
+-            t = _get(part, "text", None)
+-            if isinstance(t, str) and t.strip():
+-                chunks.append(t.strip())
+-                continue
++            t = _as_text(_get(part, "text", None))
++            if t:
++                chunks.append(t)
++                continue
+ 
+             # Some SDK variants may expose structured payloads on the part
+             for k in ("json", "parsed", "data"):
+-                v = _get(part, k, None)
+-                if isinstance(v, (dict, list)):
+-                    chunks.append(json.dumps(v, ensure_ascii=False))
+-                    break
++                v = _get(part, k, None)
++                vt = _as_text(v)
++                if vt:
++                    chunks.append(vt)
++                    break
+@@
+             fc = _get(part, "function_call", None)
+             if fc is not None:
+                 args = _get(fc, "args", None)
+                 if args is None:
+                     args = _get(fc, "arguments", None)
+-                if isinstance(args, (dict, list)):
+-                    chunks.append(json.dumps(args, ensure_ascii=False))
+-                elif isinstance(args, str) and args.strip():
+-                    chunks.append(args.strip())
++                at = _as_text(args)
++                if at:
++                    chunks.append(at)
+@@
+             fr = _get(part, "function_response", None)
+             if fr is not None:
+                 payload = _get(fr, "response", None)
+-                if isinstance(payload, (dict, list)):
+-                    chunks.append(json.dumps(payload, ensure_ascii=False))
+-                elif isinstance(payload, str) and payload.strip():
+-                    chunks.append(payload.strip())
++                rt = _as_text(payload)
++                if rt:
++                    chunks.append(rt)
+@@
+     joined = "\n".join(chunks).strip()
+     if joined:
+         return joined
+ 
+     # Deep fallback: walk the response for any leaf string.
+     def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
+@@
+             # Last resort: __dict__
+             try:
+                 yield from walk(vars(x))
+             except Exception:
+-                return
++                # Some google-genai objects use __slots__ (no vars). Walk common attributes explicitly.
++                for attr in (
++                    "candidates",
++                    "content",
++                    "parts",
++                    "text",
++                    "parsed",
++                    "function_call",
++                    "function_response",
++                    "args",
++                    "arguments",
++                    "response",
++                    "value",
++                ):
++                    try:
++                        xv = getattr(x, attr, None)
++                    except Exception:
++                        xv = None
++                    if xv is not None:
++                        yield from walk(xv)
++                return
+@@
+-    leaves = list(_iter_leaf_strings(resp))
++    leaves = [s for s in (_as_text(x) for x in _iter_leaf_strings(resp)) if s]
+     # Prefer JSON-like leaves or ones that mention target keys.
+     best = ''
+     best_score = (-1, -1)
+     for s in leaves:
+         ss = (s or '').strip()
+         if not ss:
+             continue
+         score = 0
+         if 'confidence' in ss or 'translation' in ss:
+             score += 10
+         if '{' in ss and '}' in ss:
+             score += 6
+         if any(ch.isdigit() for ch in ss):
+             score += 1
+         score2 = min(len(ss), 5000)
+         if (score, score2) > best_score:
+             best_score = (score, score2)
+             best = ss
+     return best.strip() if best else ''

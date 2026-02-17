@@ -12,10 +12,6 @@
 | id | bucket | conf | quality | src | hyp | ref |
 |---|---|---:|---:|---|---|---|
 
-## anthropic/claude-opus-4-6
-| id | bucket | conf | quality | src | hyp | ref |
-|---|---|---:|---:|---|---|---|
-
 ## anthropic/claude-sonnet-4-5-20250929
 | id | bucket | conf | quality | src | hyp | ref |
 |---|---|---:|---:|---|---|---|
