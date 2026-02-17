@@ -17,7 +17,7 @@ from utils.common import (
     setup_logging,
     usage_to_tokens,
 )
-from utils.llm_parse import coerce_confidence, coerce_translation, ensure_confidence, extract_first_json
+from utils.llm_parse import coerce_confidence, coerce_translation, find_first_json, normalize_json_obj
 
 ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 
@@ -58,29 +58,18 @@ def _truncate(text: str, limit: int = 500) -> str:
     return str(text or "").strip()[:limit]
 
 
-def _debug_dump_raw(base_outdir: str, provider: str, model_id: str, row_id: str, kind: str, raw_text: str):
+def _debug_dump_raw(base_outdir: str, provider: str, model_id: str, row_id: str, raw_translation: str, raw_confidence: str):
     model_tag = model_id.replace("/", "_")
     debug_dir = Path(base_outdir) / "_debug" / f"{provider}_{model_tag}"
     debug_dir.mkdir(parents=True, exist_ok=True)
-    debug_path = debug_dir / f"id_{row_id}_{kind}.txt"
-    debug_path.write_text(str(raw_text or ""), encoding="utf-8")
-
-
-def _json_translation(obj) -> str:
-    if isinstance(obj, dict):
-        for key in ("translation", "output", "text", "translated_text"):
-            val = obj.get(key)
-            if isinstance(val, str) and val.strip():
-                return val.strip()
-    return ""
-
-
-def _json_confidence(obj):
-    if isinstance(obj, dict):
-        for key in ("confidence", "conf", "score", "probability"):
-            if key in obj:
-                return ensure_confidence(obj.get(key))
-    return None
+    debug_path = debug_dir / f"id_{row_id}_raw.txt"
+    debug_path.write_text(
+        "=== translation_raw ===\n"
+        f"{raw_translation or ''}\n\n"
+        "=== confidence_raw ===\n"
+        f"{raw_confidence or ''}\n",
+        encoding="utf-8",
+    )
 
 
 def main():
@@ -155,9 +144,15 @@ def main():
                     if tr_warn:
                         warnings.append(str(tr_warn))
 
+                    translation = ""
+                    parsed_tr = find_first_json(raw_translation)
+                    if parsed_tr is not None:
+                        normalized_tr, tr_norm_warnings = normalize_json_obj(parsed_tr[0], "translation")
+                        warnings.extend(tr_norm_warnings)
+                        if normalized_tr:
+                            translation = normalized_tr["translation"]
+
                     fx_tr_usage, fx_tr_lat = {}, 0.0
-                    tr_obj = extract_first_json(raw_translation)
-                    translation = _json_translation(tr_obj)
                     if not translation:
                         parse_fail_translation += 1
                         warnings.append("translation_no_json")
@@ -177,9 +172,13 @@ def main():
                             logger,
                             "format_fix_translation",
                         )
-                        translation = _json_translation(extract_first_json(fixed_translation)) or coerce_translation(fixed_translation)
-                        if translation:
-                            warnings.append("translation_format_fix")
+                        fixed_tr = find_first_json(fixed_translation)
+                        if fixed_tr is not None:
+                            normalized_tr, tr_norm_warnings = normalize_json_obj(fixed_tr[0], "translation")
+                            warnings.extend(tr_norm_warnings)
+                            if normalized_tr:
+                                translation = normalized_tr["translation"]
+                                warnings.append("translation_format_fix")
 
                     if not translation:
                         translation = _truncate(raw_translation, 1000) or _truncate(row["src"], 1000) or "[translation unavailable]"
@@ -194,14 +193,20 @@ def main():
                         warnings.append(str(cf_warn))
 
                     fx_cf_usage, fx_cf_lat = {}, 0.0
-                    cf_obj = extract_first_json(raw_confidence)
-                    confidence = _json_confidence(cf_obj)
+                    confidence = None
+                    parsed_cf = find_first_json(raw_confidence)
+                    if parsed_cf is not None:
+                        normalized_cf, cf_norm_warnings = normalize_json_obj(parsed_cf[0], "confidence")
+                        warnings.extend(cf_norm_warnings)
+                        if normalized_cf:
+                            confidence = normalized_cf["confidence"]
+
                     if confidence is None:
                         parse_fail_confidence += 1
                         warnings.append("confidence_no_json")
-                        confidence, cf_warn2 = coerce_confidence(raw_confidence)
-                        if cf_warn2:
-                            warnings.append(cf_warn2)
+                        confidence, cf_coerce_warn = coerce_confidence(raw_confidence)
+                        if cf_coerce_warn:
+                            warnings.append(cf_coerce_warn)
 
                     if confidence is None:
                         if hasattr(client, "repair_confidence"):
@@ -233,23 +238,26 @@ def main():
                                 logger,
                                 "format_fix_confidence",
                             )
-                        warnings.append("repair_call_used")
+                        else:
+                            repaired_conf = ""
 
                         if repaired_conf:
-                            confidence = _json_confidence(extract_first_json(repaired_conf))
+                            fixed_cf = find_first_json(repaired_conf)
+                            if fixed_cf is not None:
+                                normalized_cf, cf_norm_warnings = normalize_json_obj(fixed_cf[0], "confidence")
+                                warnings.extend(cf_norm_warnings)
+                                if normalized_cf:
+                                    confidence = normalized_cf["confidence"]
                             if confidence is None:
-                                confidence, cf_warn3 = coerce_confidence(repaired_conf)
-                                if cf_warn3:
-                                    warnings.append(cf_warn3)
+                                confidence, cf_coerce_warn = coerce_confidence(repaired_conf)
+                                if cf_coerce_warn:
+                                    warnings.append(cf_coerce_warn)
+                            if confidence is not None:
+                                warnings.append("confidence_repaired")
 
-                    confidence = ensure_confidence(confidence)
-                    if confidence is None:
-                        confidence = 0.5
-                        warnings.append("defaulted_0.5")
-                        _debug_dump_raw(args.outdir, provider, model_id, row_id, "translation", raw_translation)
-                        _debug_dump_raw(args.outdir, provider, model_id, row_id, "confidence", raw_confidence)
-                        if repaired_conf:
-                            _debug_dump_raw(args.outdir, provider, model_id, row_id, "confidence_repair", repaired_conf)
+                if confidence is None:
+                    missing_confidence += 1
+                    _debug_dump_raw(args.outdir, provider, model_id, row_id, raw_translation, raw_confidence)
 
                 u1, u2 = usage_to_tokens(tr_usage), usage_to_tokens(cf_usage)
                 uf1, uf2 = usage_to_tokens(fx_tr_usage), usage_to_tokens(fx_cf_usage)
