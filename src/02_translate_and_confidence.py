@@ -177,7 +177,6 @@ def main():
 
                     fx_tr_usage, fx_tr_lat = {}, 0.0
                     if not translation:
-                        parse_fail_translation += 1
                         warnings.append("translation_no_json")
                         translation = coerce_translation(raw_translation)
 
@@ -205,6 +204,7 @@ def main():
 
                     if not translation:
                         translation = _truncate(raw_translation, 1000) or _truncate(row["src"], 1000) or "[translation unavailable]"
+                        parse_fail_translation += 1
 
                     raw_confidence, cf_usage, cf_lat, cf_warn = retry_with_backoff(
                         lambda: client.confidence(row["src"], translation, model_id, g, api_key),
@@ -225,7 +225,6 @@ def main():
                             confidence = normalized_cf["confidence"]
 
                     if confidence is None:
-                        parse_fail_confidence += 1
                         warnings.append("confidence_no_json")
                         confidence, cf_coerce_warn = coerce_confidence(raw_confidence)
                         if cf_coerce_warn:
@@ -277,6 +276,9 @@ def main():
                                     warnings.append(cf_coerce_warn)
                             if confidence is not None:
                                 warnings.append("confidence_repaired")
+
+                    if confidence is None:
+                        parse_fail_confidence += 1
 
                 if confidence is None:
                     missing_confidence += 1
