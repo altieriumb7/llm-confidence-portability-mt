@@ -1,0 +1,353 @@
+diff --git a/src/providers/openai_client.py b/src/providers/openai_client.py
+index 64dfee0..b2d53b1 100644
+--- a/src/providers/openai_client.py
++++ b/src/providers/openai_client.py
+@@ -1,6 +1,8 @@
++import os
+ import json
+ import re
+ import logging
+ import time
++from pathlib import Path
+ from typing import Any, Dict, Tuple
+ 
+ from openai import BadRequestError
+@@ -14,6 +16,30 @@ _NO_TEXT_FORMAT_MODELS: set[str] = set()
+ _CLIENTS: dict[tuple[str, float], OpenAI] = {}
+ LOGGER = logging.getLogger(__name__)
+ 
++def _maybe_dump_resp(resp: Any, provider: str, model_id: str, kind: str):
++    """Optional: dump raw SDK response for debugging extraction issues.
++    Enable with: export CDMM_DUMP_RESP=1
++    """
++    if os.getenv("CDMM_DUMP_RESP", "0") != "1":
++        return
++    try:
++        outdir = Path("runs/raw/_debug_resp")
++        outdir.mkdir(parents=True, exist_ok=True)
++        tag = model_id.replace("/", "_")
++        p = outdir / f"{provider}_{tag}_{kind}.json"
++        payload: dict[str, Any] = {"class": str(type(resp))}
++        if hasattr(resp, "model_dump"):
++            try:
++                payload["model_dump"] = resp.model_dump()
++            except Exception as e:
++                payload["model_dump_error"] = repr(e)
++        else:
++            payload["repr"] = repr(resp)
++        p.write_text(json.dumps(payload, ensure_ascii=False, indent=2)[:2_000_000], encoding="utf-8")
++    except Exception:
++        return
+ 
+ def _iter_leaf_strings(obj: Any, *, prefer_key: str | None = None, max_items: int = 4000, max_total_chars: int = 200_000):
+@@ -72,8 +98,29 @@ def _iter_leaf_strings(obj: Any, *, prefer_key: str | None = None, max_items: int = 4000, max_total_chars: int = 200_000):
+ 
+         # Last resort: __dict__
+         try:
+             yield from walk(vars(x))
+         except Exception:
+-            return
++            # Some SDK objects use __slots__ (no vars). Walk common attributes explicitly.
++            for attr in (
++                "output_text",
++                "output",
++                "content",
++                "text",
++                "value",
++                "json",
++                "parsed",
++                "data",
++                "choices",
++                "message",
++                "delta",
++                "tool_calls",
++                "function_call",
++                "arguments",
++                "response",
++                "type",
++                "role",
++                "usage",
++            ):
++                try:
++                    xv = getattr(x, attr, None)
++                except Exception:
++                    xv = None
++                if xv is not None:
++                    yield from walk(xv)
++            return
+ 
+     yield from walk(obj)
+ 
+@@ -123,13 +170,45 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
+     def _as_text(x: Any) -> str | None:
+         if x is None:
+             return None
++        # unwrap common wrappers
++        if isinstance(x, dict):
++            if "value" in x and isinstance(x["value"], str):
++                s = x["value"].strip()
++                return s or None
++            if "text" in x:
++                return _as_text(x["text"])
++            if "content" in x:
++                return _as_text(x["content"])
+         if isinstance(x, str):
+             s = x.strip()
+             return s or None
+         if isinstance(x, (dict, list)):
+             return json.dumps(x, ensure_ascii=False)
++        # objects with `.value`
++        v = getattr(x, "value", None)
++        if isinstance(v, str):
++            s = v.strip()
++            if s:
++                return s
++        # objects with `.text.value`
++        t = getattr(x, "text", None)
++        tv = getattr(t, "value", None) if t is not None else None
++        if isinstance(tv, str):
++            s = tv.strip()
++            if s:
++                return s
+         try:
+             s = str(x).strip()
+             return s or None
+         except Exception:
+             return None
+ 
+@@ -146,6 +225,13 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
+     if out_text:
+         return out_text
+ 
++    # Some models return JSON only in `parsed`/`output_parsed`-style fields (SDK-dependent).
++    for key in ("parsed", "output_parsed"):
++        pt = _as_text(_get(resp, key, None))
++        if pt:
++            return pt
++
+     chunks: list[str] = []
+     output = _get(resp, "output", []) or []
+     if isinstance(output, dict):
+@@ -169,6 +255,12 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
+             t = _as_text(_get(block, "text"))
+             if t:
+                 chunks.append(t)
+                 continue
++            # Some blocks store actual text under `value`
++            t = _as_text(_get(block, "value"))
++            if t:
++                chunks.append(t)
++                continue
+ 
+             # Sometimes the payload is exposed under other keys
+             for k in ("json", "parsed", "data"):
+@@ -222,6 +314,7 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
+     if not raw and model_id not in _NO_TEXT_FORMAT_MODELS:
+         _NO_TEXT_FORMAT_MODELS.add(model_id)
+         resp = _chat(client, model_id, system, user, global_cfg, "translation")
+         raw = _extract_text(resp, prefer_key="translation")
++    if not raw: _maybe_dump_resp(resp, "openai", model_id, "translation")
+     return raw, _usage(resp), time.time() - t0, None
+ 
+@@ -249,10 +342,12 @@ def confidence(
+     if not raw and model_id not in _NO_TEXT_FORMAT_MODELS:
+         _NO_TEXT_FORMAT_MODELS.add(model_id)
+         resp = _chat(client, model_id, system, user, global_cfg, "confidence")
+         raw = _extract_text(resp, prefer_key="confidence")
++    if not raw: _maybe_dump_resp(resp, "openai", model_id, "confidence")
+ 
+     return raw, _usage(resp), time.time() - t0, None
+ 
+diff --git a/src/providers/gemini_client.py b/src/providers/gemini_client.py
+index 0892b18..4d5f7f0 100644
+--- a/src/providers/gemini_client.py
++++ b/src/providers/gemini_client.py
+@@ -1,5 +1,7 @@
++import os
+ import json
+ import logging
+ import time
++from pathlib import Path
+ from typing import Any, Dict, Tuple
+ 
+ from google import genai
+@@ -12,6 +14,31 @@ _CLIENTS: dict[str, genai.Client] = {}
+ _MIME_JSON_UNSUPPORTED_MODELS: set[str] = set()
+ LOGGER = logging.getLogger(__name__)
+ 
++def _maybe_dump_resp(resp: Any, provider: str, model_id: str, kind: str):
++    """Optional: dump raw SDK response for debugging extraction issues.
++    Enable with: export CDMM_DUMP_RESP=1
++    """
++    if os.getenv("CDMM_DUMP_RESP", "0") != "1":
++        return
++    try:
++        outdir = Path("runs/raw/_debug_resp")
++        outdir.mkdir(parents=True, exist_ok=True)
++        tag = model_id.replace("/", "_").replace(".", "_")
++        p = outdir / f"{provider}_{tag}_{kind}.json"
++        payload: dict[str, Any] = {"class": str(type(resp))}
++        for attr in ("text", "parsed", "candidates", "usage_metadata", "prompt_feedback"):
++            try:
++                v = getattr(resp, attr, None)
++                if v is not None:
++                    payload[attr] = str(v)[:20000]
++            except Exception:
++                pass
++        p.write_text(json.dumps(payload, ensure_ascii=False, indent=2)[:2_000_000], encoding="utf-8")
++    except Exception:
++        return
++
+ 
+ def _get_client(api_key: str) -> genai.Client:
+@@ -61,7 +88,10 @@ def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
+         resp = client.models.generate_content(
+             model=model_id,
+             contents=user,
+             config=types.GenerateContentConfig(**config_kwargs),
+         )
++        # If response is empty to our extractor, dump it once (optional).
++        if not _extract_text(resp): _maybe_dump_resp(resp, "gemini", model_id, kind)
+         # Heuristic: some responses expose JSON in candidates/parts while `.text` is empty.
+         # If mime was requested but we got no extractable text, retry once without mime.
+         if use_json_mime and not _extract_text(resp):
+@@ -88,8 +118,40 @@ def _extract_text(resp: Any) -> str:
+     def _get(obj: Any, key: str, default=None):
+         if isinstance(obj, dict):
+             return obj.get(key, default)
+         return getattr(obj, key, default)
+ 
++    def _as_text(x: Any) -> str | None:
++        if x is None:
++            return None
++        if isinstance(x, dict):
++            if "value" in x and isinstance(x["value"], str):
++                s = x["value"].strip()
++                return s or None
++            if "text" in x:
++                return _as_text(x["text"])
++            if "content" in x:
++                return _as_text(x["content"])
++        if isinstance(x, str):
++            s = x.strip()
++            return s or None
++        if isinstance(x, (dict, list)):
++            return json.dumps(x, ensure_ascii=False)
++        v = getattr(x, "value", None)
++        if isinstance(v, str) and v.strip():
++            return v.strip()
++        t = getattr(x, "text", None)
++        tv = getattr(t, "value", None) if t is not None else None
++        if isinstance(tv, str) and tv.strip():
++            return tv.strip()
++        try:
++            s = str(x).strip()
++            return s or None
++        except Exception:
++            return None
++
+     # 0) Some google-genai responses expose structured output here
+-    parsed_top = _get(resp, "parsed", None)
+-    if isinstance(parsed_top, (dict, list)):
+-        return json.dumps(parsed_top, ensure_ascii=False)
++    parsed_top = _as_text(_get(resp, "parsed", None))
++    if parsed_top:
++        return parsed_top
+ 
+     # Fast path
+-    txt = _get(resp, "text", "")
+-    if isinstance(txt, str) and txt.strip():
+-        return txt.strip()
++    txt = _as_text(_get(resp, "text", ""))
++    if txt:
++        return txt
+ 
+     chunks: list[str] = []
+@@ -114,10 +176,10 @@ def _extract_text(resp: Any) -> str:
+         if isinstance(parts, dict):
+             parts = [parts]
+         for part in parts or []:
+-            t = _get(part, "text", None)
+-            if isinstance(t, str) and t.strip():
+-                chunks.append(t.strip())
++            t = _as_text(_get(part, "text", None))
++            if t:
++                chunks.append(t)
+                 continue
+ 
+             # Some SDK variants may expose structured payloads on the part
+             for k in ("json", "parsed", "data"):
+                 v = _get(part, k, None)
+-                if isinstance(v, (dict, list)):
+-                    chunks.append(json.dumps(v, ensure_ascii=False))
++                vt = _as_text(v)
++                if vt:
++                    chunks.append(vt)
+                     break
+ 
+             # Function-call style payloads (common with structured outputs)
+             fc = _get(part, "function_call", None)
+             if fc is not None:
+                 args = _get(fc, "args", None)
+                 if args is None:
+                     args = _get(fc, "arguments", None)
+-                if isinstance(args, (dict, list)):
+-                    chunks.append(json.dumps(args, ensure_ascii=False))
+-                elif isinstance(args, str) and args.strip():
+-                    chunks.append(args.strip())
++                at = _as_text(args)
++                if at:
++                    chunks.append(at)
+ 
+             fr = _get(part, "function_response", None)
+             if fr is not None:
+                 payload = _get(fr, "response", None)
+-                if isinstance(payload, (dict, list)):
+-                    chunks.append(json.dumps(payload, ensure_ascii=False))
+-                elif isinstance(payload, str) and payload.strip():
+-                    chunks.append(payload.strip())
++                rt = _as_text(payload)
++                if rt:
++                    chunks.append(rt)
+@@ -146,7 +208,6 @@ def _extract_text(resp: Any) -> str:
+     if joined:
+         return joined
+ 
+     # Deep fallback: walk the response for any leaf string.
+     def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
+@@ -205,8 +266,27 @@ def _extract_text(resp: Any) -> str:
+             try:
+                 yield from walk(vars(x))
+             except Exception:
+-                return
++                # __slots__ objects: walk common attrs
++                for attr in (
++                    "candidates",
++                    "content",
++                    "parts",
++                    "text",
++                    "parsed",
++                    "function_call",
++                    "function_response",
++                    "args",
++                    "arguments",
++                    "response",
++                    "value",
++                    "usage_metadata",
++                    "prompt_feedback",
++                ):
++                    try:
++                        xv = getattr(x, attr, None)
++                    except Exception:
++                        xv = None
++                    if xv is not None:
++                        yield from walk(xv)
++                return
+ 
+         yield from walk(obj)
+ 
+-    leaves = list(_iter_leaf_strings(resp))
++    leaves = [s for s in (_as_text(x) for x in _iter_leaf_strings(resp)) if s]
+     # Prefer JSON-like leaves or ones that mention target keys.
+     best = ''
+     best_score = (-1, -1)
