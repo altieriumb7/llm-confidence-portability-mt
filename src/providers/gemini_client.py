@@ -155,7 +155,13 @@ def _extract_text(resp: Any) -> str:
 
     joined = "\n".join(chunks).strip()
     if joined:
-        return joined
+        looks_structured = (
+            ("{" in joined and "}" in joined)
+            or ("\"translation\"" in joined)
+            or ("\"confidence\"" in joined)
+        )
+        if looks_structured:
+            return joined
 
     def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
         yielded = 0
@@ -209,11 +215,17 @@ def _extract_text(resp: Any) -> str:
                     "parts",
                     "text",
                     "parsed",
+                    "json",
+                    "data",
                     "function_call",
                     "function_response",
                     "args",
                     "arguments",
                     "response",
+                    "inline_data",
+                    "executable_code",
+                    "code_execution_result",
+                    "thought",
                     "value",
                 ):
                     xv = getattr(x, attr, None)
