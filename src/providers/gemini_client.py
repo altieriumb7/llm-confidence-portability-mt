@@ -47,35 +47,37 @@ def _obj_get(obj: Any, key: str) -> Any:
 
 
 def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict[str, Any], kind: str):
+    normalized_model_id = model_id.split("/", 1)[1] if model_id.startswith("gemini/") else model_id
     config_kwargs = {
         "system_instruction": system,
         "temperature": 0,
         "max_output_tokens": _max_tokens(cfg, kind),
+        "response_schema": {"type": "object", "properties": {kind: {}}, "required": [kind]},
     }
-    if model_id not in _MIME_JSON_UNSUPPORTED_MODELS:
+    if normalized_model_id not in _MIME_JSON_UNSUPPORTED_MODELS:
         config_kwargs["response_mime_type"] = "application/json"
 
     try:
         resp = client.models.generate_content(
-            model=model_id,
+            model=normalized_model_id,
             contents=user,
             config=types.GenerateContentConfig(**config_kwargs),
         )
         if config_kwargs.get("response_mime_type") == "application/json" and not _extract_text(resp):
-            _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
+            _MIME_JSON_UNSUPPORTED_MODELS.add(normalized_model_id)
             config_kwargs.pop("response_mime_type", None)
             return client.models.generate_content(
-                model=model_id,
+                model=normalized_model_id,
                 contents=user,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
         return resp
     except Exception as exc:
         if "response_mime_type" in config_kwargs and "mime" in str(exc).lower():
-            _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
+            _MIME_JSON_UNSUPPORTED_MODELS.add(normalized_model_id)
             config_kwargs.pop("response_mime_type", None)
             return client.models.generate_content(
-                model=model_id,
+                model=normalized_model_id,
                 contents=user,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
@@ -117,6 +119,11 @@ def _extract_text(resp: Any) -> str:
             return None
 
     parsed_top = _obj_get(resp, "parsed")
+    if isinstance(parsed_top, dict):
+        try:
+            return json.dumps(parsed_top, ensure_ascii=False)
+        except Exception:
+            pass
     pt = _as_text(parsed_top)
     if pt:
         return pt
@@ -130,6 +137,8 @@ def _extract_text(resp: Any) -> str:
     for candidate in candidates:
         content = _obj_get(candidate, "content")
         for part in (_obj_get(content, "parts") or []):
+            if _obj_get(part, "thought"):
+                continue
             part_text = _as_text(_obj_get(part, "text"))
             if part_text:
                 chunks.append(part_text)
@@ -155,6 +164,34 @@ def _extract_text(resp: Any) -> str:
 
     joined = "\n".join(chunks).strip()
     if joined:
+        start = joined.find("{")
+        if start >= 0:
+            depth = 0
+            in_string = False
+            escaped = False
+            for idx, ch in enumerate(joined[start:], start=start):
+                if in_string:
+                    if escaped:
+                        escaped = False
+                    elif ch == "\\":
+                        escaped = True
+                    elif ch == '"':
+                        in_string = False
+                    continue
+                if ch == '"':
+                    in_string = True
+                    continue
+                if ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        candidate_obj = joined[start : idx + 1]
+                        try:
+                            json.loads(candidate_obj)
+                            return candidate_obj
+                        except Exception:
+                            break
         return joined
 
     def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
