@@ -1,5 +1,6 @@
 import logging
 import json
+import re
 import time
 from typing import Any, Dict, Tuple
 
@@ -11,6 +12,36 @@ from utils.parse import build_strict_json_system
 _CLIENTS: dict[str, genai.Client] = {}
 _MIME_JSON_UNSUPPORTED_MODELS: set[str] = set()
 LOGGER = logging.getLogger(__name__)
+
+_ID_LIKE_RE = re.compile(r"^(?:rs|resp|req)_[A-Za-z0-9]{10,}$")
+
+def _is_junk_text(s: str) -> bool:
+    s = (s or "").strip()
+    if not s:
+        return True
+    if _ID_LIKE_RE.fullmatch(s):
+        return True
+    # Alt-Svc header value can leak through when extraction fails
+    if ('h3=":443"' in s or 'h3-29=":443"' in s) and 'ma=' in s:
+        return True
+    # MIME type strings are not model outputs
+    s_low = s.lower().strip()
+    if s_low.startswith('application/json') or s_low.startswith('text/plain'):
+        return True
+    # e.g. 'application/json; charset=UTF-8'
+    if re.match(r'(?i)^[a-z]+/[a-z0-9.+-]+(?:;\s*charset=[^;]+)?$', s.strip()):
+        return True
+
+    # HTTP header strings are not model outputs
+    # e.g. 'Thu, 19 Feb 2026 02:24:55 GMT'
+    if re.match(r'^[A-Za-z]{3},\s\d{2}\s[A-Za-z]{3}\s\d{4}\s\d{2}:\d{2}:\d{2}\sGMT$', s.strip()):
+        return True
+    # also treat generic header-like mime strings as junk
+    s_low2 = s.lower().strip()
+    if s_low2.startswith('application/json') or s_low2.startswith('text/plain'):
+        return True
+
+    return False
 
 
 def _get_client(api_key: str) -> genai.Client:
@@ -33,8 +64,8 @@ def _usage(resp: Any) -> Dict[str, Any]:
 
 def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     key = f"{kind}_max_output_tokens"
-    default = 256 if kind == "translation" else 64
-    cap = 256 if kind == "translation" else 64
+    default = 512 if kind == "translation" else 128
+    cap = 2048 if kind == "translation" else 512
     return min(int(cfg.get(key, default)), cap)
 
 
@@ -52,37 +83,67 @@ def _call(client: genai.Client, model_id: str, system: str, user: str, cfg: Dict
         "temperature": 0,
         "max_output_tokens": _max_tokens(cfg, kind),
     }
+    # Gemini 2.5 Pro is a thinking model; give it enough budget to still emit final JSON.
+    if "gemini-2.5-pro" in model_id:
+        try:
+            budget = int(cfg.get("gemini_thinking_budget_pro", 128))
+            config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=budget)
+        except Exception:
+            pass
+
     if model_id not in _MIME_JSON_UNSUPPORTED_MODELS:
         config_kwargs["response_mime_type"] = "application/json"
 
-    try:
-        resp = client.models.generate_content(
-            model=model_id,
-            contents=user,
-            config=types.GenerateContentConfig(**config_kwargs),
-        )
-        if config_kwargs.get("response_mime_type") == "application/json" and not _extract_text(resp):
-            _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
-            config_kwargs.pop("response_mime_type", None)
-            return client.models.generate_content(
+    last_resp = None
+    for attempt in range(3):
+        try:
+            resp = client.models.generate_content(
                 model=model_id,
                 contents=user,
                 config=types.GenerateContentConfig(**config_kwargs),
             )
-        return resp
-    except Exception as exc:
-        if "response_mime_type" in config_kwargs and "mime" in str(exc).lower():
-            _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
-            config_kwargs.pop("response_mime_type", None)
-            return client.models.generate_content(
-                model=model_id,
-                contents=user,
-                config=types.GenerateContentConfig(**config_kwargs),
-            )
-        raise
+            last_resp = resp
+            extracted = _extract_text(resp)
+
+            # If JSON mime yields empty output, retry once without it.
+            if config_kwargs.get("response_mime_type") == "application/json" and not extracted:
+                _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
+                config_kwargs.pop("response_mime_type", None)
+                continue
+
+            # Intermittent empty outputs: backoff + retry.
+            if not extracted:
+                time.sleep(min(1.0, 0.2 * (2 ** attempt)))
+                continue
+
+            return resp
+
+        except Exception as exc:
+            if "response_mime_type" in config_kwargs and "mime" in str(exc).lower():
+                _MIME_JSON_UNSUPPORTED_MODELS.add(model_id)
+                config_kwargs.pop("response_mime_type", None)
+                continue
+            raise
+
+    return last_resp
 
 
 def _extract_text(resp: Any) -> str:
+    def _is_headerish(s: str) -> bool:
+        ss = (s or "").strip()
+        if not ss:
+            return True
+        low = ss.lower()
+        if low.startswith("application/json") or low.startswith("text/plain"):
+            return True
+        # e.g. application/json; charset=UTF-8
+        if re.match(r"(?i)^[a-z]+/[a-z0-9.+-]+(?:;\\s*charset=[^;]+)?$", ss):
+            return True
+        # e.g. Thu, 19 Feb 2026 02:24:55 GMT
+        if re.match(r"^[A-Za-z]{3},\\s\\d{2}\\s[A-Za-z]{3}\\s\\d{4}\\s\\d{2}:\\d{2}:\\d{2}\\sGMT$", ss):
+            return True
+        return False
+
     def _as_text(x: Any) -> str | None:
         if x is None:
             return None
@@ -118,11 +179,11 @@ def _extract_text(resp: Any) -> str:
 
     parsed_top = _obj_get(resp, "parsed")
     pt = _as_text(parsed_top)
-    if pt:
+    if pt and not _is_junk_text(pt):
         return pt
 
     text = _as_text(_obj_get(resp, "text"))
-    if text:
+    if text and not _is_junk_text(text):
         return text
 
     chunks: list[str] = []
@@ -154,8 +215,25 @@ def _extract_text(resp: Any) -> str:
                     chunks.append(rt)
 
     joined = "\n".join(chunks).strip()
-    if joined:
+    if joined and not _is_junk_text(joined):
         return joined
+
+    # Fallback: sometimes response.text is empty but a dict view still contains parts
+    try:
+        to_dict = getattr(resp, 'to_dict', None)
+        if callable(to_dict):
+            d = to_dict()
+            if isinstance(d, dict):
+                c0 = (d.get('candidates') or [{}])[0] or {}
+                content = c0.get('content') or {}
+                for part in (content.get('parts') or []):
+                    tx = part.get('text')
+                    if isinstance(tx, str):
+                        tx = tx.strip()
+                        if tx and not _is_junk_text(tx):
+                            return tx
+    except Exception:
+        pass
 
     def _iter_leaf_strings(obj: Any, *, max_items: int = 4000, max_total_chars: int = 200_000):
         yielded = 0
@@ -204,17 +282,8 @@ def _extract_text(resp: Any) -> str:
                 yield from walk(vars(x))
             except Exception:
                 for attr in (
-                    "candidates",
-                    "content",
-                    "parts",
-                    "text",
-                    "parsed",
-                    "function_call",
-                    "function_response",
-                    "args",
-                    "arguments",
-                    "response",
-                    "value",
+                    "candidates","content","parts","text","parsed","function_call","function_response",
+                    "args","arguments","response","value",
                 ):
                     xv = getattr(x, attr, None)
                     if xv is not None:
@@ -223,11 +292,13 @@ def _extract_text(resp: Any) -> str:
         yield from walk(obj)
 
     leaves = [_as_text(x) for x in _iter_leaf_strings(resp)]
-    leaves = [s for s in leaves if s]
+    leaves = [s for s in leaves if s and not _is_headerish(s)]
     best = ""
     best_score = (-1, -1)
     for s in leaves:
         ss = s.strip()
+        if _is_junk_text(ss):
+            continue
         score = 0
         if "confidence" in ss or "translation" in ss:
             score += 10
@@ -239,6 +310,8 @@ def _extract_text(resp: Any) -> str:
         if (score, score2) > best_score:
             best_score = (score, score2)
             best = ss
+    if _is_junk_text(best):
+        return ""
     return best
 
 

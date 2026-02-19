@@ -15,6 +15,14 @@ _SIMPLE_INPUT_MODELS: set[str] = set()
 _CLIENTS: dict[tuple[str, float], OpenAI] = {}
 LOGGER = logging.getLogger(__name__)
 
+_NO_REASONING_MODELS: set[str] = set()
+# IDs can leak as leaf strings; never treat them as model output
+_ID_LIKE_RE = re.compile(r"^(?:rs|resp|req|chatcmpl|cmpl)_[A-Za-z0-9]{10,}$")
+
+def _is_junk_text(s: str) -> bool:
+    s = (s or "").strip()
+    return bool(_ID_LIKE_RE.fullmatch(s))
+
 
 def _get_client(api_key: str, timeout_s: float) -> OpenAI:
     key = (api_key, float(timeout_s))
@@ -27,8 +35,8 @@ def _get_client(api_key: str, timeout_s: float) -> OpenAI:
 
 def _max_tokens(cfg: Dict[str, Any], kind: str) -> int:
     key = f"{kind}_max_output_tokens"
-    default = 256 if kind == "translation" else 64
-    cap = 2048 if kind == "translation" else 256
+    default = 512 if kind == "translation" else 128
+    cap = 2048 if kind == "translation" else 512
     return min(int(cfg.get(key, default)), cap)
 
 
@@ -51,6 +59,8 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         }
         if model_id not in _NO_TEMPERATURE_MODELS:
             payload["temperature"] = 0
+        if model_id.startswith("gpt-5") and model_id not in _NO_REASONING_MODELS:
+            payload["reasoning"] = {"effort": cfg.get("openai_reasoning_effort", "minimal")}
         if use_simple_input:
             payload["instructions"] = system
             payload["input"] = user
@@ -75,6 +85,10 @@ def _chat(client: OpenAI, model_id: str, system: str, user: str, cfg: Dict[str, 
         elif (("text.format" in msg) or ("json_object" in msg) or ("format" in msg and "Unsupported" in msg)) and "text" in payload:
             _NO_TEXT_FORMAT_MODELS.add(model_id)
             payload.pop("text", None)
+            resp = client.responses.create(**payload)
+        elif (("reasoning" in msg) or ("effort" in msg)) and "reasoning" in payload:
+            _NO_REASONING_MODELS.add(model_id)
+            payload.pop("reasoning", None)
             resp = client.responses.create(**payload)
         else:
             raise
@@ -204,7 +218,7 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
             return None
 
     out_text = _as_text(_obj_get(resp, "output_text"))
-    if out_text:
+    if out_text and not _is_junk_text(out_text):
         return out_text
 
     choices = _obj_get(resp, "choices")
@@ -212,7 +226,7 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
         c0 = choices[0] if isinstance(choices, (list, tuple)) else choices
         msg = _obj_get(c0, "message")
         ctxt = _as_text(_obj_get(msg, "content") if msg is not None else None)
-        if ctxt:
+        if ctxt and not _is_junk_text(ctxt):
             return ctxt
 
     text_chunks: list[str] = []
@@ -234,7 +248,7 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
                     break
 
     joined = "\n".join(text_chunks).strip()
-    if joined:
+    if joined and not _is_junk_text(joined):
         return joined
 
     leaves = list(_iter_leaf_strings(resp, prefer_key=prefer_key))
@@ -243,6 +257,8 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
     for s in leaves:
         ss = (s or "").strip()
         if not ss:
+            continue
+        if _is_junk_text(ss):
             continue
         score = 0
         if prefer_key and prefer_key in ss:
@@ -257,6 +273,8 @@ def _extract_text(resp: Any, *, prefer_key: str | None = None) -> str:
         if (score, score2) > best_score:
             best_score = (score, score2)
             best = ss
+    if _is_junk_text(best):
+        return ""
     return best
 
 

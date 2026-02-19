@@ -4,9 +4,10 @@ global:
   n: 500
   seed: 123
   temperature: 0.0
+  openai_reasoning_effort: minimal
   max_output_tokens: 512
-  translation_max_output_tokens: 220
-  confidence_max_output_tokens: 48
+  translation_max_output_tokens: 512
+  confidence_max_output_tokens: 256
   tau: 0.8
   mismatch_tau: 0.1
   conf_bins: 10
