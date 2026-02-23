@@ -17,6 +17,9 @@ _ID_LIKE_RE = re.compile(r"^(?:rs|resp|req)_[A-Za-z0-9]{10,}$")
 
 def _is_junk_text(s: str) -> bool:
     s = (s or "").strip()
+    # Transport/debug strings occasionally leak; treat as junk
+    if "scaffolding on httpserver" in s.lower():
+        return True
     if not s:
         return True
     if _ID_LIKE_RE.fullmatch(s):

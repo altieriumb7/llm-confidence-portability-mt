@@ -3,12 +3,12 @@
     "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": 0.09490514283511393,
-      "spearman_difficulty_conf": 0.0027385069540278154,
-      "pearson_difficulty_quality": 0.01878817125023836,
-      "spearman_difficulty_quality": 0.019246828987315945,
-      "pearson_conf_quality": 0.07744354394889806,
-      "spearman_conf_quality": 0.09332408529634117
+      "pearson_difficulty_conf": 0.10080823225102066,
+      "spearman_difficulty_conf": -0.001052452209808839,
+      "pearson_difficulty_quality": 0.016662531496184792,
+      "spearman_difficulty_quality": 0.01830900123600494,
+      "pearson_conf_quality": 0.07247307394338326,
+      "spearman_conf_quality": 0.09865844263377052
     },
     "confidence_stats": {
       "num_rows_total": 500,
@@ -19,17 +19,17 @@
       "max_conf": 0.99
     },
     "parse_warning_count": 0,
-    "ece_global_q20": 0.08926000000000006,
-    "ece_within_model_q20": 0.13126000000000004,
+    "ece_global_q20": 0.09935999999999992,
+    "ece_within_model_q20": 0.12935999999999992,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.24392000000000008,
-      "Q2": 0.13232000000000002,
-      "Q3": 0.09463999999999997,
-      "Q4": 0.09288
+      "Q1": 0.25304,
+      "Q2": 0.12663999999999997,
+      "Q3": 0.10512,
+      "Q4": 0.08479999999999997
     },
     "mismatch_rate_overall": 0.198,
     "mismatch_rate_overall_within_model_q20": 0.198,
-    "mismatch_rate_overall_global_q20": 0.156,
+    "mismatch_rate_overall_global_q20": 0.168,
     "mismatch_rate_by_bucket": {
       "Q1": 0.32,
       "Q2": 0.2,
@@ -37,96 +37,21 @@
       "Q4": 0.144
     },
     "efficiency": {
-      "avg_latency_translate_s": 1.5188632097244263,
-      "avg_latency_conf_s": 1.1186589565277099,
-      "avg_total_latency_s": 2.637522166252136,
-      "avg_input_tokens": 272.106,
-      "avg_output_tokens": 49.238,
+      "avg_latency_translate_s": 1.7379329748153687,
+      "avg_latency_conf_s": 1.3675861692428588,
+      "avg_total_latency_s": 3.1055191440582277,
+      "avg_input_tokens": 272.064,
+      "avg_output_tokens": 49.206,
       "median_output_tokens": 46.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        57.70676551873232,
-        60.38275821058393
+        57.34179351148075,
+        59.92852289713748
       ],
       "ece": [
-        0.21472,
-        0.2733
-      ],
-      "mismatch_rate_overall": [
-        0.166,
-        0.23
-      ]
-    },
-    "mismatch_rate_overall_tau_0.1": 0.198,
-    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.156,
-    "mismatch_rate_overall_tau_0.6": 0.198,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.156,
-    "mismatch_rate_overall_tau_0.7": 0.196,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.196,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.154,
-    "mismatch_rate_overall_tau_0.8": 0.19,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.19,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.148,
-    "mismatch_rate_overall_tau_0.9": 0.158,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.158,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.124
-  },
-  "openai/gpt-5-mini": {
-    "valid_conf_count": 500,
-    "total_count": 500,
-    "correlations": {
-      "pearson_difficulty_conf": 0.0049270442930306494,
-      "spearman_difficulty_conf": -0.026796011184044732,
-      "pearson_difficulty_quality": 0.020802648978475096,
-      "spearman_difficulty_quality": 0.012581042324169294,
-      "pearson_conf_quality": 0.025597313677560986,
-      "spearman_conf_quality": 0.009786759147036587
-    },
-    "confidence_stats": {
-      "num_rows_total": 500,
-      "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 0,
-      "min_conf": 0.06,
-      "median_conf": 0.92,
-      "max_conf": 0.99
-    },
-    "parse_warning_count": 0,
-    "ece_global_q20": 0.13792,
-    "ece_within_model_q20": 0.14192,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.22431999999999996,
-      "Q2": 0.15527999999999992,
-      "Q3": 0.14367999999999997,
-      "Q4": 0.09351999999999999
-    },
-    "mismatch_rate_overall": 0.198,
-    "mismatch_rate_overall_within_model_q20": 0.198,
-    "mismatch_rate_overall_global_q20": 0.194,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.304,
-      "Q2": 0.216,
-      "Q3": 0.144,
-      "Q4": 0.128
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 1.6765172629356384,
-      "avg_latency_conf_s": 1.3352004771232604,
-      "avg_total_latency_s": 3.011717740058899,
-      "avg_input_tokens": 271.574,
-      "avg_output_tokens": 76.702,
-      "median_output_tokens": 74.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        56.0197687946727,
-        58.803737284827
-      ],
-      "ece": [
-        0.23648000000000002,
-        0.29344
+        0.21781999999999999,
+        0.27336
       ],
       "mismatch_rate_overall": [
         0.166,
@@ -135,148 +60,223 @@
     },
     "mismatch_rate_overall_tau_0.1": 0.198,
     "mismatch_rate_overall_within_model_q20_tau_0.1": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.194,
-    "mismatch_rate_overall_tau_0.6": 0.182,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.182,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.178,
-    "mismatch_rate_overall_tau_0.7": 0.176,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.176,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.172,
-    "mismatch_rate_overall_tau_0.8": 0.17,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.17,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.166,
-    "mismatch_rate_overall_tau_0.9": 0.144,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.144,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.142
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.168,
+    "mismatch_rate_overall_tau_0.6": 0.198,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.198,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.168,
+    "mismatch_rate_overall_tau_0.7": 0.196,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.196,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.166,
+    "mismatch_rate_overall_tau_0.8": 0.19,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.19,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.16,
+    "mismatch_rate_overall_tau_0.9": 0.154,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.154,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.13
   },
-  "openai/gpt-5-nano": {
+  "openai/gpt-5-mini": {
     "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.016888711434450462,
-      "spearman_difficulty_conf": -0.04767753471013883,
-      "pearson_difficulty_quality": 0.037013096480961405,
-      "spearman_difficulty_quality": 0.036375121500485996,
-      "pearson_conf_quality": 0.23241096985711848,
-      "spearman_conf_quality": 0.1774143736574946
+      "pearson_difficulty_conf": 0.03532201555902676,
+      "spearman_difficulty_conf": -0.011861903447613788,
+      "pearson_difficulty_quality": -0.009403967394479846,
+      "spearman_difficulty_quality": 0.005024372097488389,
+      "pearson_conf_quality": 0.0974904566268299,
+      "spearman_conf_quality": 0.14218021672086686
     },
     "confidence_stats": {
       "num_rows_total": 500,
       "num_rows_with_valid_conf": 500,
       "parse_warning_rows": 0,
-      "min_conf": 0.18,
-      "median_conf": 0.73,
-      "max_conf": 0.95
+      "min_conf": 0.12,
+      "median_conf": 0.92,
+      "max_conf": 0.99
     },
     "parse_warning_count": 0,
-    "ece_global_q20": 0.05929999999999994,
-    "ece_within_model_q20": 0.08297999999999998,
+    "ece_global_q20": 0.1447,
+    "ece_within_model_q20": 0.14270000000000008,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.04784000000000007,
-      "Q2": 0.10328000000000002,
-      "Q3": 0.10167999999999998,
-      "Q4": 0.15544000000000005
+      "Q1": 0.20863999999999994,
+      "Q2": 0.16864,
+      "Q3": 0.13751999999999998,
+      "Q4": 0.09023999999999996
     },
     "mismatch_rate_overall": 0.198,
     "mismatch_rate_overall_within_model_q20": 0.198,
-    "mismatch_rate_overall_global_q20": 0.244,
+    "mismatch_rate_overall_global_q20": 0.204,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.312,
-      "Q2": 0.168,
-      "Q3": 0.192,
-      "Q4": 0.12
+      "Q1": 0.288,
+      "Q2": 0.192,
+      "Q3": 0.16,
+      "Q4": 0.152
     },
     "efficiency": {
-      "avg_latency_translate_s": 1.3160375180244446,
-      "avg_latency_conf_s": 1.1240151834487915,
-      "avg_total_latency_s": 2.440052701473236,
-      "avg_input_tokens": 271.278,
-      "avg_output_tokens": 76.51,
-      "median_output_tokens": 74.0
+      "avg_latency_translate_s": 1.6561203174591064,
+      "avg_latency_conf_s": 1.2676422867774964,
+      "avg_total_latency_s": 2.923762604236603,
+      "avg_input_tokens": 271.492,
+      "avg_output_tokens": 76.624,
+      "median_output_tokens": 73.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        53.541149373050025,
-        56.24503188097592
+        55.95729915740477,
+        58.58684346463273
       ],
       "ece": [
-        0.33184,
-        0.36768
+        0.23034000000000002,
+        0.28634000000000004
       ],
       "mismatch_rate_overall": [
-        0.164,
-        0.236
+        0.162,
+        0.232
       ]
     },
     "mismatch_rate_overall_tau_0.1": 0.198,
     "mismatch_rate_overall_within_model_q20_tau_0.1": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.244,
-    "mismatch_rate_overall_tau_0.6": 0.162,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.162,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.202,
-    "mismatch_rate_overall_tau_0.7": 0.142,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.142,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.178,
-    "mismatch_rate_overall_tau_0.8": 0.032,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.032,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.036,
-    "mismatch_rate_overall_tau_0.9": 0.004,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.004,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.004
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.204,
+    "mismatch_rate_overall_tau_0.6": 0.188,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.188,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.192,
+    "mismatch_rate_overall_tau_0.7": 0.178,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.178,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.182,
+    "mismatch_rate_overall_tau_0.8": 0.174,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.174,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.178,
+    "mismatch_rate_overall_tau_0.9": 0.136,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.136,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.14
+  },
+  "openai/gpt-5-nano": {
+    "valid_conf_count": 500,
+    "total_count": 500,
+    "correlations": {
+      "pearson_difficulty_conf": 0.06616419709350116,
+      "spearman_difficulty_conf": 0.03542682970731882,
+      "pearson_difficulty_quality": 0.021623547739560364,
+      "spearman_difficulty_quality": 0.021224436897747587,
+      "pearson_conf_quality": 0.21392383628190603,
+      "spearman_conf_quality": 0.18358633434533736
+    },
+    "confidence_stats": {
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 0,
+      "min_conf": 0.21,
+      "median_conf": 0.73,
+      "max_conf": 0.95
+    },
+    "parse_warning_count": 0,
+    "ece_global_q20": 0.05950000000000002,
+    "ece_within_model_q20": 0.07814000000000006,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.09808000000000004,
+      "Q2": 0.09832000000000002,
+      "Q3": 0.09536000000000004,
+      "Q4": 0.15711999999999993
+    },
+    "mismatch_rate_overall": 0.198,
+    "mismatch_rate_overall_within_model_q20": 0.198,
+    "mismatch_rate_overall_global_q20": 0.224,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.296,
+      "Q2": 0.2,
+      "Q3": 0.176,
+      "Q4": 0.12
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 1.3291250004768371,
+      "avg_latency_conf_s": 1.0841701312065124,
+      "avg_total_latency_s": 2.4132951316833497,
+      "avg_input_tokens": 271.388,
+      "avg_output_tokens": 76.638,
+      "median_output_tokens": 74.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        54.03073328874668,
+        56.64940871425029
+      ],
+      "ece": [
+        0.33080000000000004,
+        0.36601999999999996
+      ],
+      "mismatch_rate_overall": [
+        0.164,
+        0.23
+      ]
+    },
+    "mismatch_rate_overall_tau_0.1": 0.198,
+    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.198,
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.224,
+    "mismatch_rate_overall_tau_0.6": 0.174,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.174,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.2,
+    "mismatch_rate_overall_tau_0.7": 0.158,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.158,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.184,
+    "mismatch_rate_overall_tau_0.8": 0.03,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.03,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.034,
+    "mismatch_rate_overall_tau_0.9": 0.006,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.006,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.006
   },
   "anthropic/claude-opus-4-6": {
     "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.13882507630974816,
-      "spearman_difficulty_conf": -0.044174480697922784,
-      "pearson_difficulty_quality": -0.01286748429866898,
-      "spearman_difficulty_quality": 0.004307345229380917,
-      "pearson_conf_quality": 0.47199521160347313,
-      "spearman_conf_quality": 0.38153115812463245
+      "pearson_difficulty_conf": -0.13229947962432634,
+      "spearman_difficulty_conf": -0.0392442849771399,
+      "pearson_difficulty_quality": -0.012503557436766535,
+      "spearman_difficulty_quality": 0.004273745094980379,
+      "pearson_conf_quality": 0.47305936364977125,
+      "spearman_conf_quality": 0.38730682922731685
     },
     "confidence_stats": {
       "num_rows_total": 500,
       "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 54,
-      "min_conf": 0.05,
+      "parse_warning_rows": 57,
+      "min_conf": 0.08,
       "median_conf": 0.93,
       "max_conf": 0.99
     },
-    "parse_warning_count": 54,
-    "ece_global_q20": 0.07289999999999996,
-    "ece_within_model_q20": 0.08689999999999996,
+    "parse_warning_count": 57,
+    "ece_global_q20": 0.068,
+    "ece_within_model_q20": 0.08400000000000005,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.2164,
-      "Q2": 0.07991999999999996,
-      "Q3": 0.05503999999999999,
-      "Q4": 0.04439999999999996
+      "Q1": 0.20695999999999998,
+      "Q2": 0.07680000000000001,
+      "Q3": 0.05631999999999996,
+      "Q4": 0.03640000000000002
     },
     "mismatch_rate_overall": 0.19,
     "mismatch_rate_overall_within_model_q20": 0.19,
-    "mismatch_rate_overall_global_q20": 0.172,
+    "mismatch_rate_overall_global_q20": 0.17,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.304,
+      "Q1": 0.296,
       "Q2": 0.176,
-      "Q3": 0.12,
+      "Q3": 0.128,
       "Q4": 0.16
     },
     "efficiency": {
-      "avg_latency_translate_s": 2.7053688044548037,
-      "avg_latency_conf_s": 2.0444605441093446,
-      "avg_total_latency_s": 4.749829348564148,
-      "avg_input_tokens": 275.024,
-      "avg_output_tokens": 62.332,
+      "avg_latency_translate_s": 2.8367599816322326,
+      "avg_latency_conf_s": 2.1307045364379884,
+      "avg_total_latency_s": 4.967464518070221,
+      "avg_input_tokens": 275.0,
+      "avg_output_tokens": 62.378,
       "median_output_tokens": 59.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        56.975995007546935,
-        60.11884736309479
+        56.91468271236309,
+        59.974450881499365
       ],
       "ece": [
-        0.19668,
-        0.25188
+        0.19418000000000002,
+        0.24852000000000002
       ],
       "mismatch_rate_overall": [
         0.156,
@@ -285,318 +285,318 @@
     },
     "mismatch_rate_overall_tau_0.1": 0.19,
     "mismatch_rate_overall_within_model_q20_tau_0.1": 0.19,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.172,
-    "mismatch_rate_overall_tau_0.6": 0.144,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.144,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.126,
-    "mismatch_rate_overall_tau_0.7": 0.142,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.142,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.126,
-    "mismatch_rate_overall_tau_0.8": 0.132,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.132,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.116,
-    "mismatch_rate_overall_tau_0.9": 0.078,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.078,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.066
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.17,
+    "mismatch_rate_overall_tau_0.6": 0.142,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.142,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.122,
+    "mismatch_rate_overall_tau_0.7": 0.14,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.14,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.122,
+    "mismatch_rate_overall_tau_0.8": 0.128,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.128,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.11,
+    "mismatch_rate_overall_tau_0.9": 0.076,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.076,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.064
   },
   "anthropic/claude-sonnet-4-5-20250929": {
     "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.07520650540688528,
-      "spearman_difficulty_conf": -0.18898645194580774,
-      "pearson_difficulty_quality": 0.020879753004954843,
-      "spearman_difficulty_quality": 0.04092832371329484,
-      "pearson_conf_quality": 0.45767152659978627,
-      "spearman_conf_quality": 0.34912651650606596
+      "pearson_difficulty_conf": -0.08125128831341187,
+      "spearman_difficulty_conf": -0.19749246996987985,
+      "pearson_difficulty_quality": 0.023169376927228164,
+      "spearman_difficulty_quality": 0.03885730742922971,
+      "pearson_conf_quality": 0.45706825920140753,
+      "spearman_conf_quality": 0.3562983211932847
     },
     "confidence_stats": {
       "num_rows_total": 500,
       "num_rows_with_valid_conf": 500,
       "parse_warning_rows": 68,
-      "min_conf": 0.15,
+      "min_conf": 0.1,
       "median_conf": 0.95,
       "max_conf": 1.0
     },
     "parse_warning_count": 68,
-    "ece_global_q20": 0.11696,
-    "ece_within_model_q20": 0.09515999999999997,
+    "ece_global_q20": 0.11774000000000001,
+    "ece_within_model_q20": 0.09633999999999994,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.22183999999999998,
-      "Q2": 0.14887999999999998,
-      "Q3": 0.06111999999999998,
-      "Q4": 0.029280000000000035
+      "Q1": 0.2133599999999999,
+      "Q2": 0.14359999999999995,
+      "Q3": 0.06471999999999999,
+      "Q4": 0.02320000000000011
     },
-    "mismatch_rate_overall": 0.198,
-    "mismatch_rate_overall_within_model_q20": 0.198,
-    "mismatch_rate_overall_global_q20": 0.224,
+    "mismatch_rate_overall": 0.196,
+    "mismatch_rate_overall_within_model_q20": 0.196,
+    "mismatch_rate_overall_global_q20": 0.22,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.272,
+      "Q1": 0.264,
       "Q2": 0.232,
-      "Q3": 0.184,
-      "Q4": 0.104
+      "Q3": 0.176,
+      "Q4": 0.112
     },
     "efficiency": {
-      "avg_latency_translate_s": 2.2325952401161193,
-      "avg_latency_conf_s": 1.6591879649162293,
-      "avg_total_latency_s": 3.8917832050323486,
-      "avg_input_tokens": 272.65,
-      "avg_output_tokens": 62.378,
+      "avg_latency_translate_s": 2.473775532722473,
+      "avg_latency_conf_s": 1.8957939834594726,
+      "avg_total_latency_s": 4.3695695161819454,
+      "avg_input_tokens": 272.7,
+      "avg_output_tokens": 62.384,
       "median_output_tokens": 58.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        55.336721249827434,
-        58.462065865683215
+        55.34555528297053,
+        58.43994540940809
       ],
       "ece": [
-        0.18892,
-        0.24072
+        0.18868000000000001,
+        0.24108000000000002
       ],
       "mismatch_rate_overall": [
-        0.164,
-        0.234
+        0.162,
+        0.23
       ]
     },
-    "mismatch_rate_overall_tau_0.1": 0.198,
-    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.224,
+    "mismatch_rate_overall_tau_0.1": 0.196,
+    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.196,
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.22,
     "mismatch_rate_overall_tau_0.6": 0.154,
     "mismatch_rate_overall_within_model_q20_tau_0.6": 0.154,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.178,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.176,
     "mismatch_rate_overall_tau_0.7": 0.136,
     "mismatch_rate_overall_within_model_q20_tau_0.7": 0.136,
     "mismatch_rate_overall_global_q20_tau_0.7": 0.158,
     "mismatch_rate_overall_tau_0.8": 0.136,
     "mismatch_rate_overall_within_model_q20_tau_0.8": 0.136,
     "mismatch_rate_overall_global_q20_tau_0.8": 0.158,
-    "mismatch_rate_overall_tau_0.9": 0.126,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.126,
+    "mismatch_rate_overall_tau_0.9": 0.124,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.124,
     "mismatch_rate_overall_global_q20_tau_0.9": 0.14
   },
   "anthropic/claude-haiku-4-5-20251001": {
     "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.01817051705918382,
-      "spearman_difficulty_conf": -0.057747878991515955,
-      "pearson_difficulty_quality": 0.0041210831237515795,
-      "spearman_difficulty_quality": 0.019755439021756083,
-      "pearson_conf_quality": 0.17370546409192428,
-      "spearman_conf_quality": 0.22865025860103436
+      "pearson_difficulty_conf": -0.00013998251994381338,
+      "spearman_difficulty_conf": -0.047519614078456306,
+      "pearson_difficulty_quality": 0.018549193791603445,
+      "spearman_difficulty_quality": 0.03094735578942315,
+      "pearson_conf_quality": 0.2380326965409027,
+      "spearman_conf_quality": 0.2382458809835239
     },
     "confidence_stats": {
       "num_rows_total": 500,
       "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 27,
+      "parse_warning_rows": 31,
       "min_conf": 0.15,
       "median_conf": 0.92,
       "max_conf": 1.0
     },
-    "parse_warning_count": 27,
-    "ece_global_q20": 0.10534000000000004,
-    "ece_within_model_q20": 0.10334000000000007,
+    "parse_warning_count": 31,
+    "ece_global_q20": 0.10020000000000001,
+    "ece_within_model_q20": 0.0962,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.23671999999999993,
-      "Q2": 0.10832,
-      "Q3": 0.06048000000000006,
-      "Q4": 0.05568000000000009
+      "Q1": 0.24440000000000006,
+      "Q2": 0.12656000000000006,
+      "Q3": 0.07032000000000008,
+      "Q4": 0.044480000000000006
     },
     "mismatch_rate_overall": 0.198,
     "mismatch_rate_overall_within_model_q20": 0.198,
-    "mismatch_rate_overall_global_q20": 0.2,
+    "mismatch_rate_overall_global_q20": 0.202,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.296,
-      "Q2": 0.208,
-      "Q3": 0.136,
-      "Q4": 0.152
+      "Q1": 0.304,
+      "Q2": 0.232,
+      "Q3": 0.128,
+      "Q4": 0.128
     },
     "efficiency": {
-      "avg_latency_translate_s": 1.2789758858680724,
-      "avg_latency_conf_s": 1.0092998795509338,
-      "avg_total_latency_s": 2.2882757654190065,
-      "avg_input_tokens": 273.238,
-      "avg_output_tokens": 61.518,
+      "avg_latency_translate_s": 1.4757456712722778,
+      "avg_latency_conf_s": 1.2525173559188842,
+      "avg_total_latency_s": 2.7282630271911623,
+      "avg_input_tokens": 273.044,
+      "avg_output_tokens": 61.504,
       "median_output_tokens": 58.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        55.873313822019306,
-        58.547308692637095
+        55.49612615292295,
+        58.2714029597745
       ],
       "ece": [
-        0.22206,
-        0.27926
+        0.22066,
+        0.2756
       ],
       "mismatch_rate_overall": [
-        0.162,
-        0.234
+        0.164,
+        0.232
       ]
     },
     "mismatch_rate_overall_tau_0.1": 0.198,
     "mismatch_rate_overall_within_model_q20_tau_0.1": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.2,
-    "mismatch_rate_overall_tau_0.6": 0.182,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.182,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.184,
-    "mismatch_rate_overall_tau_0.7": 0.176,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.176,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.178,
-    "mismatch_rate_overall_tau_0.8": 0.166,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.166,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.168,
-    "mismatch_rate_overall_tau_0.9": 0.134,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.134,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.136
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.202,
+    "mismatch_rate_overall_tau_0.6": 0.176,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.176,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.18,
+    "mismatch_rate_overall_tau_0.7": 0.17,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.17,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.174,
+    "mismatch_rate_overall_tau_0.8": 0.162,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.162,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.166,
+    "mismatch_rate_overall_tau_0.9": 0.132,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.132,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.134
   },
   "gemini/gemini-2.5-pro": {
-    "valid_conf_count": 481,
-    "total_count": 481,
+    "valid_conf_count": 476,
+    "total_count": 476,
     "correlations": {
-      "pearson_difficulty_conf": 0.007926691681181266,
-      "spearman_difficulty_conf": -0.03883053976414971,
-      "pearson_difficulty_quality": 0.021395126249752875,
-      "spearman_difficulty_quality": 0.024838359744998744,
-      "pearson_conf_quality": 0.24740238176072324,
-      "spearman_conf_quality": 0.2001479455836302
+      "pearson_difficulty_conf": 0.034483030090096276,
+      "spearman_difficulty_conf": -0.03623220092406376,
+      "pearson_difficulty_quality": 0.04566441967702744,
+      "spearman_difficulty_quality": 0.05060709487369922,
+      "pearson_conf_quality": 0.22518747929280716,
+      "spearman_conf_quality": 0.2056533119702697
     },
     "confidence_stats": {
-      "num_rows_total": 481,
-      "num_rows_with_valid_conf": 481,
+      "num_rows_total": 476,
+      "num_rows_with_valid_conf": 476,
       "parse_warning_rows": 2,
       "min_conf": 0.0,
       "median_conf": 1.0,
       "max_conf": 1.0
     },
     "parse_warning_count": 2,
-    "ece_global_q20": 0.12309771309771307,
-    "ece_within_model_q20": 0.1813097713097713,
+    "ece_global_q20": 0.1310504201680672,
+    "ece_within_model_q20": 0.1814705882352942,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.2515573770491804,
-      "Q2": 0.19297520661157025,
-      "Q3": 0.16421487603305784,
-      "Q4": 0.11623931623931615
+      "Q1": 0.2647107438016529,
+      "Q2": 0.20107438016528922,
+      "Q3": 0.1543697478991596,
+      "Q4": 0.10130434782608701
     },
-    "mismatch_rate_overall": 0.19750519750519752,
-    "mismatch_rate_overall_within_model_q20": 0.19750519750519752,
-    "mismatch_rate_overall_global_q20": 0.1392931392931393,
+    "mismatch_rate_overall": 0.19747899159663865,
+    "mismatch_rate_overall_within_model_q20": 0.19747899159663865,
+    "mismatch_rate_overall_global_q20": 0.14705882352941177,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.2786885245901639,
-      "Q2": 0.2066115702479339,
-      "Q3": 0.17355371900826447,
-      "Q4": 0.1282051282051282
+      "Q1": 0.2892561983471074,
+      "Q2": 0.21487603305785125,
+      "Q3": 0.16806722689075632,
+      "Q4": 0.11304347826086956
     },
     "efficiency": {
-      "avg_latency_translate_s": 3.0126390090355506,
-      "avg_latency_conf_s": 2.727451366099399,
-      "avg_total_latency_s": 5.74009037513495,
-      "avg_input_tokens": 261.67359667359665,
-      "avg_output_tokens": 43.26195426195426,
+      "avg_latency_translate_s": 3.1029425984671137,
+      "avg_latency_conf_s": 2.7458456884913085,
+      "avg_total_latency_s": 5.848788286958422,
+      "avg_input_tokens": 261.66806722689074,
+      "avg_output_tokens": 43.30672268907563,
       "median_output_tokens": 40.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        58.59971592506523,
-        61.19923349600468
+        58.39031343686723,
+        61.14202578711855
       ],
       "ece": [
-        0.1717047817047817,
-        0.23490644490644488
+        0.16621848739495798,
+        0.23304621848739498
       ],
       "mismatch_rate_overall": [
-        0.16632016632016633,
-        0.23284823284823286
+        0.15966386554621848,
+        0.23109243697478993
       ]
     },
-    "mismatch_rate_overall_tau_0.1": 0.19750519750519752,
-    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.19750519750519752,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.1392931392931393,
-    "mismatch_rate_overall_tau_0.6": 0.19750519750519752,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.19750519750519752,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.1392931392931393,
-    "mismatch_rate_overall_tau_0.7": 0.19334719334719336,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.19334719334719336,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.13721413721413722,
-    "mismatch_rate_overall_tau_0.8": 0.1891891891891892,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.1891891891891892,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.13305613305613306,
-    "mismatch_rate_overall_tau_0.9": 0.18295218295218296,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.18295218295218296,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.1288981288981289
+    "mismatch_rate_overall_tau_0.1": 0.19747899159663865,
+    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.19747899159663865,
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.14705882352941177,
+    "mismatch_rate_overall_tau_0.6": 0.19747899159663865,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.19747899159663865,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.14705882352941177,
+    "mismatch_rate_overall_tau_0.7": 0.19327731092436976,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.19327731092436976,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.14285714285714285,
+    "mismatch_rate_overall_tau_0.8": 0.19117647058823528,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.19117647058823528,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.14285714285714285,
+    "mismatch_rate_overall_tau_0.9": 0.18487394957983194,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.18487394957983194,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.13865546218487396
   },
   "gemini/gemini-2.5-flash": {
-    "valid_conf_count": 486,
+    "valid_conf_count": 489,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.15831103990021683,
-      "spearman_difficulty_conf": -0.19179887919551675,
-      "pearson_difficulty_quality": -0.15948406240802585,
-      "spearman_difficulty_quality": -0.09385851943407772,
-      "pearson_conf_quality": 0.19921644021340013,
-      "spearman_conf_quality": 0.17314965259861037
+      "pearson_difficulty_conf": -0.1351526576956859,
+      "spearman_difficulty_conf": -0.18938149352597408,
+      "pearson_difficulty_quality": -0.15928498927577503,
+      "spearman_difficulty_quality": -0.08914787659150634,
+      "pearson_conf_quality": 0.16560209670187853,
+      "spearman_conf_quality": 0.15116873267493067
     },
     "confidence_stats": {
       "num_rows_total": 500,
-      "num_rows_with_valid_conf": 486,
-      "parse_warning_rows": 300,
+      "num_rows_with_valid_conf": 489,
+      "parse_warning_rows": 306,
       "min_conf": 0.0,
       "median_conf": 0.73,
       "max_conf": 1.0
     },
-    "parse_warning_count": 300,
-    "ece_global_q20": 0.1946502057613168,
-    "ece_within_model_q20": 0.2029629629629629,
+    "parse_warning_count": 306,
+    "ece_global_q20": 0.18799591002044982,
+    "ece_within_model_q20": 0.1993660531697341,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.21693548387096778,
-      "Q2": 0.21163934426229503,
-      "Q3": 0.19804878048780492,
-      "Q4": 0.22461538461538458
+      "Q1": 0.22784000000000007,
+      "Q2": 0.21669354838709676,
+      "Q3": 0.2053333333333333,
+      "Q4": 0.21450000000000002
     },
-    "mismatch_rate_overall": 0.13786008230452676,
-    "mismatch_rate_overall_within_model_q20": 0.13786008230452676,
-    "mismatch_rate_overall_global_q20": 0.18724279835390947,
+    "mismatch_rate_overall": 0.1492842535787321,
+    "mismatch_rate_overall_within_model_q20": 0.1492842535787321,
+    "mismatch_rate_overall_global_q20": 0.18609406952965235,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.20161290322580644,
-      "Q2": 0.12295081967213115,
-      "Q3": 0.11382113821138211,
-      "Q4": 0.1111111111111111
+      "Q1": 0.224,
+      "Q2": 0.12903225806451613,
+      "Q3": 0.1,
+      "Q4": 0.14166666666666666
     },
     "efficiency": {
-      "avg_latency_translate_s": 2.1132295069694518,
-      "avg_latency_conf_s": 2.3956130833625795,
-      "avg_total_latency_s": 4.508842590332031,
-      "avg_input_tokens": 310.308,
-      "avg_output_tokens": 39.734,
+      "avg_latency_translate_s": 1.7922816624641418,
+      "avg_latency_conf_s": 1.9230164771080016,
+      "avg_total_latency_s": 3.7152981395721434,
+      "avg_input_tokens": 311.936,
+      "avg_output_tokens": 40.218,
       "median_output_tokens": 38.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        51.384519350018266,
-        55.54515253195763
+        52.01295343244236,
+        55.90290761667847
       ],
       "ece": [
-        0.3370781893004115,
-        0.4020576131687243
+        0.33212678936605317,
+        0.39572597137014315
       ],
       "mismatch_rate_overall": [
-        0.10905349794238683,
-        0.17078189300411523
+        0.1165644171779141,
+        0.18404907975460122
       ]
     },
-    "mismatch_rate_overall_tau_0.1": 0.13786008230452676,
-    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.13786008230452676,
-    "mismatch_rate_overall_global_q20_tau_0.1": 0.18724279835390947,
-    "mismatch_rate_overall_tau_0.6": 0.1337448559670782,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.1337448559670782,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.1831275720164609,
-    "mismatch_rate_overall_tau_0.7": 0.13168724279835392,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.13168724279835392,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.18106995884773663,
-    "mismatch_rate_overall_tau_0.8": 0.043209876543209874,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.043209876543209874,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.059670781893004114,
-    "mismatch_rate_overall_tau_0.9": 0.03909465020576132,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.03909465020576132,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.053497942386831275
+    "mismatch_rate_overall_tau_0.1": 0.1492842535787321,
+    "mismatch_rate_overall_within_model_q20_tau_0.1": 0.1492842535787321,
+    "mismatch_rate_overall_global_q20_tau_0.1": 0.18609406952965235,
+    "mismatch_rate_overall_tau_0.6": 0.14314928425357873,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.14314928425357873,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.17995910020449898,
+    "mismatch_rate_overall_tau_0.7": 0.1411042944785276,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.1411042944785276,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.17791411042944785,
+    "mismatch_rate_overall_tau_0.8": 0.053169734151329244,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.053169734151329244,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.06748466257668712,
+    "mismatch_rate_overall_tau_0.9": 0.04294478527607362,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.04294478527607362,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.05725971370143149
   }
 }
