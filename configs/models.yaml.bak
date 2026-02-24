@@ -8,21 +8,18 @@ global:
   max_output_tokens: 512
   translation_max_output_tokens: 512
   confidence_max_output_tokens: 256
-  tau: 0.9
-  mismatch_tau: 0.9
+  tau: 0.8
+  mismatch_tau: 0.1
   conf_bins: 10
   timeout_s: 60
   max_retries: 6
   concurrency_per_provider: 2
-  bootstrap_samples: 2000
+  bootstrap_samples: 500
   quality_metric_main: chrf
   error_quantile_within_model: 0.2
   error_quantile_global: 0.2
   mismatch_error_col: "error_within_model_q20"
 
-
-  # Appendix C robustness variant: within-model bottom 10% chrF
-  error_quantile_within_model_chrf_q10: 0.1
 models:
   - provider: openai
     model_id: gpt-5.2
