@@ -1,0 +1,18 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 308
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Um zu verhindern, dass es einfach gestohlen wird, senkt es sich beim Messen ab, wodurch seine Räder im gepanzerten, kugelsicheren Äußeren verschwinden."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+
+=== translation_raw ===
+{"translation": "Um zu verhindern, dass es einfach gestohlen wird, senkt es sich beim Messen ab, wodurch seine Räder im gepanzerten, kugelsicheren Äußeren verschwinden."}
+
+=== confidence_raw ===
+Here is the JSON requested:

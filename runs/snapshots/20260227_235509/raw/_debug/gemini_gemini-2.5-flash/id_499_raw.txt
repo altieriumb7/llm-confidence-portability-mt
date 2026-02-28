@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 499
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Ein französischer Filmemacher jüdischer Herkunft löste einen Medienrummel aus, nachdem er enthüllte, dass das Hotel Kempinski Bristol in Berlin Israels Vorwahl nicht auflistet, wobei ein Mitarbeiter \"Anfragen\" von arabischen Kunden als Grund nannte."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+```json
+
+=== translation_raw ===
+{"translation": "Ein französischer Filmemacher jüdischer Herkunft löste einen Medienrummel aus, nachdem er enthüllte, dass das Hotel Kempinski Bristol in Berlin Israels Vorwahl nicht auflistet, wobei ein Mitarbeiter \"Anfragen\" von arabischen Kunden als Grund nannte."}
+
+=== confidence_raw ===
+Here is the JSON requested:
+```json

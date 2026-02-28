@@ -61,8 +61,18 @@ def main():
 
     cfg = load_config(args.config)
     rows = []
-    for fp in glob.glob(f"{args.input_dir}/*.jsonl"):
+    for fp in sorted(glob.glob(f"{args.input_dir}/*.jsonl")):
         rows.extend(read_jsonl(Path(fp)))
+
+    # Dedupe by (provider, model_id, id): keep the last occurrence.
+    dedup = {}
+    for r in rows:
+        k = (r.get('provider'), r.get('model_id'), str(r.get('id')))
+        dedup[k] = r
+    if len(dedup) != len(rows):
+        print(f"[dedupe] raw rows={len(rows)} -> unique={len(dedup)} (dropped {len(rows)-len(dedup)})")
+    rows = list(dedup.values())
+
     if not rows:
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)

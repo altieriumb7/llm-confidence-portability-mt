@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 467
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "„Wenn Sie nicht Ihre Meinung ändern und Erdogan loben, ist Ihr Koffer quasi gepackt“, sagte der Präsident der Gülen-nahen Stiftung für Dialog und Welt, Ercan Karakoyun, der Zeitung „Die Welt“."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+```
+
+=== translation_raw ===
+{"translation": "„Wenn Sie nicht Ihre Meinung ändern und Erdogan loben, ist Ihr Koffer quasi gepackt“, sagte der Präsident der Gülen-nahen Stiftung für Dialog und Welt, Ercan Karakoyun, der Zeitung „Die Welt“."}
+
+=== confidence_raw ===
+Here is the JSON requested:
+```

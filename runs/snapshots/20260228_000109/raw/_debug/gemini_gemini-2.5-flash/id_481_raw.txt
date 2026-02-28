@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 481
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Am schwerwiegendsten waren die Anschuldigungen von hochrangigen Beamten, dass Erdogans eigene Familie von einem illegalen Ölhandel aus Gebieten Syriens profitiert hat, die vom sogenannten Islamischen Staat kontrolliert werden."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+```
+
+=== translation_raw ===
+{"translation": "Am schwerwiegendsten waren die Anschuldigungen von hochrangigen Beamten, dass Erdogans eigene Familie von einem illegalen Ölhandel aus Gebieten Syriens profitiert hat, die vom sogenannten Islamischen Staat kontrolliert werden."}
+
+=== confidence_raw ===
+Here is the JSON requested:
+```

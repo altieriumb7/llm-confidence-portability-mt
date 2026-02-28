@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 186
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Aber Herr Dooley, 28, aus Lake Forest, Kalifornien, kämpft um Gold im olympischen Trampolinturnen."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+```
+
+=== translation_raw ===
+{"translation": "Aber Herr Dooley, 28, aus Lake Forest, Kalifornien, kämpft um Gold im olympischen Trampolinturnen."}
+
+=== confidence_raw ===
+Here is the JSON requested:
+```

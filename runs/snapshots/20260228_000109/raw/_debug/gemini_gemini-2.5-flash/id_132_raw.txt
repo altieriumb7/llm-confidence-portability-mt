@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 132
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "In diesem Zeitraum renovierten Bauarbeiter die Zimmer im Auftrag des unbekannten Eigentümers des Hauses."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+```
+
+=== translation_raw ===
+{"translation": "In diesem Zeitraum renovierten Bauarbeiter die Zimmer im Auftrag des unbekannten Eigentümers des Hauses."}
+
+=== confidence_raw ===
+Here is the JSON requested:
+```

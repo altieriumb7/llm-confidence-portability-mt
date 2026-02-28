@@ -1,434 +1,14 @@
 {
-  "openai/gpt-5.2": {
-    "valid_conf_count": 500,
-    "total_count": 500,
-    "correlations": {
-      "pearson_difficulty_conf": 0.1284628782947562,
-      "spearman_difficulty_conf": 0.037127956511826044,
-      "pearson_difficulty_quality": 0.022146340664378046,
-      "spearman_difficulty_quality": 0.027146220584882336,
-      "pearson_conf_quality": 0.09631705894293456,
-      "spearman_conf_quality": 0.12128390913563653
-    },
-    "confidence_stats": {
-      "num_rows_total": 500,
-      "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 0,
-      "min_conf": 0.22,
-      "median_conf": 0.93,
-      "max_conf": 0.99
-    },
-    "parse_warning_count": 0,
-    "ece_global_q20": 0.09426000000000007,
-    "ece_within_model_q20": 0.13226,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.24712000000000006,
-      "Q2": 0.13800000000000004,
-      "Q3": 0.0920000000000001,
-      "Q4": 0.07464000000000003
-    },
-    "mismatch_rate_overall": 0.154,
-    "mismatch_rate_overall_within_model_q20": 0.154,
-    "mismatch_rate_overall_global_q20": 0.118,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.184,
-      "Q2": 0.176,
-      "Q3": 0.128,
-      "Q4": 0.128
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 1.530822671890259,
-      "avg_latency_conf_s": 1.1461766557693482,
-      "avg_total_latency_s": 2.676999327659607,
-      "avg_input_tokens": 272.082,
-      "avg_output_tokens": 49.22,
-      "median_output_tokens": 46.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        57.553083838400745,
-        60.13892907577797
-      ],
-      "ece": [
-        0.09996,
-        0.16996000000000006
-      ],
-      "mismatch_rate_overall": [
-        0.124,
-        0.186
-      ],
-      "mismatch_rate_overall_tau_0.9": [
-        0.124,
-        0.186
-      ]
-    },
-    "mismatch_rate_overall_tau_0.6": 0.198,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.198,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.16,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.196,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.196,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.158,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.19,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.19,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.152,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.154,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.154,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.118,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
-  },
-  "openai/gpt-5-mini": {
-    "valid_conf_count": 500,
-    "total_count": 500,
-    "correlations": {
-      "pearson_difficulty_conf": 0.0942534394161575,
-      "spearman_difficulty_conf": 0.018998091992367967,
-      "pearson_difficulty_quality": 0.0131188488790469,
-      "spearman_difficulty_quality": 0.013237396949587796,
-      "pearson_conf_quality": 0.06918993899696162,
-      "spearman_conf_quality": 0.0753443653774615
-    },
-    "confidence_stats": {
-      "num_rows_total": 500,
-      "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 0,
-      "min_conf": 0.05,
-      "median_conf": 0.93,
-      "max_conf": 0.99
-    },
-    "parse_warning_count": 0,
-    "ece_global_q20": 0.13866000000000003,
-    "ece_within_model_q20": 0.13866000000000003,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.22791999999999998,
-      "Q2": 0.17416000000000004,
-      "Q3": 0.11376,
-      "Q4": 0.07576
-    },
-    "mismatch_rate_overall": 0.136,
-    "mismatch_rate_overall_within_model_q20": 0.136,
-    "mismatch_rate_overall_global_q20": 0.136,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.192,
-      "Q2": 0.136,
-      "Q3": 0.12,
-      "Q4": 0.096
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 1.550735414981842,
-      "avg_latency_conf_s": 1.1495713839530945,
-      "avg_total_latency_s": 2.7003067989349363,
-      "avg_input_tokens": 271.48,
-      "avg_output_tokens": 76.6,
-      "median_output_tokens": 74.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        56.03743764082759,
-        58.686211503473984
-      ],
-      "ece": [
-        0.10796,
-        0.17851999999999993
-      ],
-      "mismatch_rate_overall": [
-        0.106,
-        0.166
-      ],
-      "mismatch_rate_overall_tau_0.9": [
-        0.106,
-        0.166
-      ]
-    },
-    "mismatch_rate_overall_tau_0.6": 0.182,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.182,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.182,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.176,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.176,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.176,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.174,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.174,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.174,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.136,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.136,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.136,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
-  },
-  "openai/gpt-5-nano": {
-    "valid_conf_count": 500,
-    "total_count": 500,
-    "correlations": {
-      "pearson_difficulty_conf": 0.03879324411499715,
-      "spearman_difficulty_conf": 0.012027792111168443,
-      "pearson_difficulty_quality": 0.03588639913039617,
-      "spearman_difficulty_quality": 0.057475237900951597,
-      "pearson_conf_quality": 0.19391981189969354,
-      "spearman_conf_quality": 0.14226104904419615
-    },
-    "confidence_stats": {
-      "num_rows_total": 500,
-      "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 0,
-      "min_conf": 0.18,
-      "median_conf": 0.73,
-      "max_conf": 0.95
-    },
-    "parse_warning_count": 0,
-    "ece_global_q20": 0.05293999999999999,
-    "ece_within_model_q20": 0.08190000000000003,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.09432000000000003,
-      "Q2": 0.13456,
-      "Q3": 0.13111999999999993,
-      "Q4": 0.15496000000000004
-    },
-    "mismatch_rate_overall": 0.004,
-    "mismatch_rate_overall_within_model_q20": 0.004,
-    "mismatch_rate_overall_global_q20": 0.004,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.016,
-      "Q2": 0.0,
-      "Q3": 0.0,
-      "Q4": 0.0
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 1.2389282021522523,
-      "avg_latency_conf_s": 1.0252828269004821,
-      "avg_total_latency_s": 2.2642110290527344,
-      "avg_input_tokens": 271.32,
-      "avg_output_tokens": 76.706,
-      "median_output_tokens": 74.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        53.51394757565462,
-        56.106108793600775
-      ],
-      "ece": [
-        0.054940000000000024,
-        0.11962000000000005
-      ],
-      "mismatch_rate_overall": [
-        0.0,
-        0.01
-      ],
-      "mismatch_rate_overall_tau_0.9": [
-        0.0,
-        0.01
-      ]
-    },
-    "mismatch_rate_overall_tau_0.6": 0.166,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.166,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.208,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.156,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.156,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.194,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.022,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.022,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.028,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.004,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.004,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.004,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
-  },
-  "anthropic/claude-opus-4-6": {
-    "valid_conf_count": 500,
-    "total_count": 500,
-    "correlations": {
-      "pearson_difficulty_conf": -0.13040140706003922,
-      "spearman_difficulty_conf": -0.032750819003276005,
-      "pearson_difficulty_quality": -0.011364638066433607,
-      "spearman_difficulty_quality": 0.0037083988335953337,
-      "pearson_conf_quality": 0.47518445931448205,
-      "spearman_conf_quality": 0.3781981207924831
-    },
-    "confidence_stats": {
-      "num_rows_total": 500,
-      "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 58,
-      "min_conf": 0.05,
-      "median_conf": 0.93,
-      "max_conf": 0.99
-    },
-    "parse_warning_count": 58,
-    "ece_global_q20": 0.07413999999999996,
-    "ece_within_model_q20": 0.08413999999999994,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.19792000000000004,
-      "Q2": 0.09127999999999994,
-      "Q3": 0.04608000000000001,
-      "Q4": 0.029759999999999967
-    },
-    "mismatch_rate_overall": 0.078,
-    "mismatch_rate_overall_within_model_q20": 0.078,
-    "mismatch_rate_overall_global_q20": 0.066,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.144,
-      "Q2": 0.072,
-      "Q3": 0.056,
-      "Q4": 0.04
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 2.5372669801712036,
-      "avg_latency_conf_s": 1.9193179020881652,
-      "avg_total_latency_s": 4.456584882259369,
-      "avg_input_tokens": 274.956,
-      "avg_output_tokens": 62.342,
-      "median_output_tokens": 59.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        56.926956887545145,
-        59.99068922521109
-      ],
-      "ece": [
-        0.057139999999999955,
-        0.11938
-      ],
-      "mismatch_rate_overall": [
-        0.056,
-        0.102
-      ],
-      "mismatch_rate_overall_tau_0.9": [
-        0.056,
-        0.102
-      ]
-    },
-    "mismatch_rate_overall_tau_0.6": 0.142,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.142,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.128,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.14,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.14,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.128,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.126,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.126,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.114,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.078,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.078,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.066,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
-  },
-  "anthropic/claude-sonnet-4-5-20250929": {
-    "valid_conf_count": 500,
-    "total_count": 500,
-    "correlations": {
-      "pearson_difficulty_conf": -0.07054862397095471,
-      "spearman_difficulty_conf": -0.1896515426061704,
-      "pearson_difficulty_quality": 0.017617041343303955,
-      "spearman_difficulty_quality": 0.03701976407905631,
-      "pearson_conf_quality": 0.4558291975620012,
-      "spearman_conf_quality": 0.34312514850059395
-    },
-    "confidence_stats": {
-      "num_rows_total": 500,
-      "num_rows_with_valid_conf": 500,
-      "parse_warning_rows": 68,
-      "min_conf": 0.1,
-      "median_conf": 0.95,
-      "max_conf": 1.0
-    },
-    "parse_warning_count": 68,
-    "ece_global_q20": 0.11361999999999997,
-    "ece_within_model_q20": 0.09461999999999993,
-    "ece_by_difficulty_bucket": {
-      "Q1": 0.21391999999999997,
-      "Q2": 0.14887999999999998,
-      "Q3": 0.06344000000000001,
-      "Q4": 0.022639999999999952
-    },
-    "mismatch_rate_overall": 0.128,
-    "mismatch_rate_overall_within_model_q20": 0.128,
-    "mismatch_rate_overall_global_q20": 0.14,
-    "mismatch_rate_by_bucket": {
-      "Q1": 0.216,
-      "Q2": 0.16,
-      "Q3": 0.08,
-      "Q4": 0.056
-    },
-    "efficiency": {
-      "avg_latency_translate_s": 2.2004961767196654,
-      "avg_latency_conf_s": 1.6697190937995912,
-      "avg_total_latency_s": 3.8702152705192567,
-      "avg_input_tokens": 272.64,
-      "avg_output_tokens": 62.366,
-      "median_output_tokens": 58.0
-    },
-    "bootstrap_ci": {
-      "mean_quality": [
-        55.436522702444854,
-        58.52170203652513
-      ],
-      "ece": [
-        0.07319999999999995,
-        0.13368000000000005
-      ],
-      "mismatch_rate_overall": [
-        0.1,
-        0.158
-      ],
-      "mismatch_rate_overall_tau_0.9": [
-        0.1,
-        0.158
-      ]
-    },
-    "mismatch_rate_overall_tau_0.6": 0.156,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.156,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.176,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.138,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.138,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.156,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.138,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.138,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.156,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.128,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.128,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.14,
-    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
-    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
-  },
   "anthropic/claude-haiku-4-5-20251001": {
     "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.005085359050477499,
-      "spearman_difficulty_conf": -0.04847251389005555,
-      "pearson_difficulty_quality": 0.008771870683666623,
-      "spearman_difficulty_quality": 0.01665213060852243,
-      "pearson_conf_quality": 0.25066526490567237,
-      "spearman_conf_quality": 0.24636079344317374
+      "pearson_difficulty_conf": -0.003757382350512463,
+      "spearman_difficulty_conf": -0.041684998739994955,
+      "pearson_difficulty_quality": 0.006480844143125273,
+      "spearman_difficulty_quality": 0.013574358297433187,
+      "pearson_conf_quality": 0.2567325372154747,
+      "spearman_conf_quality": 0.22300399601598403
     },
     "confidence_stats": {
       "num_rows_total": 500,
@@ -439,235 +19,655 @@
       "max_conf": 1.0
     },
     "parse_warning_count": 29,
-    "ece_global_q20": 0.10118,
-    "ece_within_model_q20": 0.09518000000000007,
+    "ece_global_q20": 0.09631999999999998,
+    "ece_within_model_q20": 0.09431999999999999,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.22551999999999994,
-      "Q2": 0.10831999999999994,
-      "Q3": 0.07559999999999995,
-      "Q4": 0.056400000000000006
+      "Q1": 0.22288,
+      "Q2": 0.11103999999999997,
+      "Q3": 0.09079999999999995,
+      "Q4": 0.058000000000000065
     },
-    "mismatch_rate_overall": 0.13,
-    "mismatch_rate_overall_within_model_q20": 0.13,
+    "mismatch_rate_overall": 0.134,
+    "mismatch_rate_overall_within_model_q20": 0.134,
     "mismatch_rate_overall_global_q20": 0.134,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.192,
+      "Q1": 0.2,
       "Q2": 0.144,
       "Q3": 0.104,
-      "Q4": 0.08
+      "Q4": 0.088
     },
     "efficiency": {
-      "avg_latency_translate_s": 1.3640532007217407,
-      "avg_latency_conf_s": 0.9198771514892579,
-      "avg_total_latency_s": 2.2839303522109984,
-      "avg_input_tokens": 272.972,
-      "avg_output_tokens": 61.482,
+      "avg_latency_translate_s": 1.41034277677536,
+      "avg_latency_conf_s": 0.8758097424507141,
+      "avg_total_latency_s": 2.286152519226074,
+      "avg_input_tokens": 273.036,
+      "avg_output_tokens": 61.518,
       "median_output_tokens": 58.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        55.56960391169348,
-        58.38899047798892
+        55.65065506306542,
+        58.461410788894234
       ],
       "ece": [
-        0.06809999999999998,
-        0.13041999999999998
+        0.06924,
+        0.12932000000000002
       ],
       "mismatch_rate_overall": [
-        0.1,
-        0.158
+        0.106,
+        0.164
       ],
       "mismatch_rate_overall_tau_0.9": [
-        0.1,
-        0.158
+        0.106,
+        0.164
       ]
     },
     "mismatch_rate_overall_tau_0.6": 0.176,
     "mismatch_rate_overall_within_model_q20_tau_0.6": 0.176,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.182,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.178,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.17,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.17,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.176,
+    "mismatch_rate_overall_tau_0.7": 0.166,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.166,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.168,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.16,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.16,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.166,
+    "mismatch_rate_overall_tau_0.8": 0.158,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.158,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.16,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.13,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.13,
+    "mismatch_rate_overall_tau_0.9": 0.134,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.134,
     "mismatch_rate_overall_global_q20_tau_0.9": 0.134,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
   },
-  "gemini/gemini-2.5-pro": {
-    "valid_conf_count": 485,
-    "total_count": 485,
+  "anthropic/claude-opus-4-6": {
+    "valid_conf_count": 500,
+    "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.034395599385273166,
-      "spearman_difficulty_conf": -0.020745726556410715,
-      "pearson_difficulty_quality": 0.010747269146836392,
-      "spearman_difficulty_quality": 0.0217814929467538,
-      "pearson_conf_quality": 0.278756130101853,
-      "spearman_conf_quality": 0.20991388423440904
+      "pearson_difficulty_conf": -0.13640562947889237,
+      "spearman_difficulty_conf": -0.051022956091824355,
+      "pearson_difficulty_quality": -0.016353288643075743,
+      "spearman_difficulty_quality": -0.0008902115608462433,
+      "pearson_conf_quality": 0.48051002041713525,
+      "spearman_conf_quality": 0.39832517730070915
     },
     "confidence_stats": {
-      "num_rows_total": 485,
-      "num_rows_with_valid_conf": 485,
-      "parse_warning_rows": 2,
-      "min_conf": 0.0,
-      "median_conf": 1.0,
-      "max_conf": 1.0
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 58,
+      "min_conf": 0.05,
+      "median_conf": 0.93,
+      "max_conf": 0.99
     },
-    "parse_warning_count": 2,
-    "ece_global_q20": 0.13197938144329904,
-    "ece_within_model_q20": 0.17857731958762896,
+    "parse_warning_count": 58,
+    "ece_global_q20": 0.07094,
+    "ece_within_model_q20": 0.08694000000000002,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.2736290322580644,
-      "Q2": 0.18330578512396684,
-      "Q3": 0.14967213114754097,
-      "Q4": 0.11644067796610177
+      "Q1": 0.2012,
+      "Q2": 0.08376000000000006,
+      "Q3": 0.05328000000000003,
+      "Q4": 0.045360000000000046
     },
-    "mismatch_rate_overall": 0.18144329896907216,
-    "mismatch_rate_overall_within_model_q20": 0.18144329896907216,
-    "mismatch_rate_overall_global_q20": 0.1360824742268041,
+    "mismatch_rate_overall": 0.076,
+    "mismatch_rate_overall_within_model_q20": 0.076,
+    "mismatch_rate_overall_global_q20": 0.064,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.27419354838709675,
-      "Q2": 0.18181818181818182,
-      "Q3": 0.14754098360655737,
-      "Q4": 0.11864406779661017
+      "Q1": 0.152,
+      "Q2": 0.064,
+      "Q3": 0.056,
+      "Q4": 0.032
     },
     "efficiency": {
-      "avg_latency_translate_s": 3.510878615035224,
-      "avg_latency_conf_s": 3.15943386136871,
-      "avg_total_latency_s": 6.670312476403934,
-      "avg_input_tokens": 261.3422680412371,
-      "avg_output_tokens": 43.189690721649484,
-      "median_output_tokens": 40.0
+      "avg_latency_translate_s": 2.8775480194091796,
+      "avg_latency_conf_s": 2.192143274784088,
+      "avg_total_latency_s": 5.069691294193268,
+      "avg_input_tokens": 274.956,
+      "avg_output_tokens": 62.328,
+      "median_output_tokens": 58.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        58.56238212208956,
-        61.26725524505069
+        56.968291884229856,
+        59.95076219978663
       ],
       "ece": [
-        0.14474226804123713,
-        0.2158556701030928
+        0.05914000000000002,
+        0.122
       ],
       "mismatch_rate_overall": [
-        0.1463917525773196,
-        0.21649484536082475
+        0.054,
+        0.1
       ],
       "mismatch_rate_overall_tau_0.9": [
-        0.1463917525773196,
-        0.21649484536082475
+        0.054,
+        0.1
       ]
     },
-    "mismatch_rate_overall_tau_0.6": 0.19381443298969073,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.19381443298969073,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.14432989690721648,
+    "mismatch_rate_overall_tau_0.6": 0.14,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.14,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.12,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.19175257731958764,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.19175257731958764,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.1422680412371134,
+    "mismatch_rate_overall_tau_0.7": 0.138,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.138,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.12,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.18762886597938144,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.18762886597938144,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.1402061855670103,
+    "mismatch_rate_overall_tau_0.8": 0.128,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.128,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.11,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.18144329896907216,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.18144329896907216,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.1360824742268041,
+    "mismatch_rate_overall_tau_0.9": 0.076,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.076,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.064,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
+  },
+  "anthropic/claude-sonnet-4-5-20250929": {
+    "valid_conf_count": 500,
+    "total_count": 500,
+    "correlations": {
+      "pearson_difficulty_conf": -0.07335152135641379,
+      "spearman_difficulty_conf": -0.19412256849027393,
+      "pearson_difficulty_quality": 0.01895352079454587,
+      "spearman_difficulty_quality": 0.03761026244104976,
+      "pearson_conf_quality": 0.4548607639118074,
+      "spearman_conf_quality": 0.3435712622850491
+    },
+    "confidence_stats": {
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 68,
+      "min_conf": 0.1,
+      "median_conf": 0.95,
+      "max_conf": 1.0
+    },
+    "parse_warning_count": 68,
+    "ece_global_q20": 0.11020000000000006,
+    "ece_within_model_q20": 0.09480000000000005,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.21375999999999998,
+      "Q2": 0.13559999999999997,
+      "Q3": 0.07064,
+      "Q4": 0.02399999999999991
+    },
+    "mismatch_rate_overall": 0.128,
+    "mismatch_rate_overall_within_model_q20": 0.128,
+    "mismatch_rate_overall_global_q20": 0.142,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.216,
+      "Q2": 0.152,
+      "Q3": 0.088,
+      "Q4": 0.056
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 2.08461828994751,
+      "avg_latency_conf_s": 1.4844813499450684,
+      "avg_total_latency_s": 3.569099639892578,
+      "avg_input_tokens": 272.648,
+      "avg_output_tokens": 62.344,
+      "median_output_tokens": 58.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        55.43538504608518,
+        58.54136842687624
+      ],
+      "ece": [
+        0.07301999999999995,
+        0.13262000000000002
+      ],
+      "mismatch_rate_overall": [
+        0.1,
+        0.156
+      ],
+      "mismatch_rate_overall_tau_0.9": [
+        0.1,
+        0.156
+      ]
+    },
+    "mismatch_rate_overall_tau_0.6": 0.156,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.156,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.172,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
+    "mismatch_rate_overall_tau_0.7": 0.138,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.138,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.154,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
+    "mismatch_rate_overall_tau_0.8": 0.138,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.138,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.154,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
+    "mismatch_rate_overall_tau_0.9": 0.128,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.128,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.142,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
   },
   "gemini/gemini-2.5-flash": {
-    "valid_conf_count": 487,
+    "valid_conf_count": 500,
     "total_count": 500,
     "correlations": {
-      "pearson_difficulty_conf": -0.11244960621371254,
-      "spearman_difficulty_conf": -0.11422087288349152,
-      "pearson_difficulty_quality": -0.13648765996059603,
-      "spearman_difficulty_quality": -0.07478679514718058,
-      "pearson_conf_quality": 0.19596770292091656,
-      "spearman_conf_quality": 0.1680763203052812
+      "pearson_difficulty_conf": -0.0834666478165099,
+      "spearman_difficulty_conf": -0.08402107208428833,
+      "pearson_difficulty_quality": -0.15557762042490447,
+      "spearman_difficulty_quality": -0.08885613142452568,
+      "pearson_conf_quality": 0.2238865916459703,
+      "spearman_conf_quality": 0.18438073752295006
     },
     "confidence_stats": {
       "num_rows_total": 500,
-      "num_rows_with_valid_conf": 487,
-      "parse_warning_rows": 293,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 287,
       "min_conf": 0.0,
       "median_conf": 0.73,
       "max_conf": 1.0
     },
-    "parse_warning_count": 293,
-    "ece_global_q20": 0.1748049281314169,
-    "ece_within_model_q20": 0.1932854209445586,
+    "parse_warning_count": 287,
+    "ece_global_q20": 0.14784,
+    "ece_within_model_q20": 0.14787999999999998,
     "ece_by_difficulty_bucket": {
-      "Q1": 0.19015999999999997,
-      "Q2": 0.18644628099173557,
-      "Q3": 0.19499999999999998,
-      "Q4": 0.2436363636363636
+      "Q1": 0.19223999999999997,
+      "Q2": 0.14424000000000003,
+      "Q3": 0.14744000000000007,
+      "Q4": 0.13848000000000002
     },
-    "mismatch_rate_overall": 0.043121149897330596,
-    "mismatch_rate_overall_within_model_q20": 0.043121149897330596,
-    "mismatch_rate_overall_global_q20": 0.049281314168377825,
+    "mismatch_rate_overall": 0.042,
+    "mismatch_rate_overall_within_model_q20": 0.042,
+    "mismatch_rate_overall_global_q20": 0.056,
     "mismatch_rate_by_bucket": {
-      "Q1": 0.072,
-      "Q2": 0.04132231404958678,
-      "Q3": 0.008333333333333333,
-      "Q4": 0.049586776859504134
+      "Q1": 0.088,
+      "Q2": 0.04,
+      "Q3": 0.032,
+      "Q4": 0.008
     },
     "efficiency": {
-      "avg_latency_translate_s": 2.3872112669944765,
-      "avg_latency_conf_s": 2.7697588419914245,
-      "avg_total_latency_s": 5.156970108985901,
-      "avg_input_tokens": 310.624,
-      "avg_output_tokens": 40.338,
-      "median_output_tokens": 38.0
+      "avg_latency_translate_s": 2.039953399658203,
+      "avg_latency_conf_s": 2.268861050605774,
+      "avg_total_latency_s": 4.308814450263977,
+      "avg_input_tokens": 309.382,
+      "avg_output_tokens": 40.244,
+      "median_output_tokens": 39.0
     },
     "bootstrap_ci": {
       "mean_quality": [
-        52.46725198007518,
-        56.21874682768059
+        52.01262568370147,
+        55.86816438256716
       ],
       "ece": [
-        0.1539219712525667,
-        0.2343121149897331
+        0.11506000000000007,
+        0.18807999999999997
       ],
       "mismatch_rate_overall": [
-        0.026694045174537988,
-        0.061601642710472276
+        0.026,
+        0.06
       ],
       "mismatch_rate_overall_tau_0.9": [
-        0.026694045174537988,
-        0.061601642710472276
+        0.026,
+        0.06
       ]
     },
-    "mismatch_rate_overall_tau_0.6": 0.14168377823408623,
-    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.14168377823408623,
-    "mismatch_rate_overall_global_q20_tau_0.6": 0.17659137577002054,
+    "mismatch_rate_overall_tau_0.6": 0.148,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.148,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.188,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
-    "mismatch_rate_overall_tau_0.7": 0.14168377823408623,
-    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.14168377823408623,
-    "mismatch_rate_overall_global_q20_tau_0.7": 0.17659137577002054,
+    "mismatch_rate_overall_tau_0.7": 0.146,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.146,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.186,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
-    "mismatch_rate_overall_tau_0.8": 0.053388090349075976,
-    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.053388090349075976,
-    "mismatch_rate_overall_global_q20_tau_0.8": 0.06365503080082136,
+    "mismatch_rate_overall_tau_0.8": 0.05,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.05,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.066,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
-    "mismatch_rate_overall_tau_0.9": 0.043121149897330596,
-    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.043121149897330596,
-    "mismatch_rate_overall_global_q20_tau_0.9": 0.049281314168377825,
+    "mismatch_rate_overall_tau_0.9": 0.042,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.042,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.056,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
+  },
+  "gemini/gemini-2.5-pro": {
+    "valid_conf_count": 500,
+    "total_count": 500,
+    "correlations": {
+      "pearson_difficulty_conf": 0.0036641044959558277,
+      "spearman_difficulty_conf": -0.01897956391825567,
+      "pearson_difficulty_quality": 0.032370303477404584,
+      "spearman_difficulty_quality": 0.03077349909399637,
+      "pearson_conf_quality": 0.23288001672964492,
+      "spearman_conf_quality": 0.1717903831615326
+    },
+    "confidence_stats": {
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 1,
+      "min_conf": 0.0,
+      "median_conf": 1.0,
+      "max_conf": 1.0
+    },
+    "parse_warning_count": 1,
+    "ece_global_q20": 0.12022000000000009,
+    "ece_within_model_q20": 0.18022000000000002,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.27136,
+      "Q2": 0.1992,
+      "Q3": 0.15664,
+      "Q4": 0.10167999999999995
+    },
+    "mismatch_rate_overall": 0.182,
+    "mismatch_rate_overall_within_model_q20": 0.182,
+    "mismatch_rate_overall_global_q20": 0.126,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.264,
+      "Q2": 0.192,
+      "Q3": 0.16,
+      "Q4": 0.112
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 4.743249514579773,
+      "avg_latency_conf_s": 3.057096053123474,
+      "avg_total_latency_s": 7.800345567703247,
+      "avg_input_tokens": 262.208,
+      "avg_output_tokens": 43.666,
+      "median_output_tokens": 40.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        58.789136215117104,
+        61.34399788709465
+      ],
+      "ece": [
+        0.14704,
+        0.21485999999999997
+      ],
+      "mismatch_rate_overall": [
+        0.148,
+        0.216
+      ],
+      "mismatch_rate_overall_tau_0.9": [
+        0.148,
+        0.216
+      ]
+    },
+    "mismatch_rate_overall_tau_0.6": 0.196,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.196,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.136,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
+    "mismatch_rate_overall_tau_0.7": 0.194,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.194,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.134,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
+    "mismatch_rate_overall_tau_0.8": 0.188,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.188,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.13,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
+    "mismatch_rate_overall_tau_0.9": 0.182,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.182,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.126,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
+  },
+  "openai/gpt-5-mini": {
+    "valid_conf_count": 500,
+    "total_count": 500,
+    "correlations": {
+      "pearson_difficulty_conf": -0.03135667298829674,
+      "spearman_difficulty_conf": 0.014132888531554123,
+      "pearson_difficulty_quality": 0.027385559572801928,
+      "spearman_difficulty_quality": 0.02952799011196044,
+      "pearson_conf_quality": 0.041367727389155194,
+      "spearman_conf_quality": 0.11424132096528385
+    },
+    "confidence_stats": {
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 0,
+      "min_conf": 0.12,
+      "median_conf": 0.93,
+      "max_conf": 0.99
+    },
+    "parse_warning_count": 0,
+    "ece_global_q20": 0.16620000000000001,
+    "ece_within_model_q20": 0.1522,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.26032000000000005,
+      "Q2": 0.17432000000000003,
+      "Q3": 0.11800000000000004,
+      "Q4": 0.07968
+    },
+    "mismatch_rate_overall": 0.128,
+    "mismatch_rate_overall_within_model_q20": 0.128,
+    "mismatch_rate_overall_global_q20": 0.146,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.216,
+      "Q2": 0.112,
+      "Q3": 0.112,
+      "Q4": 0.072
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 1.5929726595878602,
+      "avg_latency_conf_s": 1.2337394676208495,
+      "avg_total_latency_s": 2.82671212720871,
+      "avg_input_tokens": 271.476,
+      "avg_output_tokens": 76.624,
+      "median_output_tokens": 74.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        55.80078748447724,
+        58.43196035787622
+      ],
+      "ece": [
+        0.12130000000000009,
+        0.1882400000000001
+      ],
+      "mismatch_rate_overall": [
+        0.1,
+        0.158
+      ],
+      "mismatch_rate_overall_tau_0.9": [
+        0.1,
+        0.158
+      ]
+    },
+    "mismatch_rate_overall_tau_0.6": 0.186,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.186,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.21,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
+    "mismatch_rate_overall_tau_0.7": 0.178,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.178,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.198,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
+    "mismatch_rate_overall_tau_0.8": 0.17,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.17,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.19,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
+    "mismatch_rate_overall_tau_0.9": 0.128,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.128,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.146,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
+  },
+  "openai/gpt-5-nano": {
+    "valid_conf_count": 500,
+    "total_count": 500,
+    "correlations": {
+      "pearson_difficulty_conf": 0.07861282134419104,
+      "spearman_difficulty_conf": 0.04161501446005783,
+      "pearson_difficulty_quality": 0.035681013714834835,
+      "spearman_difficulty_quality": 0.04640735362941451,
+      "pearson_conf_quality": 0.20747965487287745,
+      "spearman_conf_quality": 0.14770715082860328
+    },
+    "confidence_stats": {
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 0,
+      "min_conf": 0.25,
+      "median_conf": 0.73,
+      "max_conf": 0.95
+    },
+    "parse_warning_count": 0,
+    "ece_global_q20": 0.04426000000000002,
+    "ece_within_model_q20": 0.07574,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.07944000000000002,
+      "Q2": 0.09023999999999997,
+      "Q3": 0.09848000000000003,
+      "Q4": 0.13351999999999994
+    },
+    "mismatch_rate_overall": 0.002,
+    "mismatch_rate_overall_within_model_q20": 0.002,
+    "mismatch_rate_overall_global_q20": 0.008,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.008,
+      "Q2": 0.0,
+      "Q3": 0.0,
+      "Q4": 0.0
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 1.306325258255005,
+      "avg_latency_conf_s": 1.0836655735969543,
+      "avg_total_latency_s": 2.3899908318519594,
+      "avg_input_tokens": 271.282,
+      "avg_output_tokens": 76.488,
+      "median_output_tokens": 73.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        53.94367730382773,
+        56.623674936091604
+      ],
+      "ece": [
+        0.04586000000000002,
+        0.11047999999999998
+      ],
+      "mismatch_rate_overall": [
+        0.0,
+        0.006
+      ],
+      "mismatch_rate_overall_tau_0.9": [
+        0.0,
+        0.006
+      ]
+    },
+    "mismatch_rate_overall_tau_0.6": 0.17,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.17,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.206,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
+    "mismatch_rate_overall_tau_0.7": 0.156,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.156,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.188,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
+    "mismatch_rate_overall_tau_0.8": 0.016,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.016,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.028,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
+    "mismatch_rate_overall_tau_0.9": 0.002,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.002,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.008,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
+  },
+  "openai/gpt-5.2": {
+    "valid_conf_count": 500,
+    "total_count": 500,
+    "correlations": {
+      "pearson_difficulty_conf": 0.10279768111953798,
+      "spearman_difficulty_conf": 0.0022322969291877163,
+      "pearson_difficulty_quality": 0.03542369896960387,
+      "spearman_difficulty_quality": 0.039810879243516964,
+      "pearson_conf_quality": 0.1074696987487317,
+      "spearman_conf_quality": 0.137376165504662
+    },
+    "confidence_stats": {
+      "num_rows_total": 500,
+      "num_rows_with_valid_conf": 500,
+      "parse_warning_rows": 0,
+      "min_conf": 0.18,
+      "median_conf": 0.93,
+      "max_conf": 0.99
+    },
+    "parse_warning_count": 0,
+    "ece_global_q20": 0.09304000000000001,
+    "ece_within_model_q20": 0.13391999999999998,
+    "ece_by_difficulty_bucket": {
+      "Q1": 0.25688,
+      "Q2": 0.1288000000000001,
+      "Q3": 0.08184000000000005,
+      "Q4": 0.08992
+    },
+    "mismatch_rate_overall": 0.152,
+    "mismatch_rate_overall_within_model_q20": 0.152,
+    "mismatch_rate_overall_global_q20": 0.118,
+    "mismatch_rate_by_bucket": {
+      "Q1": 0.224,
+      "Q2": 0.144,
+      "Q3": 0.12,
+      "Q4": 0.12
+    },
+    "efficiency": {
+      "avg_latency_translate_s": 1.5360649828910828,
+      "avg_latency_conf_s": 1.240063473701477,
+      "avg_total_latency_s": 2.7761284565925597,
+      "avg_input_tokens": 272.114,
+      "avg_output_tokens": 49.25,
+      "median_output_tokens": 46.0
+    },
+    "bootstrap_ci": {
+      "mean_quality": [
+        57.635047537837295,
+        60.19148602478432
+      ],
+      "ece": [
+        0.10230000000000006,
+        0.16937999999999998
+      ],
+      "mismatch_rate_overall": [
+        0.122,
+        0.184
+      ],
+      "mismatch_rate_overall_tau_0.9": [
+        0.122,
+        0.184
+      ]
+    },
+    "mismatch_rate_overall_tau_0.6": 0.194,
+    "mismatch_rate_overall_within_model_q20_tau_0.6": 0.194,
+    "mismatch_rate_overall_global_q20_tau_0.6": 0.152,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.6": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.6": 0.0,
+    "mismatch_rate_overall_tau_0.7": 0.192,
+    "mismatch_rate_overall_within_model_q20_tau_0.7": 0.192,
+    "mismatch_rate_overall_global_q20_tau_0.7": 0.15,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.7": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.7": 0.0,
+    "mismatch_rate_overall_tau_0.8": 0.19,
+    "mismatch_rate_overall_within_model_q20_tau_0.8": 0.19,
+    "mismatch_rate_overall_global_q20_tau_0.8": 0.148,
+    "mismatch_rate_overall_within_model_bleu_q20_tau_0.8": 0.0,
+    "mismatch_rate_overall_within_model_chrf_q10_tau_0.8": 0.0,
+    "mismatch_rate_overall_tau_0.9": 0.152,
+    "mismatch_rate_overall_within_model_q20_tau_0.9": 0.152,
+    "mismatch_rate_overall_global_q20_tau_0.9": 0.118,
     "mismatch_rate_overall_within_model_bleu_q20_tau_0.9": 0.0,
     "mismatch_rate_overall_within_model_chrf_q10_tau_0.9": 0.0
   }

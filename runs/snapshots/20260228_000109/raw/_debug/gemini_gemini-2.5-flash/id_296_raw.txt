@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 296
+translation_json_detected: False
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Ihre Flüchtlings
+
+=== confidence_preview ===
+Here is the JSON requested:
+```json
+
+=== translation_raw ===
+{"translation": "Ihre Flüchtlings
+
+=== confidence_raw ===
+Here is the JSON requested:
+```json

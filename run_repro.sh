@@ -77,6 +77,14 @@ mkdir -p runs/logs
 LOGFILE="runs/logs/repro_$(date +"%Y%m%d_%H%M%S").log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
+# Snapshot dir to preserve the exact inputs/outputs of this run
+RUN_ID="${RUN_ID:-$(date +"%Y%m%d_%H%M%S")}"
+SNAPDIR="runs/snapshots/${RUN_ID}"
+mkdir -p "${SNAPDIR}/raw" "${SNAPDIR}/exports"
+log "Run snapshot: ${SNAPDIR}"
+# Always snapshot the config used for this run
+cp -f "$CONFIG" "${SNAPDIR}/config.yaml" || true
+
 log "Environment"
 echo "Using: $PYTHON"
 "$PYTHON" --version
@@ -129,12 +137,18 @@ run_step1() {
   log "Step 1/4: Build dataset"
   "$PYTHON" src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
   wc -l data/wmt_sample.jsonl || true
+  # snapshot dataset used
+  cp -f data/wmt_sample.jsonl "${SNAPDIR}/wmt_sample.jsonl" || true
 }
 
 run_step2() {
   log "Step 2/4: Translate + confidence (API calls)"
   require_step2_keys
   mkdir -p runs/raw
+  if [[ ! -s data/wmt_sample.jsonl ]]; then
+    echo "ERROR: data/wmt_sample.jsonl missing or empty. Run: bash run_repro.sh --mode step1" >&2
+    exit 1
+  fi
 
   CMD=("$PYTHON" src/02_translate_and_confidence.py
     --config "$CONFIG"
@@ -159,6 +173,11 @@ run_step2() {
     log "Step 2 running in background. Tail logs: tail -f runs/logs/step2.log"
   else
     "${CMD[@]}" 2>&1 | tee runs/logs/step2.log
+    log "Snapshotting raw outputs to ${SNAPDIR}/raw"
+    mkdir -p "${SNAPDIR}/raw" "${SNAPDIR}/exports"
+    (command -v rsync >/dev/null 2>&1 && rsync -a runs/raw/ "${SNAPDIR}/raw/") || cp -a runs/raw/. "${SNAPDIR}/raw/"
+    log "Exporting per-model inputs/translations to ${SNAPDIR}/exports"
+    "$PYTHON" tools/export_translations.py --raw_dir runs/raw --out_dir "${SNAPDIR}/exports" --dedupe_last || true
   fi
 }
 

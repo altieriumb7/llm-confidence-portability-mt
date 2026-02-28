@@ -1,0 +1,18 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 331
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Nachdem mehrere regionale Behörden dies getan hatten, hat auch die bundesweit für den Verfassungsschutz zuständige Behörde die Gruppe auf eine Beobachtungsliste gesetzt."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+
+=== translation_raw ===
+{"translation": "Nachdem mehrere regionale Behörden dies getan hatten, hat auch die bundesweit für den Verfassungsschutz zuständige Behörde die Gruppe auf eine Beobachtungsliste gesetzt."}
+
+=== confidence_raw ===
+Here is the JSON requested:

@@ -140,6 +140,13 @@ def retry_with_backoff(func: Callable[[], Any], max_retries: int, logger: loggin
             return func()
         except Exception as exc:
             msg = str(exc)
+            lower = msg.lower()
+            non_retryable_quota = (
+                ("resource_exhausted" in lower and "quota exceeded" in lower and "limit: 0" in lower)
+                or ("insufficient_quota" in lower)
+            )
+            if non_retryable_quota:
+                raise
             retryable = any(code in msg for code in ["429", "500", "502", "503", "504", "529", "timeout"]) or ("overloaded" in msg.lower())
             if attempt >= max_retries or not retryable:
                 raise

@@ -1,0 +1,137 @@
+import argparse
+import csv
+import glob
+import statistics
+from pathlib import Path
+
+import sacrebleu
+
+from utils.common import load_config, read_jsonl
+from utils.parse import coerce_confidence
+
+
+def tokenize(s):
+    return [t for t in s.strip().split() if t]
+
+
+def sentence_metrics(hyp: str, ref: str):
+    hyp = (hyp or "").strip()
+    ref = (ref or "").strip()
+    if not hyp or not ref:
+        return 0.0, 0.0
+    chrf = sacrebleu.sentence_chrf(hypothesis=hyp, references=[ref], char_order=6, word_order=2).score
+    bleu = sacrebleu.sentence_bleu(hypothesis=hyp, references=[ref]).score
+    return float(chrf), float(bleu)
+
+
+def zscores(vals):
+    if not vals:
+        return []
+    m = statistics.mean(vals)
+    s = statistics.pstdev(vals)
+    if s == 0:
+        return [0.0] * len(vals)
+    return [(v - m) / s for v in vals]
+
+
+def quantile(vals, q):
+    s = sorted(vals)
+    if not s:
+        return 0.0
+    idx = int((len(s) - 1) * q)
+    return s[idx]
+
+
+def quartile_bucket(v, cuts):
+    if v <= cuts[0]:
+        return "Q1"
+    if v <= cuts[1]:
+        return "Q2"
+    if v <= cuts[2]:
+        return "Q3"
+    return "Q4"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--config", default="configs/models.yaml")
+    ap.add_argument("--input_dir", default="runs/raw")
+    ap.add_argument("--output", default="runs/aggregated/dataframe.csv")
+    args = ap.parse_args()
+
+    cfg = load_config(args.config)
+    rows = []
+    for fp in glob.glob(f"{args.input_dir}/*.jsonl"):
+        rows.extend(read_jsonl(Path(fp)))
+    if not rows:
+        out = Path(args.output)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with open(out, "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["id", "src", "ref", "hyp", "conf", "provider", "model_id", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens", "timestamp_utc", "parse_warnings", "quality", "difficulty_score", "difficulty_bucket", "error_global_q20", "error_within_model_q20", "error_within_model_bleu_q20", "error_within_model_chrf_q10"])
+
+        print(f"Wrote empty {out}")
+        return
+
+    for r in rows:
+        r["hyp"] = r.get("hyp") or r.get("translation") or ""
+        coerced_conf = coerce_confidence(r.get("conf"))
+        if coerced_conf is None:
+            coerced_conf = coerce_confidence(r.get("confidence"))
+        r["conf"] = coerced_conf
+        r["confidence"] = coerced_conf
+
+    for r in rows:
+        toks = tokenize(r["src"])
+        r["src_len_tokens"] = len(toks)
+        r["src_len_chars"] = len(r["src"])
+        r["punct_count"] = sum(1 for c in r["src"] if not c.isalnum() and not c.isspace())
+        r["ner_count"] = sum(1 for t in toks if t[:1].isupper())
+        r["syntactic_depth"] = max(1, min(10, len(toks) // 4 + 1))
+        r["rare_ratio"] = sum(1 for t in toks if len(t) >= 8) / (len(toks) or 1)
+        chrf, bleu = sentence_metrics(r.get("hyp", ""), r.get("ref", ""))
+        r["chrf"] = chrf
+        r["bleu"] = bleu
+        r["quality"] = r["chrf"]
+
+    for feat in ["src_len_tokens", "syntactic_depth", "rare_ratio", "ner_count"]:
+        z = zscores([float(r[feat]) for r in rows])
+        for i, r in enumerate(rows):
+            r[f"z_{feat}"] = z[i]
+
+    for r in rows:
+        r["difficulty_score"] = r["z_src_len_tokens"] + r["z_syntactic_depth"] + r["z_rare_ratio"] + r["z_ner_count"]
+
+    dvals = [r["difficulty_score"] for r in rows]
+    cuts = [quantile(dvals, 0.25), quantile(dvals, 0.5), quantile(dvals, 0.75)]
+    for r in rows:
+        r["difficulty_bucket"] = quartile_bucket(r["difficulty_score"], cuts)
+
+    global_thr = quantile([r["quality"] for r in rows], cfg["global"]["error_quantile_global"])
+    for r in rows:
+        r["error_global_q20"] = int(r["quality"] < global_thr)
+
+    by_model = {}
+    for i, r in enumerate(rows):
+        key = (r["provider"], r["model_id"])
+        by_model.setdefault(key, []).append(i)
+    q = cfg["global"]["error_quantile_within_model"]
+    for _, idxs in by_model.items():
+        thr = quantile([rows[i]["quality"] for i in idxs], q)
+        for i in idxs:
+            rows[i]["error_within_model_q20"] = int(rows[i]["quality"] < thr)
+
+    out = Path(args.output)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    # writer must not crash if raw schema changes
+    cols = sorted({"parse_warnings", *{k for r in rows for k in r.keys()}})
+    normalized_rows = [{k: r.get(k, "") for k in cols} for r in rows]
+    with open(out, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(normalized_rows)
+    print(f"Wrote {out} ({len(rows)} rows)")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,71 @@
+{
+  "created_utc": "2026-02-28T00:01:21.743402+00:00",
+  "raw_dir": "runs/raw",
+  "out_dir": "runs/snapshots/20260228_000109/exports",
+  "models": {
+    "anthropic/claude-haiku-4-5-20251001": {
+      "raw_file": "runs/raw/anthropic__claude-haiku-4-5-20251001.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/anthropic__claude_haiku_4_5_20251001.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/anthropic__claude_haiku_4_5_20251001.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/anthropic__claude_haiku_4_5_20251001.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "anthropic/claude-opus-4-6": {
+      "raw_file": "runs/raw/anthropic__claude-opus-4-6.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/anthropic__claude_opus_4_6.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/anthropic__claude_opus_4_6.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/anthropic__claude_opus_4_6.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "anthropic/claude-sonnet-4-5-20250929": {
+      "raw_file": "runs/raw/anthropic__claude-sonnet-4-5-20250929.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/anthropic__claude_sonnet_4_5_20250929.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/anthropic__claude_sonnet_4_5_20250929.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/anthropic__claude_sonnet_4_5_20250929.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "gemini/gemini-2.5-flash": {
+      "raw_file": "runs/raw/gemini__gemini-2.5-flash.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/gemini__gemini_2_5_flash.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/gemini__gemini_2_5_flash.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/gemini__gemini_2_5_flash.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "gemini/gemini-2.5-pro": {
+      "raw_file": "runs/raw/gemini__gemini-2.5-pro.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/gemini__gemini_2_5_pro.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/gemini__gemini_2_5_pro.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/gemini__gemini_2_5_pro.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "openai/gpt-5-mini": {
+      "raw_file": "runs/raw/openai__gpt-5-mini.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/openai__gpt_5_mini.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/openai__gpt_5_mini.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/openai__gpt_5_mini.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "openai/gpt-5-nano": {
+      "raw_file": "runs/raw/openai__gpt-5-nano.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/openai__gpt_5_nano.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/openai__gpt_5_nano.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/openai__gpt_5_nano.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    },
+    "openai/gpt-5.2": {
+      "raw_file": "runs/raw/openai__gpt-5.2.jsonl",
+      "export_csv": "runs/snapshots/20260228_000109/exports/openai__gpt_5_2.csv",
+      "inputs_used_jsonl": "runs/snapshots/20260228_000109/exports/openai__gpt_5_2.inputs_used.jsonl",
+      "ids_txt": "runs/snapshots/20260228_000109/exports/openai__gpt_5_2.ids.txt",
+      "rows_total": 500,
+      "valid_conf": 500
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "timestamp_utc": "2026-02-25T04:50:23.499329+00:00",
+  "timestamp_utc": "2026-02-28T00:01:32.492317+00:00",
   "config_hash_sha256": "77ddd59db1580f3393db4d08bab5159d196b81d41faa3fb9acd612550b106235",
-  "git_commit": "00aa7763ee9df4ea7c31d0d64b3825f8e567b95f",
+  "git_commit": "44b093b617177ff3d15a9b4c933d99249f420854",
   "providers": [
     "anthropic",
     "gemini",
@@ -17,7 +17,7 @@
     "openai/gpt-5-nano",
     "openai/gpt-5.2"
   ],
-  "n": 3985,
+  "n": 4000,
   "seed": 123,
   "mismatch_tau": 0.9
 }
