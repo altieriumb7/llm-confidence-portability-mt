@@ -1,0 +1,20 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 399
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Ein Teil ihrer Bodenkür – der ihren charakteristischen Tumbling-Pass beinhaltet – ist zu lateinamerikanischer Musik choreografiert, die perfekt auf die Straße direkt vor der Rio Olympic Arena passen würde."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+```
+
+=== translation_raw ===
+{"translation": "Ein Teil ihrer Bodenkür – der ihren charakteristischen Tumbling-Pass beinhaltet – ist zu lateinamerikanischer Musik choreografiert, die perfekt auf die Straße direkt vor der Rio Olympic Arena passen würde."}
+
+=== confidence_raw ===
+Here is the JSON requested:
+```

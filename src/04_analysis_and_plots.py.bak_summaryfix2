@@ -319,10 +319,6 @@ def main():
                 "ece_global_q20": ece_g,
                 "ece_within_model_q20": ece_w,
                 "mismatch_rate_overall": (sum(mism) / len(mism)) if mism else float("nan"),
-                "median_conf": conf_stats["median_conf"],
-                "mismatch_rate_overall_tau_0.9": results[label].get("mismatch_rate_overall_tau_0.9", float("nan")),
-                "valid_conf_count": len(valid_conf),
-                "total_count": len(d),
                 "avg_total_latency_s": results[label]["efficiency"]["avg_total_latency_s"],
             }
         )

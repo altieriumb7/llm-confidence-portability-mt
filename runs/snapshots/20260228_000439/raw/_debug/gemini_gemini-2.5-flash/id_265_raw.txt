@@ -1,0 +1,18 @@
+=== metadata ===
+provider: gemini
+model_id: gemini-2.5-flash
+row_id: 265
+translation_json_detected: True
+confidence_json_detected: False
+
+=== translation_preview ===
+{"translation": "Condrobs eröffnete das Zentrum im Januar, in Zusammenarbeit mit Pro Familia und der Münchner Frauenhilfe."}
+
+=== confidence_preview ===
+Here is the JSON requested:
+
+=== translation_raw ===
+{"translation": "Condrobs eröffnete das Zentrum im Januar, in Zusammenarbeit mit Pro Familia und der Münchner Frauenhilfe."}
+
+=== confidence_raw ===
+Here is the JSON requested:
