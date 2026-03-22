@@ -25,16 +25,10 @@ google*.json
 kaggle.json
 **/kaggle.json
 
-# Generated local outputs (Strategy A)
-data/wmt_sample.jsonl
-runs/raw/
-runs/logs/
-*.log
+
 
 # Keep a compact debug sample of raw responses
 !runs/raw_sample/
 !runs/raw_sample/**
-# Generated figures are not versioned (binary artifacts)
-figures/*.png
-figures/*.pdf
+
 
