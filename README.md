@@ -68,7 +68,6 @@ python src/04_analysis_and_plots.py --config configs/models.yaml --input runs/ag
 - Tiny debugging samples are kept in `runs/raw_sample/`.
 - Release-facing review should focus on `README.md`, `artifacts/README.md`, `runs/aggregated/`, `paper/`, and the source scripts under `src/`.
 - Historical backup files and one-off patch files have been moved to `archive/dev_old/` so they do not appear alongside release artifacts.
-- Some internal artifact field names still use legacy `difficulty_*` naming for compatibility; manuscript-facing text in this repo uses **source-side surface-complexity** terminology.
 
 ## License
 This repository is released under the MIT License; see `LICENSE`.

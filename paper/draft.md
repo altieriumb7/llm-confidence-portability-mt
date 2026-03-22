@@ -1,10 +1,10 @@
 # Multi-provider MT Confidence–Surface-Complexity Mismatch Study
 
 ## Abstract
-We present a reproducible benchmark of confidence–surface-complexity mismatch in EN→DE machine translation across OpenAI GPT-5, Anthropic Claude 4.x, and Gemini 2.5 model families. We standardize confidence collection via self-rated confidence JSON in [0,1], compare against reference-based quality metrics, and analyze calibration/mismatch patterns against a source-side surface-complexity proxy.
+We present a reproducible benchmark of confidence–difficulty mismatch in EN→DE machine translation across OpenAI GPT-5, Anthropic Claude 4.x, and Gemini 2.5 model families. We standardize confidence collection via self-rated confidence JSON in [0,1], compare against reference-based quality metrics, and analyze calibration/mismatch patterns against a source-side surface-complexity proxy.
 
 ## Introduction
-MT quality is increasingly strong on standard benchmarks, but reliability under more surface-complex source inputs remains under-studied. Confidence estimates can be miscalibrated, especially when models remain highly confident on low-quality outputs. This work evaluates how often such mismatches occur and whether they correlate with a source-side surface-complexity proxy.
+MT quality is increasingly strong on standard benchmarks, but reliability under difficult inputs remains under-studied. Confidence estimates can be miscalibrated, especially when models remain highly confident on low-quality outputs. This work evaluates how often such mismatches occur and whether they correlate with a source-side surface-complexity proxy.
 
 ## Experimental Setup
 For the current committed snapshot, we sample 500 WMT17 EN→DE sentences using a deterministic seed. We evaluate eight models: GPT-5.2 / mini / nano, Claude Opus / Sonnet / Haiku 4.5/4.6 variants, and Gemini 2.5 Pro / Flash. Identical prompts are used for all providers with temperature 0.
