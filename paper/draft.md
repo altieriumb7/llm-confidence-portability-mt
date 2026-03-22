@@ -1,4 +1,4 @@
-# Multi-provider MT Confidence–Difficulty Mismatch Study
+# Multi-provider MT Confidence–Surface-Complexity Mismatch Study
 
 ## Abstract
 We present a reproducible benchmark of confidence–difficulty mismatch in EN→DE machine translation across OpenAI GPT-5, Anthropic Claude 4.x, and Gemini 2.5 model families. We standardize confidence collection via self-rated confidence JSON in [0,1], compare against reference-based quality metrics, and analyze calibration/mismatch patterns against a source-side surface-complexity proxy.
