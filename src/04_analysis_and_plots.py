@@ -142,6 +142,12 @@ def _mismatch_rate(rows, err_col: str, tau: float) -> float:
     return sum(mism) / len(mism)
 
 
+def _mismatch_rate_if_present(rows, err_col: str, tau: float, available_cols: set[str]) -> float:
+    if err_col not in available_cols:
+        return float("nan")
+    return _mismatch_rate(rows, err_col, tau)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/models.yaml")
@@ -181,6 +187,20 @@ def main():
         _write_meta(Path(args.meta), args.config, cfg, rows)
         return
 
+    available_cols = set(rows[0].keys())
+    required_error_cols = {"error_global_q20", "error_within_model_q20", mismatch_error_col}
+    missing_required = sorted(required_error_cols - available_cols)
+    if missing_required:
+        raise ValueError(f"Input artifact is missing required error columns: {missing_required}")
+
+    optional_error_cols = {"error_within_model_bleu_q20", "error_within_model_chrf_q10"}
+    missing_optional = sorted(optional_error_cols - available_cols)
+    if missing_optional:
+        warnings.warn(
+            "Input artifact is missing optional robustness columns; "
+            f"robustness mismatch metrics will be NaN until Step 3 is rerun: {missing_optional}"
+        )
+
     for r in rows:
         r["conf"] = coerce_confidence(r.get("conf"))
         if r["conf"] is None:
@@ -189,7 +209,7 @@ def main():
             r["conf"] = None
         for k in ["difficulty_score", "quality", "latency_translate_s", "latency_conf_s", "input_tokens", "output_tokens"]:
             r[k] = as_float(r.get(k), 0.0)
-        for k in ["error_global_q20", "error_within_model_q20", "error_within_model_bleu_q20", "error_within_model_chrf_q10"]:
+        for k in sorted(required_error_cols | (optional_error_cols & available_cols)):
             r[k] = int(as_float(r.get(k), 0))
 
     grouped = defaultdict(list)
@@ -260,8 +280,12 @@ def main():
             multi_tau[f"mismatch_rate_overall_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, mismatch_error_col, tau)
             multi_tau[f"mismatch_rate_overall_within_model_q20_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, "error_within_model_q20", tau)
             multi_tau[f"mismatch_rate_overall_global_q20_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, "error_global_q20", tau)
-            multi_tau[f"mismatch_rate_overall_within_model_bleu_q20_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, "error_within_model_bleu_q20", tau)
-            multi_tau[f"mismatch_rate_overall_within_model_chrf_q10_tau_{tau:.1f}"] = _mismatch_rate(valid_conf, "error_within_model_chrf_q10", tau)
+            multi_tau[f"mismatch_rate_overall_within_model_bleu_q20_tau_{tau:.1f}"] = _mismatch_rate_if_present(
+                valid_conf, "error_within_model_bleu_q20", tau, available_cols
+            )
+            multi_tau[f"mismatch_rate_overall_within_model_chrf_q10_tau_{tau:.1f}"] = _mismatch_rate_if_present(
+                valid_conf, "error_within_model_chrf_q10", tau, available_cols
+            )
 
         ece_bucket_values.extend([v for v in ece_by_bucket.values() if not math.isnan(v)])
         mismatch_all.append((sum(mism) / len(mism)) if mism else 0.0)
@@ -362,9 +386,9 @@ def main():
     plt.figure(figsize=(8, 5))
     for label, d in grouped.items():
         plt.scatter([r["difficulty_score"] for r in d], [r["conf"] if r["conf"] is not None else 0.5 for r in d], s=10, alpha=0.5, label=label)
-    plt.xlabel("Difficulty score")
+    plt.xlabel("Surface-complexity score")
     plt.ylabel("Confidence")
-    plt.title("Confidence vs difficulty")
+    plt.title("Confidence vs surface-complexity score")
     plt.legend(fontsize=7)
     plt.tight_layout()
     plt.savefig(outdir / "fig1_scatter_difficulty_vs_conf.png", dpi=200)
@@ -414,8 +438,8 @@ def main():
         plt.bar(xs, vals, width=width, label=label)
     plt.xticks(x, buckets)
     plt.ylabel("Mismatch rate")
-    plt.xlabel("Difficulty bucket")
-    plt.title("Mismatch rate by difficulty bucket")
+    plt.xlabel("Surface-complexity quartile")
+    plt.title("Mismatch rate by surface-complexity quartile")
     plt.legend(fontsize=7)
     plt.tight_layout()
     plt.savefig(outdir / "fig3_mismatch_by_difficulty_bucket.png", dpi=200)

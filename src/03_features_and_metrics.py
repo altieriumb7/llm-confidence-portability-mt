@@ -131,6 +131,18 @@ def main():
         for i in idxs:
             rows[i]["error_within_model_q20"] = int(rows[i]["quality"] < thr)
 
+    bleu_q = cfg["global"].get("error_quantile_within_model", 0.2)
+    for _, idxs in by_model.items():
+        thr = quantile([rows[i]["bleu"] for i in idxs], bleu_q)
+        for i in idxs:
+            rows[i]["error_within_model_bleu_q20"] = int(rows[i]["bleu"] < thr)
+
+    chrf_q10 = cfg["global"].get("error_quantile_within_model_chrf_q10", 0.1)
+    for _, idxs in by_model.items():
+        thr = quantile([rows[i]["chrf"] for i in idxs], chrf_q10)
+        for i in idxs:
+            rows[i]["error_within_model_chrf_q10"] = int(rows[i]["chrf"] < thr)
+
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     # writer must not crash if raw schema changes

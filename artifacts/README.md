@@ -1,20 +1,20 @@
-# Committed artifacts (paper evidence)
+# Committed artifacts (artifact companion)
 
-This repository intentionally keeps final paper-facing outputs under version control for transparency and easy review.
+This repository is an artifact-only companion repository. It keeps release-relevant evidence under version control for transparency and easy review, but it does **not** include the final LaTeX paper source.
 
 ## What is committed
 
 - `runs/aggregated/*`  
   Final aggregated dataset and metrics/features tables used for analysis.
-- `figures/*`  
-  Plots used in the paper (generated locally; binary outputs are not versioned).
-- `paper/*` (selected generated outputs)  
-  Paper-facing markdown artifacts, including top mismatch examples.
+- `paper/*` (selected markdown outputs)  
+  Paper-facing markdown notes and generated examples used to accompany the artifact.
 
 ## What is not committed by default
 
+- `figures/*` binary plots are regenerated locally and are not versioned.
 - `runs/raw/*` full model API caches are ignored by default to reduce repository size and avoid redistributing potentially license-sensitive/raw text content.
 - A compact debugging sample is kept in `runs/raw_sample/*`.
+- Historical backup/debug files are archived under `archive/dev_old/` rather than left in the main release tree.
 
 ## Reproducibility
 
