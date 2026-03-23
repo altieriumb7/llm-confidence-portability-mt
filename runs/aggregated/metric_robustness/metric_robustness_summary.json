@@ -1,4 +1,14 @@
 {
-  "secondary_metric_name": "unavailable",
-  "rows": []
+  "config": {
+    "input": "runs/aggregated/dataframe.csv",
+    "secondary_scores": "runs/aggregated/secondary_metric/secondary_metric_scores.csv",
+    "tau": 0.9,
+    "bins": 10,
+    "secondary_quantile": 0.2
+  },
+  "secondary_metric": {
+    "backend": "unavailable",
+    "label": "Unavailable"
+  },
+  "models": {}
 }

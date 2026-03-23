@@ -9,10 +9,12 @@ CLEAN=0
 MAX_SAMPLES=""
 PROVIDERS=""
 MODELS=""
-MODE="all"          # all | step1 | step2 | step3 | step4 | calibration | secondary_metric | robustness
+MODE="all"          # all | step1 | step2 | step3 | step4 | calibration | secondary_metric | robustness | selective_analysis | parse_audit
 STEP2_BG=0
 SKIP_STEP2=0
 WITH_CALIBRATION=0
+WITH_SELECTIVE_ANALYSIS=0
+WITH_PARSE_AUDIT=0
 WITH_STRONGER_METRIC=0
 WITH_METRIC_ROBUSTNESS=0
 SECONDARY_METRIC_BACKEND="auto"
@@ -45,7 +47,7 @@ Options:
   --max_samples N         Limit Step 2 to N samples (smoke test)
   --providers LIST        Comma-separated providers for Step 2 (e.g. openai,anthropic)
   --models LIST           Comma-separated model IDs/labels for Step 2
-  --mode MODE             all | step1 | step2 | step3 | step4 | calibration | secondary_metric | robustness
+  --mode MODE             all | step1 | step2 | step3 | step4 | calibration | selective_analysis | parse_audit | secondary_metric | robustness
   --skip_step2            Skip Step 2 (useful for re-running Step 3/4)
   --step2-bg              Run Step 2 in background (nohup), logs to runs/logs/step2.log
   --dataset NAME          Dataset/testset for Step 1 (default: config global.testset)
@@ -53,6 +55,8 @@ Options:
   --tgt_lang LANG         Target language for Step 1 (default: from config langpair)
   --sample_size N         Sample size for Step 1 (default: config global.n)
   --with_calibration      Run post-hoc isotonic calibration analysis after Step 4
+  --with_selective_analysis Run coverage-aware selective prediction analysis after Step 4
+  --with_parse_audit      Run parse-warning / repair audit after Step 4
   --with_stronger_metric  Run secondary metric analysis after Step 4
   --secondary_metric_backend MODE  auto | comet | fallback_bleu (default: auto)
   --with_metric_robustness Run robustness comparison after secondary metric analysis
@@ -76,6 +80,8 @@ while [[ $# -gt 0 ]]; do
     --tgt_lang) TGT_LANG="$2"; shift 2 ;;
     --sample_size) SAMPLE_SIZE="$2"; shift 2 ;;
     --with_calibration) WITH_CALIBRATION=1; shift ;;
+    --with_selective_analysis) WITH_SELECTIVE_ANALYSIS=1; shift ;;
+    --with_parse_audit) WITH_PARSE_AUDIT=1; shift ;;
     --with_stronger_metric) WITH_STRONGER_METRIC=1; shift ;;
     --secondary_metric_backend) SECONDARY_METRIC_BACKEND="$2"; shift 2 ;;
     --with_metric_robustness) WITH_METRIC_ROBUSTNESS=1; shift ;;
@@ -240,8 +246,29 @@ run_calibration() {
     | tee runs/logs/step5_calibration.log
 }
 
+
+run_selective_analysis() {
+  log "Step 5/8: Coverage-aware selective analysis"
+  mkdir -p runs/aggregated/selective_analysis
+  "$PYTHON" src/07_selective_analysis.py \
+    --config "$CONFIG" \
+    --input runs/aggregated/dataframe.csv \
+    --outdir runs/aggregated/selective_analysis \
+    | tee runs/logs/step5_selective_analysis.log
+}
+
+run_parse_audit() {
+  log "Step 6/8: Parse-warning audit"
+  mkdir -p runs/aggregated/parse_audit
+  "$PYTHON" src/08_parse_warning_audit.py \
+    --config "$CONFIG" \
+    --input runs/aggregated/dataframe.csv \
+    --outdir runs/aggregated/parse_audit \
+    | tee runs/logs/step6_parse_audit.log
+}
+
 run_secondary_metric() {
-  log "Step 5/6: Secondary metric analysis"
+  log "Step 7/8: Secondary metric analysis"
   mkdir -p runs/aggregated/secondary_metric
   "$PYTHON" src/05_secondary_metric.py \
     --input runs/aggregated/dataframe.csv \
@@ -251,7 +278,7 @@ run_secondary_metric() {
 }
 
 run_metric_robustness() {
-  log "Step 6/6: Metric robustness analysis"
+  log "Step 8/8: Metric robustness analysis"
   if [[ ! -f runs/aggregated/secondary_metric/secondary_metric_scores.csv ]]; then
     echo "ERROR: metric robustness requires runs/aggregated/secondary_metric/secondary_metric_scores.csv. Run with --with_stronger_metric first." >&2
     exit 1
@@ -281,6 +308,8 @@ case "$MODE" in
     run_step3
     run_step4
     if [[ "$WITH_CALIBRATION" -eq 1 ]]; then run_calibration; fi
+    if [[ "$WITH_SELECTIVE_ANALYSIS" -eq 1 ]]; then run_selective_analysis; fi
+    if [[ "$WITH_PARSE_AUDIT" -eq 1 ]]; then run_parse_audit; fi
     if [[ "$WITH_STRONGER_METRIC" -eq 1 ]]; then run_secondary_metric; fi
     if [[ "$WITH_METRIC_ROBUSTNESS" -eq 1 ]]; then
       if [[ "$WITH_STRONGER_METRIC" -eq 0 ]]; then
@@ -295,6 +324,8 @@ case "$MODE" in
   step3) run_step3 ;;
   step4) run_step4 ;;
   calibration) run_calibration ;;
+  selective_analysis) run_selective_analysis ;;
+  parse_audit) run_parse_audit ;;
   secondary_metric) run_secondary_metric ;;
   robustness) run_metric_robustness ;;
   *) echo "Unknown --mode: $MODE"; usage; exit 1 ;;

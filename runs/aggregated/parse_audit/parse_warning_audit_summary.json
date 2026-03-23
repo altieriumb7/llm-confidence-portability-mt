@@ -1,0 +1,8 @@
+{
+  "config": {
+    "input": "runs/aggregated/dataframe.csv",
+    "error_col": "error_within_model_q20",
+    "min_clean_subset": 30
+  },
+  "models": {}
+}

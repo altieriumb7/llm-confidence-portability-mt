@@ -1,5 +1,8 @@
 {
   "backend": "bleu_fallback",
+  "metric_label": "Sentence BLEU fallback",
   "reason": "COMET not installed; reused existing sentence BLEU scores as a conservative fallback secondary metric.",
-  "n_rows": 0
+  "is_fallback": true,
+  "n_rows": 0,
+  "secondary_metric_score_field": "secondary_metric_score"
 }
