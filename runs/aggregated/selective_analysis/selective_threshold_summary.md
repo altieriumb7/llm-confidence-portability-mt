@@ -1,0 +1,4 @@
+# Selective threshold summary
+
+| model | coverage_at_0_9 | mismatch_at_0_9 | accepted_error_rate_at_0_9 | accepted_non_low_quality_rate_at_0_9 | ece |
+| --- | --- | --- | --- | --- | --- |

@@ -1,0 +1,16 @@
+{
+  "config": {
+    "input": "runs/aggregated/dataframe.csv",
+    "error_col": "error_within_model_q20",
+    "thresholds": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95
+    ],
+    "bins": 10
+  },
+  "models": {}
+}
