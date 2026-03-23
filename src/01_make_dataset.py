@@ -34,21 +34,30 @@ def fallback_data():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/models.yaml")
+    ap.add_argument("--dataset", default=None)
+    ap.add_argument("--src_lang", default=None)
+    ap.add_argument("--tgt_lang", default=None)
+    ap.add_argument("--sample_size", type=int, default=None)
     args = ap.parse_args()
 
     cfg = load_config(args.config)
     g = cfg["global"]
 
+    dataset = args.dataset or g.get("testset", "wmt17")
+    src_lang = args.src_lang or (g.get("langpair", "en-de").split("-", 1)[0])
+    tgt_lang = args.tgt_lang or (g.get("langpair", "en-de").split("-", 1)[1])
+    langpair = f"{src_lang}-{tgt_lang}"
+
     try:
-        src = sacrebleu_echo(g["testset"], g["langpair"], "src")
-        ref = sacrebleu_echo(g["testset"], g["langpair"], "ref")
+        src = sacrebleu_echo(dataset, langpair, "src")
+        ref = sacrebleu_echo(dataset, langpair, "ref")
         data_source = "sacrebleu"
     except Exception:
         src, ref = fallback_data()
         data_source = "fallback"
 
     rows = [{"id": i, "src": s, "ref": r} for i, (s, r) in enumerate(zip(src, ref))]
-    n = min(len(rows), g["n"])
+    n = min(len(rows), args.sample_size or g["n"])
     rnd = random.Random(g["seed"])
     rnd.shuffle(rows)
     sampled = rows[:n]
@@ -62,9 +71,9 @@ def main():
 
     Path("runs/logs").mkdir(parents=True, exist_ok=True)
     with open("runs/logs/dataset_config.json", "w", encoding="utf-8") as f:
-        json.dump({**g, "dataset_source": data_source}, f, indent=2)
+        json.dump({**g, "dataset": dataset, "src_lang": src_lang, "tgt_lang": tgt_lang, "langpair": langpair, "sample_size": n, "dataset_source": data_source}, f, indent=2)
 
-    print(f"Wrote {n} rows to {out_path} (source={data_source})")
+    print(f"Wrote {n} rows to {out_path} (dataset={dataset}, langpair={langpair}, source={data_source})")
 
 
 if __name__ == "__main__":

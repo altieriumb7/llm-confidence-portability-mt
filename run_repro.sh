@@ -9,9 +9,17 @@ CLEAN=0
 MAX_SAMPLES=""
 PROVIDERS=""
 MODELS=""
-MODE="all"          # all | step1 | step2 | step3 | step4
+MODE="all"          # all | step1 | step2 | step3 | step4 | calibration | secondary_metric | robustness
 STEP2_BG=0
 SKIP_STEP2=0
+WITH_CALIBRATION=0
+WITH_STRONGER_METRIC=0
+WITH_METRIC_ROBUSTNESS=0
+SECONDARY_METRIC_BACKEND="auto"
+DATASET=""
+SRC_LANG=""
+TGT_LANG=""
+SAMPLE_SIZE=""
 
 # Use system python (Vast.ai containers usually have python3)
 PYTHON="${PYTHON:-python3}"
@@ -37,9 +45,17 @@ Options:
   --max_samples N         Limit Step 2 to N samples (smoke test)
   --providers LIST        Comma-separated providers for Step 2 (e.g. openai,anthropic)
   --models LIST           Comma-separated model IDs/labels for Step 2
-  --mode MODE             all | step1 | step2 | step3 | step4 (default: all)
+  --mode MODE             all | step1 | step2 | step3 | step4 | calibration | secondary_metric | robustness
   --skip_step2            Skip Step 2 (useful for re-running Step 3/4)
   --step2-bg              Run Step 2 in background (nohup), logs to runs/logs/step2.log
+  --dataset NAME          Dataset/testset for Step 1 (default: config global.testset)
+  --src_lang LANG         Source language for Step 1 (default: from config langpair)
+  --tgt_lang LANG         Target language for Step 1 (default: from config langpair)
+  --sample_size N         Sample size for Step 1 (default: config global.n)
+  --with_calibration      Run post-hoc isotonic calibration analysis after Step 4
+  --with_stronger_metric  Run secondary metric analysis after Step 4
+  --secondary_metric_backend MODE  auto | comet | fallback_bleu (default: auto)
+  --with_metric_robustness Run robustness comparison after secondary metric analysis
   --python BIN            Python executable to use (default: python3; fallback: python)
   -h, --help              Show help
 USAGE
@@ -55,6 +71,14 @@ while [[ $# -gt 0 ]]; do
     --mode) MODE="$2"; shift 2 ;;
     --skip_step2) SKIP_STEP2=1; shift ;;
     --step2-bg) STEP2_BG=1; shift ;;
+    --dataset) DATASET="$2"; shift 2 ;;
+    --src_lang) SRC_LANG="$2"; shift 2 ;;
+    --tgt_lang) TGT_LANG="$2"; shift 2 ;;
+    --sample_size) SAMPLE_SIZE="$2"; shift 2 ;;
+    --with_calibration) WITH_CALIBRATION=1; shift ;;
+    --with_stronger_metric) WITH_STRONGER_METRIC=1; shift ;;
+    --secondary_metric_backend) SECONDARY_METRIC_BACKEND="$2"; shift 2 ;;
+    --with_metric_robustness) WITH_METRIC_ROBUSTNESS=1; shift ;;
     --python) PYTHON="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown argument: $1"; usage; exit 1 ;;
@@ -77,12 +101,10 @@ mkdir -p runs/logs
 LOGFILE="runs/logs/repro_$(date +"%Y%m%d_%H%M%S").log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
-# Snapshot dir to preserve the exact inputs/outputs of this run
 RUN_ID="${RUN_ID:-$(date +"%Y%m%d_%H%M%S")}"
 SNAPDIR="runs/snapshots/${RUN_ID}"
 mkdir -p "${SNAPDIR}/raw" "${SNAPDIR}/exports"
 log "Run snapshot: ${SNAPDIR}"
-# Always snapshot the config used for this run
 cp -f "$CONFIG" "${SNAPDIR}/config.yaml" || true
 
 log "Environment"
@@ -135,9 +157,13 @@ require_step2_keys() {
 
 run_step1() {
   log "Step 1/4: Build dataset"
-  "$PYTHON" src/01_make_dataset.py --config "$CONFIG" | tee runs/logs/step1.log
+  CMD=("$PYTHON" src/01_make_dataset.py --config "$CONFIG")
+  if [[ -n "$DATASET" ]]; then CMD+=(--dataset "$DATASET"); fi
+  if [[ -n "$SRC_LANG" ]]; then CMD+=(--src_lang "$SRC_LANG"); fi
+  if [[ -n "$TGT_LANG" ]]; then CMD+=(--tgt_lang "$TGT_LANG"); fi
+  if [[ -n "$SAMPLE_SIZE" ]]; then CMD+=(--sample_size "$SAMPLE_SIZE"); fi
+  "${CMD[@]}" | tee runs/logs/step1.log
   wc -l data/wmt_sample.jsonl || true
-  # snapshot dataset used
   cp -f data/wmt_sample.jsonl "${SNAPDIR}/wmt_sample.jsonl" || true
 }
 
@@ -155,15 +181,9 @@ run_step2() {
     --input data/wmt_sample.jsonl
     --outdir runs/raw)
 
-  if [[ -n "$MAX_SAMPLES" ]]; then
-    CMD+=(--max_samples "$MAX_SAMPLES")
-  fi
-  if [[ -n "$PROVIDERS" ]]; then
-    CMD+=(--providers "$PROVIDERS")
-  fi
-  if [[ -n "$MODELS" ]]; then
-    CMD+=(--models "$MODELS")
-  fi
+  if [[ -n "$MAX_SAMPLES" ]]; then CMD+=(--max_samples "$MAX_SAMPLES"); fi
+  if [[ -n "$PROVIDERS" ]]; then CMD+=(--providers "$PROVIDERS"); fi
+  if [[ -n "$MODELS" ]]; then CMD+=(--models "$MODELS"); fi
 
   log "Command: ${CMD[*]}"
 
@@ -210,6 +230,40 @@ run_step4() {
   ls -lah paper/top_mismatch_examples.md || true
 }
 
+run_calibration() {
+  log "Step 5/6: Post-hoc calibration analysis"
+  mkdir -p runs/aggregated/calibration
+  "$PYTHON" src/05_calibration_analysis.py \
+    --config "$CONFIG" \
+    --input runs/aggregated/dataframe.csv \
+    --outdir runs/aggregated/calibration \
+    | tee runs/logs/step5_calibration.log
+}
+
+run_secondary_metric() {
+  log "Step 5/6: Secondary metric analysis"
+  mkdir -p runs/aggregated/secondary_metric
+  "$PYTHON" src/05_secondary_metric.py \
+    --input runs/aggregated/dataframe.csv \
+    --outdir runs/aggregated/secondary_metric \
+    --backend "$SECONDARY_METRIC_BACKEND" \
+    | tee runs/logs/step5_secondary_metric.log
+}
+
+run_metric_robustness() {
+  log "Step 6/6: Metric robustness analysis"
+  if [[ ! -f runs/aggregated/secondary_metric/secondary_metric_scores.csv ]]; then
+    echo "ERROR: metric robustness requires runs/aggregated/secondary_metric/secondary_metric_scores.csv. Run with --with_stronger_metric first." >&2
+    exit 1
+  fi
+  mkdir -p runs/aggregated/metric_robustness
+  "$PYTHON" src/06_metric_robustness.py \
+    --input runs/aggregated/dataframe.csv \
+    --secondary_scores runs/aggregated/secondary_metric/secondary_metric_scores.csv \
+    --outdir runs/aggregated/metric_robustness \
+    | tee runs/logs/step6_metric_robustness.log
+}
+
 case "$MODE" in
   all)
     run_step1
@@ -226,11 +280,23 @@ case "$MODE" in
     fi
     run_step3
     run_step4
+    if [[ "$WITH_CALIBRATION" -eq 1 ]]; then run_calibration; fi
+    if [[ "$WITH_STRONGER_METRIC" -eq 1 ]]; then run_secondary_metric; fi
+    if [[ "$WITH_METRIC_ROBUSTNESS" -eq 1 ]]; then
+      if [[ "$WITH_STRONGER_METRIC" -eq 0 ]]; then
+        log "Robustness requested without explicit stronger-metric stage; running secondary metric first"
+        run_secondary_metric
+      fi
+      run_metric_robustness
+    fi
     ;;
   step1) run_step1 ;;
   step2) run_step2 ;;
   step3) run_step3 ;;
   step4) run_step4 ;;
+  calibration) run_calibration ;;
+  secondary_metric) run_secondary_metric ;;
+  robustness) run_metric_robustness ;;
   *) echo "Unknown --mode: $MODE"; usage; exit 1 ;;
 esac
 
