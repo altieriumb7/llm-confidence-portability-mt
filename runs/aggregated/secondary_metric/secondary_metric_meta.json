@@ -1,5 +1,5 @@
 {
   "backend": "bleu_fallback",
   "reason": "COMET not installed; reused existing sentence BLEU scores as a conservative fallback secondary metric.",
-  "n_rows": 4000
+  "n_rows": 0
 }

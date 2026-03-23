@@ -1,23 +1,10 @@
 {
-  "timestamp_utc": "2026-03-22T19:29:03.503880+00:00",
+  "timestamp_utc": "2026-03-23T22:54:15.422999+00:00",
   "config_hash_sha256": "77ddd59db1580f3393db4d08bab5159d196b81d41faa3fb9acd612550b106235",
-  "git_commit": "f61734c1f86b5ecd495251636a7f9dfd566484f2",
-  "providers": [
-    "anthropic",
-    "gemini",
-    "openai"
-  ],
-  "models": [
-    "anthropic/claude-haiku-4-5-20251001",
-    "anthropic/claude-opus-4-6",
-    "anthropic/claude-sonnet-4-5-20250929",
-    "gemini/gemini-2.5-flash",
-    "gemini/gemini-2.5-pro",
-    "openai/gpt-5-mini",
-    "openai/gpt-5-nano",
-    "openai/gpt-5.2"
-  ],
-  "n": 4000,
+  "git_commit": "44152d5a651078fefa93d6c3e8d4023078ac45da",
+  "providers": [],
+  "models": [],
+  "n": 0,
   "seed": 123,
   "mismatch_tau": 0.9
 }
