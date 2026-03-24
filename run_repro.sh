@@ -55,10 +55,8 @@ Options:
   --tgt_lang LANG         Target language for Step 1 (default: from config langpair)
   --sample_size N         Sample size for Step 1 (default: config global.n)
   --with_calibration      Run post-hoc isotonic calibration analysis after Step 4
-  --with_selective_analysis | --with-selective-analysis
-                          Run coverage-aware selective prediction analysis after Step 4
-  --with_parse_audit | --with-parse-audit
-                          Run parse-warning / repair audit after Step 4
+  --with_selective_analysis Run coverage-aware selective prediction analysis after Step 4
+  --with_parse_audit      Run parse-warning / repair audit after Step 4
   --with_stronger_metric  Run secondary metric analysis after Step 4
   --secondary_metric_backend MODE  auto | comet | fallback_bleu (default: auto)
   --with_metric_robustness Run robustness comparison after secondary metric analysis
@@ -82,8 +80,8 @@ while [[ $# -gt 0 ]]; do
     --tgt_lang) TGT_LANG="$2"; shift 2 ;;
     --sample_size) SAMPLE_SIZE="$2"; shift 2 ;;
     --with_calibration) WITH_CALIBRATION=1; shift ;;
-    --with_selective_analysis|--with-selective-analysis) WITH_SELECTIVE_ANALYSIS=1; shift ;;
-    --with_parse_audit|--with-parse-audit) WITH_PARSE_AUDIT=1; shift ;;
+    --with_selective_analysis) WITH_SELECTIVE_ANALYSIS=1; shift ;;
+    --with_parse_audit) WITH_PARSE_AUDIT=1; shift ;;
     --with_stronger_metric) WITH_STRONGER_METRIC=1; shift ;;
     --secondary_metric_backend) SECONDARY_METRIC_BACKEND="$2"; shift 2 ;;
     --with_metric_robustness) WITH_METRIC_ROBUSTNESS=1; shift ;;
