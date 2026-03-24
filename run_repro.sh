@@ -87,7 +87,14 @@ while [[ $# -gt 0 ]]; do
     --with_metric_robustness) WITH_METRIC_ROBUSTNESS=1; shift ;;
     --python) PYTHON="$2"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
-    *) echo "Unknown argument: $1"; usage; exit 1 ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      if [[ "$1" == "--with_selective_analysis" || "$1" == "--with_parse_audit" ]]; then
+        echo "Hint: this flag requires the updated run_repro.sh. Verify with: bash run_repro.sh --help" >&2
+      fi
+      usage
+      exit 1
+      ;;
   esac
 done
 
