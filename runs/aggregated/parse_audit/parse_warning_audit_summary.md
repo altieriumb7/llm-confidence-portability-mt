@@ -1,0 +1,4 @@
+# Parse-warning audit summary
+
+| model | n_warning_rows | warning_rate | n_repaired_rows | n_fallback_rows | n_translation_warning_rows | n_confidence_warning_rows | n_both_warning_rows | mean_conf_clean | mean_conf_warning | ece_all | ece_clean | mismatch_all | mismatch_clean | top_warning_token |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

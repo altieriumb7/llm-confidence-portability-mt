@@ -31,7 +31,7 @@ See `.env.example`.
 ```bash
 bash run_repro.sh --clean
 bash run_repro.sh
-bash run_repro.sh --skip_step2 --with_calibration --with_stronger_metric --with_metric_robustness
+bash run_repro.sh --skip_step2 --with_calibration --with_selective_analysis --with_parse_audit --with_stronger_metric --with_metric_robustness
 bash run_repro.sh --dataset wmt17 --src_lang en --tgt_lang de --sample_size 500 --skip_step2 --with_calibration
 ```
 
@@ -83,6 +83,15 @@ bash tools/pin_requirements.sh
 
 ## Extended workflow flags
 - `--with_calibration` runs a deterministic per-model isotonic post-hoc calibration analysis on the aggregated confidence outputs and writes artifacts under `runs/aggregated/calibration/`.
-- `--with_stronger_metric` runs a secondary metric stage and writes artifacts under `runs/aggregated/secondary_metric/`. The runner uses COMET if the optional `comet` package is already installed; otherwise it falls back to the existing sentence-BLEU scores and records that fallback in metadata.
-- `--with_metric_robustness` compares provider-level conclusions under chrF and the secondary metric, writing artifacts under `runs/aggregated/metric_robustness/`.
+
+- `--with_selective_analysis` (alias: `--with-selective-analysis`) runs a deterministic coverage-aware selective prediction audit using the existing operational low-quality label. Outputs are written under `runs/aggregated/selective_analysis/` as CSV, JSON, Markdown, and TeX summary artifacts.
+- `--with_parse_audit` (alias: `--with-parse-audit`) runs a parse-warning / repair audit using the warning tokens already emitted by Step 2. Outputs are written under `runs/aggregated/parse_audit/` as CSV, JSON, Markdown, and TeX summary artifacts.
+- `--with_stronger_metric` runs a secondary metric stage and writes artifacts under `runs/aggregated/secondary_metric/`. The runner uses COMET if the optional `comet` package is already installed; otherwise it falls back to the existing sentence-BLEU scores and records that fallback in metadata, summaries, and machine-readable outputs.
+- `--with_metric_robustness` compares provider-level conclusions under chrF and the secondary metric (or explicit BLEU fallback), writing artifacts under `runs/aggregated/metric_robustness/`.
 - `--dataset`, `--src_lang`, `--tgt_lang`, and `--sample_size` are passed through the existing bash runner into Step 1, while keeping the current `wmt17` `en-de` / 500-sentence behavior as the default.
+
+## New artifact directories
+- `runs/aggregated/selective_analysis/` → threshold sweep, coverage/mismatch summaries, and paper-friendly tables for coverage-aware selective prediction.
+- `runs/aggregated/parse_audit/` → provider/model parse-warning rates, repair/fallback counts, and clean-subset comparison tables.
+- `runs/aggregated/secondary_metric/` → per-example secondary metric scores, per-model summaries, metadata, and paper-friendly exports.
+- `runs/aggregated/metric_robustness/` → side-by-side chrF vs. secondary-metric ECE / coverage / mismatch / accepted-error summaries.
