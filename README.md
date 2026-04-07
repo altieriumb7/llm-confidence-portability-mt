@@ -19,6 +19,25 @@ Upload the whole zip to Overleaf (New Project → Upload Project).
 - `main_v2.tex` has been synchronized with `main.tex` for convenience.
 - Older historical files are kept only as repository leftovers and should not be used for submission.
 
+
+## Deterministic regeneration scripts (no binary artifacts in commits)
+
+Use bundled raw snapshot data as the authority and regenerate outputs locally instead of committing regenerated binary files (`.png`, `.pdf`, `.jpg`, etc.).
+
+- Regenerate core table/source outputs (no plots):
+
+```bash
+bash scripts/regenerate_tables.sh
+```
+
+- Regenerate figures from `runs/aggregated/dataframe.csv`:
+
+```bash
+bash scripts/regenerate_figures.sh
+```
+
+Both scripts are deterministic wrappers around the existing Python pipeline stages and keep manuscript-facing paths (`figures/*`, `runs/aggregated/*`, `paper/top_mismatch_examples.md`) consistent.
+
 ---
 
 ## Reproduction paths (code)
