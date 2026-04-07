@@ -94,3 +94,78 @@ Regenerate from `runs/snapshots/20260228_000439/raw/`:
 - Prefer authoritative bundled raw snapshot over stale aggregated artifacts.
 - If a manuscript claim cannot be supported by regenerated outputs from bundled raw materials, downgrade or remove that claim.
 - PASS 2 must also remove silent toy-data fallback behavior and fail loudly when expected raw inputs are absent.
+
+## 6) PASS 2 — STEP 2.1 mapping (raw snapshot → aggregated artifacts)
+
+Goal of this step: identify the exact pipeline entry points (scripts/functions/inputs) that generate the core aggregated artifacts, without regenerating outputs yet.
+
+### 6.1 Authoritative raw input snapshot (for regeneration)
+
+- Locked raw snapshot directory: `runs/snapshots/20260228_000439/raw/`
+- Expected input files to Step 3 (8 model files):
+  - `runs/snapshots/20260228_000439/raw/openai__gpt-5.2.jsonl`
+  - `runs/snapshots/20260228_000439/raw/openai__gpt-5-mini.jsonl`
+  - `runs/snapshots/20260228_000439/raw/openai__gpt-5-nano.jsonl`
+  - `runs/snapshots/20260228_000439/raw/anthropic__claude-opus-4-6.jsonl`
+  - `runs/snapshots/20260228_000439/raw/anthropic__claude-sonnet-4-5-20250929.jsonl`
+  - `runs/snapshots/20260228_000439/raw/anthropic__claude-haiku-4-5-20251001.jsonl`
+  - `runs/snapshots/20260228_000439/raw/gemini__gemini-2.5-pro.jsonl`
+  - `runs/snapshots/20260228_000439/raw/gemini__gemini-2.5-flash.jsonl`
+
+### 6.2 Authoritative generation mapping for each aggregated output
+
+1. `runs/aggregated/dataframe.csv`
+   - Script: `src/03_features_and_metrics.py`
+   - Function path: `main()` (loads all `*.jsonl` in `--input_dir`, dedupes, computes features/metrics, writes CSV)
+   - Input requirement: JSONL raw files in `--input_dir` (default `runs/raw`)
+   - Output arg: `--output runs/aggregated/dataframe.csv`
+
+2. `runs/aggregated/results_by_model.json`
+   - Script: `src/04_analysis_and_plots.py`
+   - Function path: `main()` builds per-model `results` dict and writes JSON
+   - Upstream input requirement: `--input runs/aggregated/dataframe.csv`
+   - Output arg: `--results runs/aggregated/results_by_model.json`
+
+3. `runs/aggregated/summary_table.csv`
+   - Script: `src/04_analysis_and_plots.py`
+   - Function path: `main()` builds `summary` rows and writes CSV via `csv.DictWriter`
+   - Upstream input requirement: `--input runs/aggregated/dataframe.csv`
+   - Output arg: `--summary runs/aggregated/summary_table.csv`
+
+4. `runs/aggregated/meta.json`
+   - Script: `src/04_analysis_and_plots.py`
+   - Function path: `main()` calls `_write_meta(Path(args.meta), args.config, cfg, rows)` at end
+   - Meta writer: `_write_meta(...)` computes timestamp/config hash/git commit/providers/models/n/seed/tau and writes JSON
+   - Upstream input requirement: same dataframe rows read from `--input runs/aggregated/dataframe.csv`
+   - Output arg: `--meta runs/aggregated/meta.json`
+
+### 6.3 Regeneration chain (commands to run in PASS 2.2, not executed in STEP 2.1)
+
+Important: Step 3 reads `runs/raw/*.jsonl`, so authoritative snapshot files must first be staged into `runs/raw/` (or Step 3 must be pointed to the snapshot dir directly).
+
+Recommended exact commands:
+
+```bash
+# 0) Stage authoritative raw snapshot into active raw dir
+rm -rf runs/raw
+mkdir -p runs/raw
+cp runs/snapshots/20260228_000439/raw/*.jsonl runs/raw/
+
+# 1) Regenerate aggregated dataframe from raw snapshot
+python3 src/03_features_and_metrics.py \
+  --config configs/models.yaml \
+  --input_dir runs/raw \
+  --output runs/aggregated/dataframe.csv
+
+# 2) Regenerate analysis aggregates (results/summary/meta)
+python3 src/04_analysis_and_plots.py \
+  --config configs/models.yaml \
+  --input runs/aggregated/dataframe.csv \
+  --outdir figures \
+  --results runs/aggregated/results_by_model.json \
+  --summary runs/aggregated/summary_table.csv \
+  --meta runs/aggregated/meta.json \
+  --examples paper/top_mismatch_examples.md
+```
+
+Equivalent orchestrated path (same script entry points) is also defined in `run_repro.sh` as `run_step3()` then `run_step4()`.
