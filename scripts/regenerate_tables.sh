@@ -48,7 +48,7 @@ echo "Staged ${#snapshot_files[@]} raw files into $RAW_DIR"
   --results "$AGG_DIR/results_by_model.json" \
   --summary "$AGG_DIR/summary_table.csv" \
   --meta "$AGG_DIR/meta.json" \
-  --examples "$AGG_DIR/top_mismatch_examples.md" \
+  --examples paper/top_mismatch_examples.md \
   --outdir figures \
   --skip_plots --skip_examples
 
