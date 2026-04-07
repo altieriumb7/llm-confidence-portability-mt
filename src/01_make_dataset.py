@@ -38,6 +38,11 @@ def main():
     ap.add_argument("--src_lang", default=None)
     ap.add_argument("--tgt_lang", default=None)
     ap.add_argument("--sample_size", type=int, default=None)
+    ap.add_argument(
+        "--demo_toy_data",
+        action="store_true",
+        help="Use a tiny built-in toy dataset for demos only (never for real reproduction).",
+    )
     args = ap.parse_args()
 
     cfg = load_config(args.config)
@@ -48,13 +53,24 @@ def main():
     tgt_lang = args.tgt_lang or (g.get("langpair", "en-de").split("-", 1)[1])
     langpair = f"{src_lang}-{tgt_lang}"
 
-    try:
-        src = sacrebleu_echo(dataset, langpair, "src")
-        ref = sacrebleu_echo(dataset, langpair, "ref")
-        data_source = "sacrebleu"
-    except Exception:
+    if args.demo_toy_data:
         src, ref = fallback_data()
-        data_source = "fallback"
+        data_source = "demo_toy_data"
+    else:
+        try:
+            src = sacrebleu_echo(dataset, langpair, "src")
+            ref = sacrebleu_echo(dataset, langpair, "ref")
+            data_source = "sacrebleu"
+        except Exception as e:
+            raise RuntimeError(
+                "Failed to load dataset via sacrebleu for real reproduction. "
+                f"Requested dataset={dataset!r}, langpair={langpair!r}. "
+                "Install/verify sacrebleu and ensure this testset/langpair exists. "
+                "Example checks: "
+                f"`sacrebleu -t {dataset} -l {langpair} --echo src` and "
+                f"`sacrebleu -t {dataset} -l {langpair} --echo ref`. "
+                "If you intentionally want toy/demo data, rerun with --demo_toy_data."
+            ) from e
 
     rows = [{"id": i, "src": s, "ref": r} for i, (s, r) in enumerate(zip(src, ref))]
     n = min(len(rows), args.sample_size or g["n"])
