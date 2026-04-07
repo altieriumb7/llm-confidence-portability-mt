@@ -157,6 +157,8 @@ def main():
     ap.add_argument("--summary", default="runs/aggregated/summary_table.csv")
     ap.add_argument("--examples", default="paper/top_mismatch_examples.md")
     ap.add_argument("--meta", default="runs/aggregated/meta.json")
+    ap.add_argument("--skip_plots", action="store_true", help="Skip figure generation (results/summary/meta still written).")
+    ap.add_argument("--skip_examples", action="store_true", help="Skip writing mismatch examples markdown file.")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
@@ -374,91 +376,93 @@ def main():
         w.writeheader()
         w.writerows(summary)
 
-    Path(args.examples).parent.mkdir(parents=True, exist_ok=True)
-    with open(args.examples, "w", encoding="utf-8") as f:
-        f.writelines(lines)
+    if not args.skip_examples:
+        Path(args.examples).parent.mkdir(parents=True, exist_ok=True)
+        with open(args.examples, "w", encoding="utf-8") as f:
+            f.writelines(lines)
 
-    outdir = Path(args.outdir)
-    outdir.mkdir(parents=True, exist_ok=True)
+    if not args.skip_plots:
+        outdir = Path(args.outdir)
+        outdir.mkdir(parents=True, exist_ok=True)
 
-    plt.style.use("seaborn-v0_8-whitegrid")
+        plt.style.use("seaborn-v0_8-whitegrid")
 
-    plt.figure(figsize=(8, 5))
-    for label, d in grouped.items():
-        plt.scatter([r["difficulty_score"] for r in d], [r["conf"] if r["conf"] is not None else 0.5 for r in d], s=10, alpha=0.5, label=label)
-    plt.xlabel("Surface-complexity score")
-    plt.ylabel("Confidence")
-    plt.title("Confidence vs surface-complexity score")
-    plt.legend(fontsize=7)
-    plt.tight_layout()
-    plt.savefig(outdir / "fig1_scatter_difficulty_vs_conf.png", dpi=200)
-    plt.savefig(outdir / "fig1_scatter_difficulty_vs_conf.pdf")
-    plt.close()
+        plt.figure(figsize=(8, 5))
+        for label, d in grouped.items():
+            plt.scatter([r["difficulty_score"] for r in d], [r["conf"] if r["conf"] is not None else 0.5 for r in d], s=10, alpha=0.5, label=label)
+        plt.xlabel("Surface-complexity score")
+        plt.ylabel("Confidence")
+        plt.title("Confidence vs surface-complexity score")
+        plt.legend(fontsize=7)
+        plt.tight_layout()
+        plt.savefig(outdir / "fig1_scatter_difficulty_vs_conf.png", dpi=200)
+        plt.savefig(outdir / "fig1_scatter_difficulty_vs_conf.pdf")
+        plt.close()
 
-    plt.figure(figsize=(8, 5))
-    for label, d in grouped.items():
-        valid_conf = [r for r in d if r["conf"] is not None]
-        xs, ys = reliability_curve(valid_conf, mismatch_error_col, g["conf_bins"])
-        if xs:
-            plt.plot(xs, ys, marker="o", linewidth=1, label=label)
-        slug = _safe_slug(label)
-        plt_m = plt.figure(figsize=(6, 4))
-        if xs:
-            plt.plot(xs, ys, marker="o", linewidth=1, label="model")
+        plt.figure(figsize=(8, 5))
+        for label, d in grouped.items():
+            valid_conf = [r for r in d if r["conf"] is not None]
+            xs, ys = reliability_curve(valid_conf, mismatch_error_col, g["conf_bins"])
+            if xs:
+                plt.plot(xs, ys, marker="o", linewidth=1, label=label)
+            slug = _safe_slug(label)
+            plt_m = plt.figure(figsize=(6, 4))
+            if xs:
+                plt.plot(xs, ys, marker="o", linewidth=1, label="model")
+            plt.plot([0, 1], [0, 1], "k--", linewidth=1)
+            plt.xlabel("Confidence")
+            plt.ylabel("Accuracy")
+            plt.title(f"Reliability diagram: {label}")
+            plt.ylim(0, 1)
+            plt.xlim(0, 1)
+            plt.tight_layout()
+            plt.savefig(outdir / f"reliability_{slug}.png", dpi=200)
+            plt.savefig(outdir / f"reliability_{slug}.pdf")
+            plt.close(plt_m)
         plt.plot([0, 1], [0, 1], "k--", linewidth=1)
         plt.xlabel("Confidence")
         plt.ylabel("Accuracy")
-        plt.title(f"Reliability diagram: {label}")
+        plt.title("Reliability diagram")
         plt.ylim(0, 1)
         plt.xlim(0, 1)
+        plt.legend(fontsize=7)
         plt.tight_layout()
-        plt.savefig(outdir / f"reliability_{slug}.png", dpi=200)
-        plt.savefig(outdir / f"reliability_{slug}.pdf")
-        plt.close(plt_m)
-    plt.plot([0, 1], [0, 1], "k--", linewidth=1)
-    plt.xlabel("Confidence")
-    plt.ylabel("Accuracy")
-    plt.title("Reliability diagram")
-    plt.ylim(0, 1)
-    plt.xlim(0, 1)
-    plt.legend(fontsize=7)
-    plt.tight_layout()
-    plt.savefig(outdir / "fig2_reliability_diagram_overlay.png", dpi=200)
-    plt.savefig(outdir / "fig2_reliability_diagram_overlay.pdf")
-    plt.close()
+        plt.savefig(outdir / "fig2_reliability_diagram_overlay.png", dpi=200)
+        plt.savefig(outdir / "fig2_reliability_diagram_overlay.pdf")
+        plt.close()
 
-    buckets = ["Q1", "Q2", "Q3", "Q4"]
-    labels = list(grouped.keys())
-    x = list(range(len(buckets)))
-    width = 0.8 / max(1, len(labels))
-    plt.figure(figsize=(9, 5))
-    for i, label in enumerate(labels):
-        vals = [results[label]["mismatch_rate_by_bucket"].get(b, float("nan")) for b in buckets]
-        xs = [v + (i - (len(labels) - 1) / 2) * width for v in x]
-        plt.bar(xs, vals, width=width, label=label)
-    plt.xticks(x, buckets)
-    plt.ylabel("Mismatch rate")
-    plt.xlabel("Surface-complexity quartile")
-    plt.title("Mismatch rate by surface-complexity quartile")
-    plt.legend(fontsize=7)
-    plt.tight_layout()
-    plt.savefig(outdir / "fig3_mismatch_by_difficulty_bucket.png", dpi=200)
-    plt.savefig(outdir / "fig3_mismatch_by_difficulty_bucket.pdf")
-    plt.close()
+        buckets = ["Q1", "Q2", "Q3", "Q4"]
+        labels = list(grouped.keys())
+        x = list(range(len(buckets)))
+        width = 0.8 / max(1, len(labels))
+        plt.figure(figsize=(9, 5))
+        for i, label in enumerate(labels):
+            vals = [results[label]["mismatch_rate_by_bucket"].get(b, float("nan")) for b in buckets]
+            xs = [v + (i - (len(labels) - 1) / 2) * width for v in x]
+            plt.bar(xs, vals, width=width, label=label)
+        plt.xticks(x, buckets)
+        plt.ylabel("Mismatch rate")
+        plt.xlabel("Surface-complexity quartile")
+        plt.title("Mismatch rate by surface-complexity quartile")
+        plt.legend(fontsize=7)
+        plt.tight_layout()
+        plt.savefig(outdir / "fig3_mismatch_by_difficulty_bucket.png", dpi=200)
+        plt.savefig(outdir / "fig3_mismatch_by_difficulty_bucket.pdf")
+        plt.close()
 
-    plt.figure(figsize=(7, 5))
-    for label in labels:
-        qv = next(s["mean_quality"] for s in summary if s["model"] == label)
-        tv = results[label]["efficiency"]["avg_total_latency_s"]
-        plt.scatter(tv, qv, s=60)
-        plt.annotate(label, (tv, qv), fontsize=7, xytext=(3, 3), textcoords="offset points")
-    plt.xlabel("Average total latency (s)")
-    plt.ylabel("Mean quality (chrF++)")
-    plt.title("Efficiency frontier")
-    plt.tight_layout()
-    plt.savefig(outdir / "fig4_efficiency_frontier.png", dpi=200)
-    plt.savefig(outdir / "fig4_efficiency_frontier.pdf")
-    plt.close()
+        plt.figure(figsize=(7, 5))
+        for label in labels:
+            qv = next(s["mean_quality"] for s in summary if s["model"] == label)
+            tv = results[label]["efficiency"]["avg_total_latency_s"]
+            plt.scatter(tv, qv, s=60)
+            plt.annotate(label, (tv, qv), fontsize=7, xytext=(3, 3), textcoords="offset points")
+        plt.xlabel("Average total latency (s)")
+        plt.ylabel("Mean quality (chrF++)")
+        plt.title("Efficiency frontier")
+        plt.tight_layout()
+        plt.savefig(outdir / "fig4_efficiency_frontier.png", dpi=200)
+        plt.savefig(outdir / "fig4_efficiency_frontier.pdf")
+        plt.close()
 
     if mismatch_all and all(v == 0.0 for v in mismatch_all):
         warnings.warn(f"mismatch_rate_overall is 0.0 for all models; mismatch definition or tau={configured_tau} may be too strict")
