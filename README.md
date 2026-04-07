@@ -18,3 +18,17 @@ Upload the whole zip to Overleaf (New Project → Upload Project).
 ## Notes
 - `main_v2.tex` has been synchronized with `main.tex` for convenience.
 - Older historical files are kept only as repository leftovers and should not be used for submission.
+
+---
+
+## Reproduction paths (code)
+
+For code-side reproduction, use `REPRODUCIBILITY_CHECKLIST.md`.
+
+- **Offline (recommended for deterministic regeneration from bundled data):**
+  regenerate `runs/aggregated/{dataframe.csv,results_by_model.json,summary_table.csv,meta.json}` from
+  `runs/snapshots/20260228_000439/raw/*.jsonl` with no API keys.
+- **Live API path:** Step 2 translation/confidence generation requires provider keys and network calls.
+- **Optional dependencies:** COMET-backed secondary metric analysis is optional and not required for core aggregates.
+
+If you only need core aggregates, follow the checklist’s offline section and skip API-backed steps.
