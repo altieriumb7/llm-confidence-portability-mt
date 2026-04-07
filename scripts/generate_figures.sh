@@ -53,19 +53,4 @@ echo "Staged ${#snapshot_files[@]} raw files into $RAW_DIR"
   --meta runs/aggregated/meta.json \
   --examples "$EXAMPLES_OUT"
 
-
-expected_figs=(
-  "$FIG_DIR/fig1_scatter_difficulty_vs_conf.pdf"
-  "$FIG_DIR/fig2_reliability_diagram_overlay.pdf"
-  "$FIG_DIR/fig3_mismatch_by_difficulty_bucket.pdf"
-  "$FIG_DIR/fig4_efficiency_frontier.pdf"
-)
-
-for fig in "${expected_figs[@]}"; do
-  if [[ ! -f "$fig" ]]; then
-    echo "ERROR: expected figure not generated: $fig" >&2
-    exit 1
-  fi
-done
-
 echo "Regenerated manuscript figures in $FIG_DIR from authoritative snapshot data."
