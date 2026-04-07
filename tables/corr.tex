@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+Model & $r$(difficulty, conf) & $r$(difficulty, chrF) & $r$(conf, chrF) \\
+\midrule
+anthropic/claude-haiku-4-5-20251001 & -0.004 & 0.006 & 0.257 \\
+anthropic/claude-opus-4-6 & -0.136 & -0.016 & 0.481 \\
+anthropic/claude-sonnet-4-5-20250929 & -0.073 & 0.019 & 0.455 \\
+gemini/gemini-2.5-flash & -0.083 & -0.156 & 0.224 \\
+gemini/gemini-2.5-pro & 0.004 & 0.032 & 0.233 \\
+openai/gpt-5-mini & -0.031 & 0.027 & 0.041 \\
+openai/gpt-5-nano & 0.079 & 0.036 & 0.207 \\
+openai/gpt-5.2 & 0.103 & 0.035 & 0.107 \\
+\bottomrule
+\end{tabular}
+\caption{Pearson correlations from regenerated analysis outputs.}
+\label{tab:corr}
+\end{table}

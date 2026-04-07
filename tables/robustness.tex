@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lcc}
+\toprule
+Model & Mismatch@0.9 (within-model chrF-q20) & Mismatch@0.9 (global chrF-q20) \\
+\midrule
+anthropic/claude-haiku-4-5-20251001 & 13.4\% & 13.4\% \\
+anthropic/claude-opus-4-6 & 7.6\% & 6.4\% \\
+anthropic/claude-sonnet-4-5-20250929 & 12.8\% & 14.2\% \\
+gemini/gemini-2.5-flash & 4.2\% & 5.6\% \\
+gemini/gemini-2.5-pro & 18.2\% & 12.6\% \\
+openai/gpt-5-mini & 12.8\% & 14.6\% \\
+openai/gpt-5-nano & 0.2\% & 0.8\% \\
+openai/gpt-5.2 & 15.2\% & 11.8\% \\
+\bottomrule
+\end{tabular}
+\caption{Appendix robustness comparison across chrF-based low-quality definitions at $\tau=0.9$.}
+\label{tab:robustness}
+\end{table}
