@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lccccc}
+\toprule
+Model & Secondary metric & ECE (chrF-q20) & ECE (secondary-q20) & Mismatch@0.9 (chrF) & Mismatch@0.9 (secondary) \\
+\midrule
+anthropic/claude-haiku-4-5-20251001 & Sentence BLEU fallback & 0.094 & 0.099 & 13.4\% & 14.2\% \\
+anthropic/claude-opus-4-6 & Sentence BLEU fallback & 0.087 & 0.092 & 7.6\% & 8.0\% \\
+anthropic/claude-sonnet-4-5-20250929 & Sentence BLEU fallback & 0.095 & 0.098 & 12.8\% & 13.0\% \\
+gemini/gemini-2.5-flash & Sentence BLEU fallback & 0.148 & 0.152 & 4.2\% & 4.8\% \\
+gemini/gemini-2.5-pro & Sentence BLEU fallback & 0.180 & 0.186 & 18.2\% & 18.8\% \\
+openai/gpt-5-mini & Sentence BLEU fallback & 0.152 & 0.152 & 12.8\% & 13.0\% \\
+openai/gpt-5-nano & Sentence BLEU fallback & 0.076 & 0.088 & 0.2\% & 0.6\% \\
+openai/gpt-5.2 & Sentence BLEU fallback & 0.134 & 0.145 & 15.2\% & 16.0\% \\
+\bottomrule
+\end{tabular}
+\caption{Robustness comparison between the main chrF-based target and the strongest available secondary metric target (current run: sentence BLEU fallback).}
+\label{tab:metric_robustness}
+\end{table}

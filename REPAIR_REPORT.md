@@ -169,3 +169,63 @@ python3 src/04_analysis_and_plots.py \
 ```
 
 Equivalent orchestrated path (same script entry points) is also defined in `run_repro.sh` as `run_step3()` then `run_step4()`.
+
+## 7) PASS 3 — STEP 3.1 table-to-source mapping
+
+Goal of this step: map every paper table reference in `revised_submission_with_new_results.tex` to its concrete source artifact(s) and generating code path.
+
+### 7.1 Mapping inventory
+
+1. `tables/summary` (Table `tab:main`)
+   - Manuscript input: `\input{tables/summary}`
+   - Paper table file: `tables/summary.tex`
+   - Status: **generated-derived table file** (materialized from regenerated aggregates)
+   - Upstream data source: `runs/aggregated/summary_table.csv`
+   - Generating script/function: `src/04_analysis_and_plots.py` (`main()`, `--summary` output)
+
+2. `tables/corr` (Table `tab:corr`)
+   - Manuscript input: `\input{tables/corr}`
+   - Paper table file: `tables/corr.tex`
+   - Status: **generated-derived table file** (materialized from regenerated aggregates)
+   - Upstream data source: `runs/aggregated/results_by_model.json` (`correlations` block per model)
+   - Generating script/function: `src/04_analysis_and_plots.py` (`main()`, `results` object written via `--results`)
+
+3. `tables/calibration` (Table `tab:calibration`)
+   - Manuscript input: `\input{tables/calibration}`
+   - Paper table file: `tables/calibration.tex`
+   - Status: **generated-derived table file** (materialized from regenerated calibration exports)
+   - Upstream data source: `runs/aggregated/calibration/calibration_summary.csv`
+   - Generating script/function: `src/05_calibration_analysis.py` (`main()`, `calibration_summary.csv`)
+
+4. `tables/metric_robustness` (Table `tab:metric_robustness`)
+   - Manuscript input: `\input{tables/metric_robustness}`
+   - Paper table file: **currently unresolved in paper tree** (no `tables/metric_robustness.tex` committed in this pass)
+   - Status: **expected generated table**
+   - Upstream data source: `runs/aggregated/metric_robustness/metric_robustness_summary.csv`
+   - Closest generated TeX artifact: `runs/aggregated/metric_robustness/metric_robustness_summary.tex`
+   - Generating script/function: `src/06_metric_robustness.py` (`main()`, writes csv/json/md/tex summary files)
+
+5. Inline illustrative examples table (Table `tab:examples` in manuscript body)
+   - Manuscript location: explicit `\begin{table}...\end{table}` block in `revised_submission_with_new_results.tex`
+   - Status: **handwritten table in manuscript**
+   - Upstream source: `paper/top_mismatch_examples.md` (exported examples list)
+   - Generating script/function for source list: `src/04_analysis_and_plots.py` (`--examples` output)
+   - Note: final 3-row selection and wording are manually curated in manuscript.
+
+6. `tables/robustness` (Appendix Table `tab:robustness`)
+   - Manuscript input: `\input{tables/robustness}`
+   - Paper table file: **currently unresolved in paper tree** (no `tables/robustness.tex` committed in this pass)
+   - Status: **expected generated-or-curated table (not yet materialized)**
+   - Candidate upstream data source: `runs/aggregated/results_by_model.json` (contains `mismatch_rate_overall` and `mismatch_rate_overall_global_q20_tau_0.9`)
+   - Candidate generator: `src/04_analysis_and_plots.py` (`main()`, `results` payload)
+
+### 7.2 Regeneration commands used for source verification
+
+```bash
+mkdir -p runs/raw && cp runs/snapshots/20260228_000439/raw/*.jsonl runs/raw/
+python3 src/03_features_and_metrics.py --config configs/models.yaml --input_dir runs/raw --output runs/aggregated/dataframe.csv
+python3 src/04_analysis_and_plots.py --config configs/models.yaml --input runs/aggregated/dataframe.csv --outdir figures --results runs/aggregated/results_by_model.json --summary runs/aggregated/summary_table.csv --meta runs/aggregated/meta.json --examples paper/top_mismatch_examples.md
+python3 src/05_calibration_analysis.py --config configs/models.yaml --input runs/aggregated/dataframe.csv --outdir runs/aggregated/calibration
+python3 src/05_secondary_metric.py --input runs/aggregated/dataframe.csv --outdir runs/aggregated/secondary_metric --backend auto
+python3 src/06_metric_robustness.py --input runs/aggregated/dataframe.csv --secondary_scores runs/aggregated/secondary_metric/secondary_metric_scores.csv --outdir runs/aggregated/metric_robustness
+```
