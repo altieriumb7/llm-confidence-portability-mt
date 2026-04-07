@@ -229,3 +229,28 @@ python3 src/05_calibration_analysis.py --config configs/models.yaml --input runs
 python3 src/05_secondary_metric.py --input runs/aggregated/dataframe.csv --outdir runs/aggregated/secondary_metric --backend auto
 python3 src/06_metric_robustness.py --input runs/aggregated/dataframe.csv --secondary_scores runs/aggregated/secondary_metric/secondary_metric_scores.csv --outdir runs/aggregated/metric_robustness
 ```
+
+## 8) PASS 4A — figure file/linkage audit and repair
+
+Goal of this step: audit all LaTeX figure environments in the manuscript and fix only figure linkage issues (paths, filenames, local labels/refs, obvious caption mismatches).
+
+### 8.1 Figure-to-file mapping audit
+
+Manuscript audited: `revised_submission_with_new_results.tex`
+
+| Figure label | Caption (short) | Included file path in manuscript | Exists on disk | Likely generating script |
+|---|---|---|---|---|
+| `fig:conf_vs_complexity` | Source-side surface-complexity proxy vs self-reported confidence | `figures/fig1_scatter_difficulty_vs_conf.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig1_scatter_difficulty_vs_conf...)`) |
+| `fig:reliability` | Overlaid reliability diagram with 10 bins | `figures/fig2_reliability_diagram_overlay.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig2_reliability_diagram_overlay...)`) |
+| `fig:mismatch_by_complexity` | Mismatch@0.9 by surface-complexity quartile | `figures/fig3_mismatch_by_difficulty_bucket.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig3_mismatch_by_difficulty_bucket...)`) |
+| `fig:frontier` | Secondary quality--latency view across models | `figures/fig4_efficiency_frontier.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig4_efficiency_frontier...)`) |
+
+### 8.2 Repairs made in PASS 4A
+
+- Fixed one figure-local reference gap: Figure 1 (`fig:conf_vs_complexity`) had a label and valid file but no explicit in-text `Figure~\ref{...}` mention in the corresponding subsection. Added one minimal reference sentence in the complexity subsection.
+- No includegraphics path changes were required; all four referenced figure files already exist and match script output names.
+- No caption filename/content mismatch required correction in this step.
+
+### 8.3 Figures still requiring regeneration
+
+- None due to missing files. All figure assets referenced by the manuscript are present on disk.
