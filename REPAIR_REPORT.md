@@ -238,19 +238,59 @@ Goal of this step: audit all LaTeX figure environments in the manuscript and fix
 
 Manuscript audited: `revised_submission_with_new_results.tex`
 
-| Figure label | Caption (short) | Included file path in manuscript | Exists on disk | Likely generating script |
+| Figure label | Caption (short) | Included file path in manuscript | Exists on disk | Likely generating code path |
 |---|---|---|---|---|
-| `fig:conf_vs_complexity` | Source-side surface-complexity proxy vs self-reported confidence | `figures/fig1_scatter_difficulty_vs_conf.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig1_scatter_difficulty_vs_conf...)`) |
-| `fig:reliability` | Overlaid reliability diagram with 10 bins | `figures/fig2_reliability_diagram_overlay.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig2_reliability_diagram_overlay...)`) |
-| `fig:mismatch_by_complexity` | Mismatch@0.9 by surface-complexity quartile | `figures/fig3_mismatch_by_difficulty_bucket.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig3_mismatch_by_difficulty_bucket...)`) |
-| `fig:frontier` | Secondary quality--latency view across models | `figures/fig4_efficiency_frontier.pdf` | Yes | `src/04_analysis_and_plots.py` (`plt.savefig(...fig4_efficiency_frontier...)`) |
+| `fig:conf_vs_complexity` | Source-side surface-complexity proxy vs self-reported confidence | `figures/fig1_scatter_difficulty_vs_conf.pdf` | Yes | `src/04_analysis_and_plots.py` (`savefig` for `fig1_scatter_difficulty_vs_conf`) |
+| `fig:reliability` | Overlaid reliability diagram with 10 bins | `figures/fig2_reliability_diagram_overlay.pdf` | Yes | `src/04_analysis_and_plots.py` (`savefig` for `fig2_reliability_diagram_overlay`) |
+| `fig:mismatch_by_complexity` | Mismatch@0.9 by surface-complexity quartile | `figures/fig3_mismatch_by_difficulty_bucket.pdf` | Yes | `src/04_analysis_and_plots.py` (`savefig` for `fig3_mismatch_by_difficulty_bucket`) |
+| `fig:frontier` | Secondary quality--latency view across models | `figures/fig4_efficiency_frontier.pdf` | Yes | `src/04_analysis_and_plots.py` (`savefig` for `fig4_efficiency_frontier`) |
 
-### 8.2 Repairs made in PASS 4A
+### 8.2 Linkage/label fixes applied in PASS 4A
 
-- Fixed one figure-local reference gap: Figure 1 (`fig:conf_vs_complexity`) had a label and valid file but no explicit in-text `Figure~\ref{...}` mention in the corresponding subsection. Added one minimal reference sentence in the complexity subsection.
-- No includegraphics path changes were required; all four referenced figure files already exist and match script output names.
-- No caption filename/content mismatch required correction in this step.
+- No `\includegraphics` path or filename repairs were needed.
+- No figure-label/reference repairs were needed (all `fig:*` labels are referenced in text).
+- No obvious caption/file mismatch required correction.
 
-### 8.3 Figures still requiring regeneration
+### 8.3 Deterministic figure generation scripts (added in PASS 4A)
 
-- None due to missing files. All figure assets referenced by the manuscript are present on disk.
+- `scripts/generate_figures.sh`
+  - Authoritative input lock: `runs/snapshots/20260228_000439/raw/*.jsonl`
+  - Deterministic flow:
+    1. stage snapshot JSONL files into `runs/raw/`;
+    2. regenerate `runs/aggregated/dataframe.csv` via `src/03_features_and_metrics.py`;
+    3. regenerate manuscript figure binaries via `src/04_analysis_and_plots.py` into `figures/`.
+  - Script intentionally regenerates binaries locally but those binaries are not committed as part of this pass.
+
+### 8.4 Figure-to-generator-script mapping
+
+| Manuscript figure file | Local regeneration script |
+|---|---|
+| `figures/fig1_scatter_difficulty_vs_conf.pdf` | `bash scripts/generate_figures.sh` |
+| `figures/fig2_reliability_diagram_overlay.pdf` | `bash scripts/generate_figures.sh` |
+| `figures/fig3_mismatch_by_difficulty_bucket.pdf` | `bash scripts/generate_figures.sh` |
+| `figures/fig4_efficiency_frontier.pdf` | `bash scripts/generate_figures.sh` |
+
+### 8.5 Figures still requiring logical verification/regeneration
+
+- Logical verification still recommended after regeneration (visual QA + manuscript compile check), but no broken file links were found in this audit.
+
+## 9) PASS 4B — regeneration verification and figure-local interpretation alignment
+
+### 9.1 Script verification updates
+
+- `scripts/generate_figures.sh` now validates that the four manuscript figure PDFs are present after regeneration:
+  - `figures/fig1_scatter_difficulty_vs_conf.pdf`
+  - `figures/fig2_reliability_diagram_overlay.pdf`
+  - `figures/fig3_mismatch_by_difficulty_bucket.pdf`
+  - `figures/fig4_efficiency_frontier.pdf`
+
+### 9.2 Code paths used for regeneration
+
+- Stage authoritative bundled raw snapshot: `runs/snapshots/20260228_000439/raw/*.jsonl` -> `runs/raw/*.jsonl`.
+- Build figure inputs: `src/03_features_and_metrics.py` -> `runs/aggregated/dataframe.csv`.
+- Render figures: `src/04_analysis_and_plots.py` -> `figures/fig*.{png,pdf}`.
+
+### 9.3 Figure-local interpretation check (quartile/bucket plot)
+
+- Regenerated bucket values from authoritative snapshot show mismatch@0.9 is generally highest in Q1 and lower in later quartiles across models.
+- Updated the local prose sentence adjacent to Figure `fig:mismatch_by_complexity` to match this observed direction and to keep it descriptive rather than causal.
