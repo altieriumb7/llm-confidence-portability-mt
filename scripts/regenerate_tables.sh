@@ -22,6 +22,8 @@ fi
 
 mkdir -p "$RAW_DIR" "$AGG_DIR"
 find "$RAW_DIR" -maxdepth 1 -type f -name '*.jsonl' -delete
+find "$AGG_DIR" -maxdepth 1 -type f -name '*.csv' -delete
+find "$AGG_DIR" -maxdepth 1 -type f -name '*.json' -delete
 
 shopt -s nullglob
 snapshot_files=("$SNAPSHOT_DIR"/*.jsonl)

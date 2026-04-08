@@ -117,8 +117,8 @@
         },
         {
           "threshold": 0.75,
-          "coverage": 0.9183673469387755,
-          "mismatch_rate": 0.18888888888888888
+          "coverage": 0.7653061224489796,
+          "mismatch_rate": 0.18666666666666668
         },
         {
           "threshold": 0.8,
@@ -460,9 +460,9 @@
         "ece_before": 0.08384083044982706,
         "ece_after": 0.11416762783544794,
         "ece_delta": 0.030326797385620885,
-        "mismatch_at_0_9_before": 0.10034602076124567,
+        "mismatch_at_0_9_before": 0.08996539792387544,
         "mismatch_at_0_9_after": 0.020761245674740483,
-        "mismatch_delta": -0.07958477508650519
+        "mismatch_delta": -0.06920415224913495
       },
       "threshold_scan": [
         {
@@ -497,8 +497,8 @@
         },
         {
           "threshold": 0.8,
-          "coverage": 0.657439446366782,
-          "mismatch_rate": 0.14210526315789473
+          "coverage": 0.5121107266435986,
+          "mismatch_rate": 0.11486486486486487
         },
         {
           "threshold": 0.85,
@@ -662,8 +662,8 @@
       "threshold_scan": [
         {
           "threshold": 0.5,
-          "coverage": 0.9490445859872612,
-          "mismatch_rate": 0.1610738255033557
+          "coverage": 0.8853503184713376,
+          "mismatch_rate": 0.1474820143884892
         },
         {
           "threshold": 0.55,
@@ -707,8 +707,8 @@
         },
         {
           "threshold": 0.95,
-          "coverage": 0.10828025477707007,
-          "mismatch_rate": 0.08823529411764706
+          "coverage": 0.006369426751592357,
+          "mismatch_rate": 0.0
         }
       ]
     },
@@ -760,9 +760,9 @@
         "ece_before": 0.15240131578947366,
         "ece_after": 0.0548093091074377,
         "ece_delta": -0.09759200668203596,
-        "mismatch_at_0_9_before": 0.049342105263157895,
+        "mismatch_at_0_9_before": 0.04276315789473684,
         "mismatch_at_0_9_after": 0.003289473684210526,
-        "mismatch_delta": -0.04605263157894737
+        "mismatch_delta": -0.039473684210526314
       },
       "threshold_scan": [
         {
@@ -895,9 +895,9 @@
         "ece_before": 0.17539735099337744,
         "ece_after": 0.0873953317612505,
         "ece_delta": -0.08800201923212694,
-        "mismatch_at_0_9_before": 0.18211920529801323,
+        "mismatch_at_0_9_before": 0.17549668874172186,
         "mismatch_at_0_9_after": 0.0,
-        "mismatch_delta": -0.18211920529801323
+        "mismatch_delta": -0.17549668874172186
       },
       "threshold_scan": [
         {
@@ -1060,9 +1060,9 @@
         "ece_before": 0.1281528662420382,
         "ece_after": 0.11583415966943292,
         "ece_delta": -0.012318706572605281,
-        "mismatch_at_0_9_before": 0.1178343949044586,
+        "mismatch_at_0_9_before": 0.10828025477707007,
         "mismatch_at_0_9_after": 0.0,
-        "mismatch_delta": -0.1178343949044586
+        "mismatch_delta": -0.10828025477707007
       },
       "threshold_scan": [
         {
@@ -1077,8 +1077,8 @@
         },
         {
           "threshold": 0.6,
-          "coverage": 0.7929936305732485,
-          "mismatch_rate": 0.14859437751004015
+          "coverage": 0.7834394904458599,
+          "mismatch_rate": 0.15040650406504066
         },
         {
           "threshold": 0.65,
@@ -1256,8 +1256,8 @@
       "threshold_scan": [
         {
           "threshold": 0.5,
-          "coverage": 0.9967637540453075,
-          "mismatch_rate": 0.18181818181818182
+          "coverage": 0.9838187702265372,
+          "mismatch_rate": 0.18421052631578946
         },
         {
           "threshold": 0.55,
@@ -1281,8 +1281,8 @@
         },
         {
           "threshold": 0.75,
-          "coverage": 0.919093851132686,
-          "mismatch_rate": 0.176056338028169
+          "coverage": 0.8511326860841424,
+          "mismatch_rate": 0.17870722433460076
         },
         {
           "threshold": 0.8,
@@ -1291,8 +1291,8 @@
         },
         {
           "threshold": 0.85,
-          "coverage": 0.2524271844660194,
-          "mismatch_rate": 0.11538461538461539
+          "coverage": 0.1553398058252427,
+          "mismatch_rate": 0.08333333333333333
         },
         {
           "threshold": 0.9,
@@ -1402,15 +1402,15 @@
         "ece_before": 0.15458333333333338,
         "ece_after": 0.04660724232296819,
         "ece_delta": -0.10797609101036519,
-        "mismatch_at_0_9_before": 0.1701388888888889,
+        "mismatch_at_0_9_before": 0.16319444444444445,
         "mismatch_at_0_9_after": 0.0,
-        "mismatch_delta": -0.1701388888888889
+        "mismatch_delta": -0.16319444444444445
       },
       "threshold_scan": [
         {
           "threshold": 0.5,
-          "coverage": 1.0,
-          "mismatch_rate": 0.21180555555555555
+          "coverage": 0.9826388888888888,
+          "mismatch_rate": 0.20848056537102475
         },
         {
           "threshold": 0.55,
@@ -1419,8 +1419,8 @@
         },
         {
           "threshold": 0.6,
-          "coverage": 0.9826388888888888,
-          "mismatch_rate": 0.20848056537102475
+          "coverage": 0.8576388888888888,
+          "mismatch_rate": 0.19838056680161945
         },
         {
           "threshold": 0.65,
