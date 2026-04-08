@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 from pathlib import Path
 from typing import Iterable, Optional
 
@@ -7,6 +8,18 @@ from utils.parse import coerce_confidence
 
 
 DEFAULT_THRESHOLD_GRID = [0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
+RAW_REQUIRED_KEYS = {
+    "id",
+    "src",
+    "ref",
+    "hyp",
+    "translation",
+    "conf",
+    "confidence",
+    "provider",
+    "model_id",
+    "timestamp_utc",
+}
 
 
 def as_float(value, default=0.0):
@@ -60,6 +73,63 @@ def warning_breakdown(tokens: list[str]) -> dict:
         "repair_tokens": repaired,
         "fallback_tokens": fallback,
     }
+
+
+_FENCE_BLOCK_RE = re.compile(r"```(?:json)?\s*(.*?)```", re.IGNORECASE | re.DOTALL)
+
+
+def _strip_code_fences(text: str) -> str:
+    cleaned = str(text or "").strip()
+    if "```" not in cleaned:
+        return cleaned
+
+    def _unwrap(match: re.Match[str]) -> str:
+        return match.group(1).strip()
+
+    cleaned = _FENCE_BLOCK_RE.sub(_unwrap, cleaned)
+    if cleaned.startswith("```") and cleaned.endswith("```"):
+        cleaned = cleaned[3:-3].strip()
+    return cleaned.strip()
+
+
+def parse_preview_issues(text: str, expected_key: str) -> list[str]:
+    cleaned = _strip_code_fences(text)
+    if not cleaned:
+        return [f"{expected_key}_preview_empty"]
+
+    start = cleaned.find("{")
+    if start < 0:
+        return [f"{expected_key}_no_json_object"]
+
+    issues: list[str] = []
+    decoder = json.JSONDecoder()
+    try:
+        parsed, consumed = decoder.raw_decode(cleaned[start:])
+    except Exception:
+        return [f"{expected_key}_invalid_or_truncated_json"]
+
+    trailing = cleaned[start + consumed :].strip()
+    if trailing:
+        issues.append(f"{expected_key}_trailing_text_after_json")
+
+    if not isinstance(parsed, dict):
+        issues.append(f"{expected_key}_schema_not_object")
+        return issues
+
+    if expected_key not in parsed:
+        issues.append(f"{expected_key}_missing_expected_key")
+        return issues
+
+    value = parsed.get(expected_key)
+    if expected_key == "translation":
+        if not isinstance(value, str) or not value.strip():
+            issues.append("translation_invalid_value")
+    elif expected_key == "confidence":
+        coerced = coerce_confidence(value)
+        if coerced is None:
+            issues.append("confidence_invalid_value")
+
+    return issues
 
 
 def load_dataframe_rows(path: str | Path) -> list[dict]:
