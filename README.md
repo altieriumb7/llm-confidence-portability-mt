@@ -1,13 +1,11 @@
 # Confidence–Difficulty Mismatch in MT Evaluation
 
-This repository is the **reviewer-facing reproducibility artifact** for the MT confidence portability study.
+This repository is packaged as a **reviewer artifact** for the paper manuscript in `revised_submission_with_new_results.tex`.
 
-## Canonical offline reproduction entrypoint
-
-Use exactly one command:
+## Quick start (offline, recommended)
 
 ```bash
-bash scripts/reproduce_offline_artifact.sh
+bash scripts/reproduce_offline_artifact.sh --skip-manuscript
 ```
 
 This authoritative pipeline now guarantees paper/repo synchronization by regenerating all manuscript-facing assets and running a hard consistency check.
@@ -63,41 +61,39 @@ The snapshot does not include the full bibliography inputs needed to guarantee f
 
 ## Generated manuscript asset pipeline
 
-- `scripts/generate_paper_assets.sh` regenerates:
-  1. aggregate outputs from bundled snapshot
-  2. figures and paper examples markdown
-  3. supplementary analyses
-  4. manuscript-facing LaTeX tables via `tools/export_latex_tables.py`
-  5. alignment checks via `tools/consistency_check.py`
+## Optional commands
 
-- `tools/export_latex_tables.py` is the only source of truth for:
-  - `tables/summary.tex`
-  - `tables/corr.tex`
-  - `tables/robustness.tex`
-  - `tables/calibration.tex`
-  - `tables/metric_robustness.tex`
+- Build manuscript PDF as well (requires LaTeX):
+  ```bash
+  bash scripts/reproduce_offline_artifact.sh
+  ```
+- Run all validation checks only:
+  ```bash
+  bash scripts/validate_artifact.sh
+  ```
+- Attempt full live/API pipeline (credentials required):
+  ```bash
+  bash run_repro.sh --mode all
+  ```
 
-## Drift prevention
+## Core documentation
 
-`tools/consistency_check.py` fails if regenerated manuscript-facing tables differ from committed `tables/*.tex`, or if manuscript-referenced generated assets are missing.
+- Reviewer workflow and provenance map: `ARTIFACT_GUIDE.md`
+- Reproducibility scope/status statement: `ARTIFACT_STATUS.md`
+- Paper-specific build notes: `paper/README.md`
 
-## Scope boundaries (offline vs API-required)
+## What is bundled
 
-- Offline regeneration (fully supported from bundled snapshot):
-  - `src/03_features_and_metrics.py`
-  - `src/04_analysis_and_plots.py`
-  - `src/05_calibration_analysis.py`
-  - `src/07_selective_analysis.py`
-  - `src/08_parse_warning_audit.py`
-  - `src/05_secondary_metric.py`
-  - `src/06_metric_robustness.py`
+- Raw offline snapshot: `runs/snapshots/20260228_000439/raw/*.jsonl`
+- Regenerated aggregated outputs: `runs/aggregated/`
+- Manuscript tables: `tables/*.tex`
+- Manuscript figures: `figures/*`
 
-- API-required (not part of canonical offline reviewer path):
-  - `src/02_translate_and_confidence.py`
-  - orchestrated by `run_repro.sh --mode step2` or `--mode all`
+## Environment
 
-## Bibliography/manuscript caveat
+- Python dependencies: `requirements.txt`
+- Optional containerized path: `Dockerfile`
 
-The manuscript cites `references.bib` and `added_refs.bib`, but only `added_refs.bib` is bundled in this repository. Therefore full bibliography resolution cannot be guaranteed from this snapshot alone.
+## Important scope boundary
 
-See `paper/README.md` and `paper/TODO_missing_bibliography.md` for exact blocker details.
+Live provider API calls (Step 2) are **not** reproducible from the zip alone and are expected to vary over time.

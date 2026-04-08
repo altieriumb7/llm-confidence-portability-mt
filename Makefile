@@ -1,4 +1,4 @@
-.PHONY: reproduce-offline reproduce-offline-no-tex paper-assets check-paper-consistency
+.PHONY: reproduce-offline reproduce-offline-no-tex paper-assets check-paper-consistency validate-artifact
 
 reproduce-offline:
 	bash scripts/reproduce_offline_artifact.sh
@@ -11,3 +11,6 @@ paper-assets:
 
 check-paper-consistency:
 	python3 tools/consistency_check.py
+
+validate-artifact:
+	bash scripts/validate_artifact.sh

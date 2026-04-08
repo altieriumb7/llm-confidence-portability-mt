@@ -35,7 +35,9 @@ kaggle.json
 
 # Runtime caches/logs not part of canonical artifact outputs
 runs/raw/
-runs/logs/
+runs/logs/*
+!runs/logs/.gitkeep
+!runs/logs/README.md
 
 # Locally generated binaries (build locally; do not commit new binary outputs via Codex)
 figures/*.png
