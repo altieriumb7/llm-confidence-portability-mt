@@ -1,16 +1,7 @@
-# TODO: missing bibliography source for full manuscript build
+# Bibliography packaging note
 
-## Blocker
+For reviewer artifact compatibility, this repository includes:
+- `added_refs.bib` (curated entries)
+- `references.bib` (empty compatibility file so `\bibliography{references,added_refs}` resolves)
 
-- `revised_submission_with_new_results.tex` calls `\bibliography{references,added_refs}`.
-- `added_refs.bib` exists.
-- `references.bib` is not present in this repository snapshot.
-
-## What can be reproduced now
-
-- All code-side aggregate outputs, figures, and supplementary analysis exports can be regenerated offline from the bundled snapshot.
-- Manuscript compilation can proceed only after a LaTeX toolchain is installed and `references.bib` is supplied.
-
-## Required external input
-
-- `references.bib` from the paper-authoring repository or submission bundle.
+Canonical metadata for the historical `references.bib` was not bundled in this snapshot. Builds are still possible for layout/structure checks, but citation metadata remains incomplete until canonical entries are restored.

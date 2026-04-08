@@ -46,7 +46,7 @@ def mismatch_at(rows, conf_key: str, label_key: str, tau: float = 0.9) -> float:
     valid = [r for r in rows if r.get(conf_key) is not None]
     if not valid:
         return float("nan")
-    return sum(1 for r in valid if r[conf_key] >= tau and r[label_key] == 0) / len(valid)
+    return sum(1 for r in valid if r[conf_key] > tau and r[label_key] == 0) / len(valid)
 
 
 def pav_isotonic(xs, ys):
@@ -151,7 +151,7 @@ def main():
 
         thresholds = []
         for threshold in [round(i / 20, 2) for i in range(10, 20)]:
-            subset = [r for r in eval_rows if r["conf_after"] >= threshold]
+            subset = [r for r in eval_rows if r["conf_after"] > threshold]
             coverage = len(subset) / len(eval_rows) if eval_rows else 0.0
             mismatch = mismatch_at(subset, "conf_after", "correct_label", tau=threshold) if subset else float("nan")
             thresholds.append({"threshold": threshold, "coverage": coverage, "mismatch_rate": mismatch})
