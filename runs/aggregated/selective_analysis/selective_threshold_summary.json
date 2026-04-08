@@ -12,5 +12,950 @@
     ],
     "bins": 10
   },
-  "models": {}
+  "models": {
+    "anthropic/claude-haiku-4-5-20251001": {
+      "summary": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.776,
+        "mismatch_at_0_9": 0.134,
+        "accepted_error_rate_at_0_9": 0.17268041237113402,
+        "accepted_non_low_quality_rate_at_0_9": 0.8273195876288659,
+        "ece": 0.09431999999999999
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 478,
+          "n_rejected": 22,
+          "coverage": 0.956,
+          "mismatch_rate": 0.176,
+          "accepted_error_rate": 0.18410041841004185,
+          "accepted_non_low_quality_rate": 0.8158995815899581,
+          "model": "anthropic/claude-haiku-4-5-20251001",
+          "ece": 0.09431999999999999
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 478,
+          "n_rejected": 22,
+          "coverage": 0.956,
+          "mismatch_rate": 0.176,
+          "accepted_error_rate": 0.18410041841004185,
+          "accepted_non_low_quality_rate": 0.8158995815899581,
+          "model": "anthropic/claude-haiku-4-5-20251001",
+          "ece": 0.09431999999999999
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 467,
+          "n_rejected": 33,
+          "coverage": 0.934,
+          "mismatch_rate": 0.166,
+          "accepted_error_rate": 0.1777301927194861,
+          "accepted_non_low_quality_rate": 0.8222698072805139,
+          "model": "anthropic/claude-haiku-4-5-20251001",
+          "ece": 0.09431999999999999
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 459,
+          "n_rejected": 41,
+          "coverage": 0.918,
+          "mismatch_rate": 0.158,
+          "accepted_error_rate": 0.1721132897603486,
+          "accepted_non_low_quality_rate": 0.8278867102396514,
+          "model": "anthropic/claude-haiku-4-5-20251001",
+          "ece": 0.09431999999999999
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 388,
+          "n_rejected": 112,
+          "coverage": 0.776,
+          "mismatch_rate": 0.134,
+          "accepted_error_rate": 0.17268041237113402,
+          "accepted_non_low_quality_rate": 0.8273195876288659,
+          "model": "anthropic/claude-haiku-4-5-20251001",
+          "ece": 0.09431999999999999
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 1,
+          "n_rejected": 499,
+          "coverage": 0.002,
+          "mismatch_rate": 0.002,
+          "accepted_error_rate": 1.0,
+          "accepted_non_low_quality_rate": 0.0,
+          "model": "anthropic/claude-haiku-4-5-20251001",
+          "ece": 0.09431999999999999
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.956,
+          "accepted_error_rate": 0.18410041841004185
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.956,
+          "accepted_error_rate": 0.18410041841004185
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.934,
+          "accepted_error_rate": 0.1777301927194861
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.918,
+          "accepted_error_rate": 0.1721132897603486
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.776,
+          "accepted_error_rate": 0.17268041237113402
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.002,
+          "accepted_error_rate": 1.0
+        }
+      ]
+    },
+    "anthropic/claude-opus-4-6": {
+      "summary": {
+        "model": "anthropic/claude-opus-4-6",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.666,
+        "mismatch_at_0_9": 0.076,
+        "accepted_error_rate_at_0_9": 0.11411411411411411,
+        "accepted_non_low_quality_rate_at_0_9": 0.8858858858858859,
+        "ece": 0.08694000000000002
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 464,
+          "n_rejected": 36,
+          "coverage": 0.928,
+          "mismatch_rate": 0.15,
+          "accepted_error_rate": 0.16163793103448276,
+          "accepted_non_low_quality_rate": 0.8383620689655172,
+          "model": "anthropic/claude-opus-4-6",
+          "ece": 0.08694000000000002
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 456,
+          "n_rejected": 44,
+          "coverage": 0.912,
+          "mismatch_rate": 0.14,
+          "accepted_error_rate": 0.15350877192982457,
+          "accepted_non_low_quality_rate": 0.8464912280701754,
+          "model": "anthropic/claude-opus-4-6",
+          "ece": 0.08694000000000002
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 452,
+          "n_rejected": 48,
+          "coverage": 0.904,
+          "mismatch_rate": 0.138,
+          "accepted_error_rate": 0.15265486725663716,
+          "accepted_non_low_quality_rate": 0.8473451327433629,
+          "model": "anthropic/claude-opus-4-6",
+          "ece": 0.08694000000000002
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 437,
+          "n_rejected": 63,
+          "coverage": 0.874,
+          "mismatch_rate": 0.128,
+          "accepted_error_rate": 0.14645308924485126,
+          "accepted_non_low_quality_rate": 0.8535469107551488,
+          "model": "anthropic/claude-opus-4-6",
+          "ece": 0.08694000000000002
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 333,
+          "n_rejected": 167,
+          "coverage": 0.666,
+          "mismatch_rate": 0.076,
+          "accepted_error_rate": 0.11411411411411411,
+          "accepted_non_low_quality_rate": 0.8858858858858859,
+          "model": "anthropic/claude-opus-4-6",
+          "ece": 0.08694000000000002
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 80,
+          "n_rejected": 420,
+          "coverage": 0.16,
+          "mismatch_rate": 0.01,
+          "accepted_error_rate": 0.0625,
+          "accepted_non_low_quality_rate": 0.9375,
+          "model": "anthropic/claude-opus-4-6",
+          "ece": 0.08694000000000002
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.928,
+          "accepted_error_rate": 0.16163793103448276
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.912,
+          "accepted_error_rate": 0.15350877192982457
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.904,
+          "accepted_error_rate": 0.15265486725663716
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.874,
+          "accepted_error_rate": 0.14645308924485126
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.666,
+          "accepted_error_rate": 0.11411411411411411
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.16,
+          "accepted_error_rate": 0.0625
+        }
+      ]
+    },
+    "anthropic/claude-sonnet-4-5-20250929": {
+      "summary": {
+        "model": "anthropic/claude-sonnet-4-5-20250929",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.85,
+        "mismatch_at_0_9": 0.128,
+        "accepted_error_rate_at_0_9": 0.15058823529411763,
+        "accepted_non_low_quality_rate_at_0_9": 0.8494117647058823,
+        "ece": 0.09480000000000005
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 472,
+          "n_rejected": 28,
+          "coverage": 0.944,
+          "mismatch_rate": 0.156,
+          "accepted_error_rate": 0.1652542372881356,
+          "accepted_non_low_quality_rate": 0.8347457627118644,
+          "model": "anthropic/claude-sonnet-4-5-20250929",
+          "ece": 0.09480000000000005
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 472,
+          "n_rejected": 28,
+          "coverage": 0.944,
+          "mismatch_rate": 0.156,
+          "accepted_error_rate": 0.1652542372881356,
+          "accepted_non_low_quality_rate": 0.8347457627118644,
+          "model": "anthropic/claude-sonnet-4-5-20250929",
+          "ece": 0.09480000000000005
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 446,
+          "n_rejected": 54,
+          "coverage": 0.892,
+          "mismatch_rate": 0.138,
+          "accepted_error_rate": 0.1547085201793722,
+          "accepted_non_low_quality_rate": 0.8452914798206278,
+          "model": "anthropic/claude-sonnet-4-5-20250929",
+          "ece": 0.09480000000000005
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 443,
+          "n_rejected": 57,
+          "coverage": 0.886,
+          "mismatch_rate": 0.138,
+          "accepted_error_rate": 0.15575620767494355,
+          "accepted_non_low_quality_rate": 0.8442437923250564,
+          "model": "anthropic/claude-sonnet-4-5-20250929",
+          "ece": 0.09480000000000005
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 425,
+          "n_rejected": 75,
+          "coverage": 0.85,
+          "mismatch_rate": 0.128,
+          "accepted_error_rate": 0.15058823529411763,
+          "accepted_non_low_quality_rate": 0.8494117647058823,
+          "model": "anthropic/claude-sonnet-4-5-20250929",
+          "ece": 0.09480000000000005
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 60,
+          "n_rejected": 440,
+          "coverage": 0.12,
+          "mismatch_rate": 0.008,
+          "accepted_error_rate": 0.06666666666666667,
+          "accepted_non_low_quality_rate": 0.9333333333333333,
+          "model": "anthropic/claude-sonnet-4-5-20250929",
+          "ece": 0.09480000000000005
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.944,
+          "accepted_error_rate": 0.1652542372881356
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.944,
+          "accepted_error_rate": 0.1652542372881356
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.892,
+          "accepted_error_rate": 0.1547085201793722
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.886,
+          "accepted_error_rate": 0.15575620767494355
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.85,
+          "accepted_error_rate": 0.15058823529411763
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.12,
+          "accepted_error_rate": 0.06666666666666667
+        }
+      ]
+    },
+    "gemini/gemini-2.5-flash": {
+      "summary": {
+        "model": "gemini/gemini-2.5-flash",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.374,
+        "mismatch_at_0_9": 0.042,
+        "accepted_error_rate_at_0_9": 0.11229946524064172,
+        "accepted_non_low_quality_rate_at_0_9": 0.8877005347593583,
+        "ece": 0.14787999999999998
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 422,
+          "n_rejected": 78,
+          "coverage": 0.844,
+          "mismatch_rate": 0.148,
+          "accepted_error_rate": 0.17535545023696683,
+          "accepted_non_low_quality_rate": 0.8246445497630331,
+          "model": "gemini/gemini-2.5-flash",
+          "ece": 0.14787999999999998
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 422,
+          "n_rejected": 78,
+          "coverage": 0.844,
+          "mismatch_rate": 0.148,
+          "accepted_error_rate": 0.17535545023696683,
+          "accepted_non_low_quality_rate": 0.8246445497630331,
+          "model": "gemini/gemini-2.5-flash",
+          "ece": 0.14787999999999998
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 419,
+          "n_rejected": 81,
+          "coverage": 0.838,
+          "mismatch_rate": 0.146,
+          "accepted_error_rate": 0.17422434367541767,
+          "accepted_non_low_quality_rate": 0.8257756563245824,
+          "model": "gemini/gemini-2.5-flash",
+          "ece": 0.14787999999999998
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 204,
+          "n_rejected": 296,
+          "coverage": 0.408,
+          "mismatch_rate": 0.05,
+          "accepted_error_rate": 0.12254901960784313,
+          "accepted_non_low_quality_rate": 0.8774509803921569,
+          "model": "gemini/gemini-2.5-flash",
+          "ece": 0.14787999999999998
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 187,
+          "n_rejected": 313,
+          "coverage": 0.374,
+          "mismatch_rate": 0.042,
+          "accepted_error_rate": 0.11229946524064172,
+          "accepted_non_low_quality_rate": 0.8877005347593583,
+          "model": "gemini/gemini-2.5-flash",
+          "ece": 0.14787999999999998
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 63,
+          "n_rejected": 437,
+          "coverage": 0.126,
+          "mismatch_rate": 0.016,
+          "accepted_error_rate": 0.12698412698412698,
+          "accepted_non_low_quality_rate": 0.873015873015873,
+          "model": "gemini/gemini-2.5-flash",
+          "ece": 0.14787999999999998
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.844,
+          "accepted_error_rate": 0.17535545023696683
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.844,
+          "accepted_error_rate": 0.17535545023696683
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.838,
+          "accepted_error_rate": 0.17422434367541767
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.408,
+          "accepted_error_rate": 0.12254901960784313
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.374,
+          "accepted_error_rate": 0.11229946524064172
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.126,
+          "accepted_error_rate": 0.12698412698412698
+        }
+      ]
+    },
+    "gemini/gemini-2.5-pro": {
+      "summary": {
+        "model": "gemini/gemini-2.5-pro",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.962,
+        "mismatch_at_0_9": 0.182,
+        "accepted_error_rate_at_0_9": 0.1891891891891892,
+        "accepted_non_low_quality_rate_at_0_9": 0.8108108108108109,
+        "ece": 0.18022000000000002
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 499,
+          "n_rejected": 1,
+          "coverage": 0.998,
+          "mismatch_rate": 0.196,
+          "accepted_error_rate": 0.1963927855711423,
+          "accepted_non_low_quality_rate": 0.8036072144288577,
+          "model": "gemini/gemini-2.5-pro",
+          "ece": 0.18022000000000002
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 499,
+          "n_rejected": 1,
+          "coverage": 0.998,
+          "mismatch_rate": 0.196,
+          "accepted_error_rate": 0.1963927855711423,
+          "accepted_non_low_quality_rate": 0.8036072144288577,
+          "model": "gemini/gemini-2.5-pro",
+          "ece": 0.18022000000000002
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 497,
+          "n_rejected": 3,
+          "coverage": 0.994,
+          "mismatch_rate": 0.194,
+          "accepted_error_rate": 0.19517102615694165,
+          "accepted_non_low_quality_rate": 0.8048289738430584,
+          "model": "gemini/gemini-2.5-pro",
+          "ece": 0.18022000000000002
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 492,
+          "n_rejected": 8,
+          "coverage": 0.984,
+          "mismatch_rate": 0.188,
+          "accepted_error_rate": 0.1910569105691057,
+          "accepted_non_low_quality_rate": 0.8089430894308943,
+          "model": "gemini/gemini-2.5-pro",
+          "ece": 0.18022000000000002
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 481,
+          "n_rejected": 19,
+          "coverage": 0.962,
+          "mismatch_rate": 0.182,
+          "accepted_error_rate": 0.1891891891891892,
+          "accepted_non_low_quality_rate": 0.8108108108108109,
+          "model": "gemini/gemini-2.5-pro",
+          "ece": 0.18022000000000002
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 408,
+          "n_rejected": 92,
+          "coverage": 0.816,
+          "mismatch_rate": 0.14,
+          "accepted_error_rate": 0.1715686274509804,
+          "accepted_non_low_quality_rate": 0.8284313725490197,
+          "model": "gemini/gemini-2.5-pro",
+          "ece": 0.18022000000000002
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.998,
+          "accepted_error_rate": 0.1963927855711423
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.998,
+          "accepted_error_rate": 0.1963927855711423
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.994,
+          "accepted_error_rate": 0.19517102615694165
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.984,
+          "accepted_error_rate": 0.1910569105691057
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.962,
+          "accepted_error_rate": 0.1891891891891892
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.816,
+          "accepted_error_rate": 0.1715686274509804
+        }
+      ]
+    },
+    "openai/gpt-5-mini": {
+      "summary": {
+        "model": "openai/gpt-5-mini",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.704,
+        "mismatch_at_0_9": 0.128,
+        "accepted_error_rate_at_0_9": 0.18181818181818182,
+        "accepted_non_low_quality_rate_at_0_9": 0.8181818181818182,
+        "ece": 0.1522
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 473,
+          "n_rejected": 27,
+          "coverage": 0.946,
+          "mismatch_rate": 0.19,
+          "accepted_error_rate": 0.20084566596194503,
+          "accepted_non_low_quality_rate": 0.7991543340380549,
+          "model": "openai/gpt-5-mini",
+          "ece": 0.1522
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 468,
+          "n_rejected": 32,
+          "coverage": 0.936,
+          "mismatch_rate": 0.186,
+          "accepted_error_rate": 0.1987179487179487,
+          "accepted_non_low_quality_rate": 0.8012820512820513,
+          "model": "openai/gpt-5-mini",
+          "ece": 0.1522
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 449,
+          "n_rejected": 51,
+          "coverage": 0.898,
+          "mismatch_rate": 0.178,
+          "accepted_error_rate": 0.19821826280623608,
+          "accepted_non_low_quality_rate": 0.8017817371937639,
+          "model": "openai/gpt-5-mini",
+          "ece": 0.1522
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 440,
+          "n_rejected": 60,
+          "coverage": 0.88,
+          "mismatch_rate": 0.17,
+          "accepted_error_rate": 0.19318181818181818,
+          "accepted_non_low_quality_rate": 0.8068181818181818,
+          "model": "openai/gpt-5-mini",
+          "ece": 0.1522
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 352,
+          "n_rejected": 148,
+          "coverage": 0.704,
+          "mismatch_rate": 0.128,
+          "accepted_error_rate": 0.18181818181818182,
+          "accepted_non_low_quality_rate": 0.8181818181818182,
+          "model": "openai/gpt-5-mini",
+          "ece": 0.1522
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 108,
+          "n_rejected": 392,
+          "coverage": 0.216,
+          "mismatch_rate": 0.026,
+          "accepted_error_rate": 0.12037037037037036,
+          "accepted_non_low_quality_rate": 0.8796296296296297,
+          "model": "openai/gpt-5-mini",
+          "ece": 0.1522
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.946,
+          "accepted_error_rate": 0.20084566596194503
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.936,
+          "accepted_error_rate": 0.1987179487179487
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.898,
+          "accepted_error_rate": 0.19821826280623608
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.88,
+          "accepted_error_rate": 0.19318181818181818
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.704,
+          "accepted_error_rate": 0.18181818181818182
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.216,
+          "accepted_error_rate": 0.12037037037037036
+        }
+      ]
+    },
+    "openai/gpt-5-nano": {
+      "summary": {
+        "model": "openai/gpt-5-nano",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.028,
+        "mismatch_at_0_9": 0.002,
+        "accepted_error_rate_at_0_9": 0.07142857142857142,
+        "accepted_non_low_quality_rate_at_0_9": 0.9285714285714286,
+        "ece": 0.07574
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 477,
+          "n_rejected": 23,
+          "coverage": 0.954,
+          "mismatch_rate": 0.184,
+          "accepted_error_rate": 0.1928721174004193,
+          "accepted_non_low_quality_rate": 0.8071278825995807,
+          "model": "openai/gpt-5-nano",
+          "ece": 0.07574
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 456,
+          "n_rejected": 44,
+          "coverage": 0.912,
+          "mismatch_rate": 0.17,
+          "accepted_error_rate": 0.18640350877192982,
+          "accepted_non_low_quality_rate": 0.8135964912280702,
+          "model": "openai/gpt-5-nano",
+          "ece": 0.07574
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 423,
+          "n_rejected": 77,
+          "coverage": 0.846,
+          "mismatch_rate": 0.156,
+          "accepted_error_rate": 0.18439716312056736,
+          "accepted_non_low_quality_rate": 0.8156028368794326,
+          "model": "openai/gpt-5-nano",
+          "ece": 0.07574
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 83,
+          "n_rejected": 417,
+          "coverage": 0.166,
+          "mismatch_rate": 0.016,
+          "accepted_error_rate": 0.0963855421686747,
+          "accepted_non_low_quality_rate": 0.9036144578313253,
+          "model": "openai/gpt-5-nano",
+          "ece": 0.07574
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 14,
+          "n_rejected": 486,
+          "coverage": 0.028,
+          "mismatch_rate": 0.002,
+          "accepted_error_rate": 0.07142857142857142,
+          "accepted_non_low_quality_rate": 0.9285714285714286,
+          "model": "openai/gpt-5-nano",
+          "ece": 0.07574
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 0,
+          "n_rejected": 500,
+          "coverage": 0.0,
+          "mismatch_rate": 0.0,
+          "accepted_error_rate": NaN,
+          "accepted_non_low_quality_rate": NaN,
+          "model": "openai/gpt-5-nano",
+          "ece": 0.07574
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.954,
+          "accepted_error_rate": 0.1928721174004193
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.912,
+          "accepted_error_rate": 0.18640350877192982
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.846,
+          "accepted_error_rate": 0.18439716312056736
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.166,
+          "accepted_error_rate": 0.0963855421686747
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.028,
+          "accepted_error_rate": 0.07142857142857142
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.0,
+          "accepted_error_rate": NaN
+        }
+      ]
+    },
+    "openai/gpt-5.2": {
+      "summary": {
+        "model": "openai/gpt-5.2",
+        "error_col": "error_within_model_q20",
+        "n_total": 500,
+        "coverage_at_0_9": 0.816,
+        "mismatch_at_0_9": 0.152,
+        "accepted_error_rate_at_0_9": 0.18627450980392157,
+        "accepted_non_low_quality_rate_at_0_9": 0.8137254901960784,
+        "ece": 0.13391999999999998
+      },
+      "thresholds": [
+        {
+          "threshold": 0.5,
+          "n_total": 500,
+          "n_accepted": 497,
+          "n_rejected": 3,
+          "coverage": 0.994,
+          "mismatch_rate": 0.194,
+          "accepted_error_rate": 0.19517102615694165,
+          "accepted_non_low_quality_rate": 0.8048289738430584,
+          "model": "openai/gpt-5.2",
+          "ece": 0.13391999999999998
+        },
+        {
+          "threshold": 0.6,
+          "n_total": 500,
+          "n_accepted": 497,
+          "n_rejected": 3,
+          "coverage": 0.994,
+          "mismatch_rate": 0.194,
+          "accepted_error_rate": 0.19517102615694165,
+          "accepted_non_low_quality_rate": 0.8048289738430584,
+          "model": "openai/gpt-5.2",
+          "ece": 0.13391999999999998
+        },
+        {
+          "threshold": 0.7,
+          "n_total": 500,
+          "n_accepted": 493,
+          "n_rejected": 7,
+          "coverage": 0.986,
+          "mismatch_rate": 0.192,
+          "accepted_error_rate": 0.1947261663286004,
+          "accepted_non_low_quality_rate": 0.8052738336713996,
+          "model": "openai/gpt-5.2",
+          "ece": 0.13391999999999998
+        },
+        {
+          "threshold": 0.8,
+          "n_total": 500,
+          "n_accepted": 482,
+          "n_rejected": 18,
+          "coverage": 0.964,
+          "mismatch_rate": 0.19,
+          "accepted_error_rate": 0.1970954356846473,
+          "accepted_non_low_quality_rate": 0.8029045643153527,
+          "model": "openai/gpt-5.2",
+          "ece": 0.13391999999999998
+        },
+        {
+          "threshold": 0.9,
+          "n_total": 500,
+          "n_accepted": 408,
+          "n_rejected": 92,
+          "coverage": 0.816,
+          "mismatch_rate": 0.152,
+          "accepted_error_rate": 0.18627450980392157,
+          "accepted_non_low_quality_rate": 0.8137254901960784,
+          "model": "openai/gpt-5.2",
+          "ece": 0.13391999999999998
+        },
+        {
+          "threshold": 0.95,
+          "n_total": 500,
+          "n_accepted": 175,
+          "n_rejected": 325,
+          "coverage": 0.35,
+          "mismatch_rate": 0.056,
+          "accepted_error_rate": 0.16,
+          "accepted_non_low_quality_rate": 0.84,
+          "model": "openai/gpt-5.2",
+          "ece": 0.13391999999999998
+        }
+      ],
+      "risk_coverage_curve": [
+        {
+          "threshold": 0.5,
+          "coverage": 0.994,
+          "accepted_error_rate": 0.19517102615694165
+        },
+        {
+          "threshold": 0.6,
+          "coverage": 0.994,
+          "accepted_error_rate": 0.19517102615694165
+        },
+        {
+          "threshold": 0.7,
+          "coverage": 0.986,
+          "accepted_error_rate": 0.1947261663286004
+        },
+        {
+          "threshold": 0.8,
+          "coverage": 0.964,
+          "accepted_error_rate": 0.1970954356846473
+        },
+        {
+          "threshold": 0.9,
+          "coverage": 0.816,
+          "accepted_error_rate": 0.18627450980392157
+        },
+        {
+          "threshold": 0.95,
+          "coverage": 0.35,
+          "accepted_error_rate": 0.16
+        }
+      ]
+    }
+  }
 }

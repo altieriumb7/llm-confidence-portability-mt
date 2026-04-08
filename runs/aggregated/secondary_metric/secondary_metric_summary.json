@@ -5,5 +5,94 @@
     "reason": "COMET not installed; reused existing sentence BLEU scores as a conservative fallback secondary metric.",
     "is_fallback": true
   },
-  "rows": []
+  "rows": [
+    {
+      "model": "anthropic/claude-haiku-4-5-20251001",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 10.398089766078932,
+      "mean_secondary_metric": 29.41856867731198,
+      "median_secondary_metric": 24.77399364621739,
+      "min_secondary_metric": 0.0,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "anthropic/claude-opus-4-6",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 10.129474235115733,
+      "mean_secondary_metric": 30.968176391862052,
+      "median_secondary_metric": 26.72715631128616,
+      "min_secondary_metric": 0.0,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-5-20250929",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 9.535414040914189,
+      "mean_secondary_metric": 29.326357179004194,
+      "median_secondary_metric": 24.28243222678512,
+      "min_secondary_metric": 0.0,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "gemini/gemini-2.5-flash",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 8.225964699966553,
+      "mean_secondary_metric": 28.448904357090758,
+      "median_secondary_metric": 23.525653292954676,
+      "min_secondary_metric": 0.0,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "gemini/gemini-2.5-pro",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 12.368464772045964,
+      "mean_secondary_metric": 31.66073476714585,
+      "median_secondary_metric": 27.356750640505084,
+      "min_secondary_metric": 0.0,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "openai/gpt-5-mini",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 9.880782578056978,
+      "mean_secondary_metric": 27.857835253861438,
+      "median_secondary_metric": 22.86117209965908,
+      "min_secondary_metric": 2.6629879653210757,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "openai/gpt-5-nano",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 9.980099403873663,
+      "mean_secondary_metric": 26.710506603243093,
+      "median_secondary_metric": 21.38966348766842,
+      "min_secondary_metric": 0.4228848378822982,
+      "max_secondary_metric": 100.00000000000004
+    },
+    {
+      "model": "openai/gpt-5.2",
+      "secondary_metric_name": "bleu_fallback",
+      "secondary_metric_label": "Sentence BLEU fallback",
+      "secondary_metric_quantile": 0.2,
+      "secondary_error_threshold": 10.657284485555579,
+      "mean_secondary_metric": 29.716053251240417,
+      "median_secondary_metric": 25.214049670609604,
+      "min_secondary_metric": 2.6677820539246824,
+      "max_secondary_metric": 100.00000000000004
+    }
+  ]
 }

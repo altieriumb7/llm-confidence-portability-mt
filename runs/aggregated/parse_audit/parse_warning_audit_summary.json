@@ -4,5 +4,334 @@
     "error_col": "error_within_model_q20",
     "min_clean_subset": 30
   },
-  "models": {}
+  "models": {
+    "anthropic/claude-haiku-4-5-20251001": {
+      "summary": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "n_total": 500,
+        "n_warning_rows": 29,
+        "warning_rate": 0.058,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 29,
+        "n_translation_warning_rows": 29,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.8991082802547771,
+        "mean_conf_warning": 0.5641379310344827,
+        "clean_subset_stable": 1,
+        "ece_all": 0.09431999999999999,
+        "ece_clean": 0.08348195329087042,
+        "mismatch_all": 0.134,
+        "mismatch_clean": 0.1316348195329087,
+        "top_warning_token": "translation_no_json"
+      },
+      "warning_token_counts": {
+        "translation_no_json": 29
+      },
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.87968,
+        "ece": 0.09431999999999999,
+        "mismatch_at_0_9": 0.134
+      },
+      "clean_rows_metrics": {
+        "n": 471,
+        "mean_conf": 0.8991082802547771,
+        "ece": 0.08348195329087042,
+        "mismatch_at_0_9": 0.1316348195329087
+      },
+      "warning_rows_metrics": {
+        "n": 29,
+        "mean_conf": 0.5641379310344827,
+        "ece": 0.3544827586206897,
+        "mismatch_at_0_9": 0.1724137931034483
+      },
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "anthropic/claude-opus-4-6": {
+      "summary": {
+        "model": "anthropic/claude-opus-4-6",
+        "n_total": 500,
+        "n_warning_rows": 58,
+        "warning_rate": 0.116,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 58,
+        "n_translation_warning_rows": 58,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.9221945701357467,
+        "mean_conf_warning": 0.4386206896551724,
+        "clean_subset_stable": 1,
+        "ece_all": 0.08694000000000002,
+        "ece_clean": 0.0722850678733031,
+        "mismatch_all": 0.076,
+        "mismatch_clean": 0.08597285067873303,
+        "top_warning_token": "translation_no_json"
+      },
+      "warning_token_counts": {
+        "translation_no_json": 58
+      },
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.8661,
+        "ece": 0.08694000000000002,
+        "mismatch_at_0_9": 0.076
+      },
+      "clean_rows_metrics": {
+        "n": 442,
+        "mean_conf": 0.9221945701357467,
+        "ece": 0.0722850678733031,
+        "mismatch_at_0_9": 0.08597285067873303
+      },
+      "warning_rows_metrics": {
+        "n": 58,
+        "mean_conf": 0.4386206896551724,
+        "ece": 0.23344827586206895,
+        "mismatch_at_0_9": 0.0
+      },
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "anthropic/claude-sonnet-4-5-20250929": {
+      "summary": {
+        "model": "anthropic/claude-sonnet-4-5-20250929",
+        "n_total": 500,
+        "n_warning_rows": 68,
+        "warning_rate": 0.136,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 68,
+        "n_translation_warning_rows": 68,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.9387731481481482,
+        "mean_conf_warning": 0.5869117647058824,
+        "clean_subset_stable": 1,
+        "ece_all": 0.09480000000000005,
+        "ece_clean": 0.09326388888888877,
+        "mismatch_all": 0.128,
+        "mismatch_clean": 0.125,
+        "top_warning_token": "translation_no_json"
+      },
+      "warning_token_counts": {
+        "translation_no_json": 68
+      },
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.8909199999999999,
+        "ece": 0.09480000000000005,
+        "mismatch_at_0_9": 0.128
+      },
+      "clean_rows_metrics": {
+        "n": 432,
+        "mean_conf": 0.9387731481481482,
+        "ece": 0.09326388888888877,
+        "mismatch_at_0_9": 0.125
+      },
+      "warning_rows_metrics": {
+        "n": 68,
+        "mean_conf": 0.5869117647058824,
+        "ece": 0.19279411764705884,
+        "mismatch_at_0_9": 0.14705882352941177
+      },
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "gemini/gemini-2.5-flash": {
+      "summary": {
+        "model": "gemini/gemini-2.5-flash",
+        "n_total": 500,
+        "n_warning_rows": 287,
+        "warning_rate": 0.574,
+        "n_repaired_rows": 164,
+        "n_fallback_rows": 287,
+        "n_translation_warning_rows": 77,
+        "n_confidence_warning_rows": 240,
+        "n_both_warning_rows": 30,
+        "mean_conf_clean": 0.7736150234741784,
+        "mean_conf_warning": 0.6788850174216028,
+        "clean_subset_stable": 1,
+        "ece_all": 0.14787999999999998,
+        "ece_clean": 0.1728638497652582,
+        "mismatch_all": 0.042,
+        "mismatch_clean": 0.028169014084507043,
+        "top_warning_token": "confidence_no_json"
+      },
+      "warning_token_counts": {
+        "translation_no_json": 77,
+        "confidence_no_json": 240,
+        "confidence_from_regex": 79,
+        "no_confidence_found": 164,
+        "confidence_repaired": 164,
+        "confidence_from_partial_json": 2
+      },
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.71924,
+        "ece": 0.14787999999999998,
+        "mismatch_at_0_9": 0.042
+      },
+      "clean_rows_metrics": {
+        "n": 213,
+        "mean_conf": 0.7736150234741784,
+        "ece": 0.1728638497652582,
+        "mismatch_at_0_9": 0.028169014084507043
+      },
+      "warning_rows_metrics": {
+        "n": 287,
+        "mean_conf": 0.6788850174216028,
+        "ece": 0.2827177700348432,
+        "mismatch_at_0_9": 0.05226480836236934
+      },
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "gemini/gemini-2.5-pro": {
+      "summary": {
+        "model": "gemini/gemini-2.5-pro",
+        "n_total": 500,
+        "n_warning_rows": 1,
+        "warning_rate": 0.002,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 1,
+        "n_translation_warning_rows": 1,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.984188376753507,
+        "mean_conf_warning": 0.0,
+        "clean_subset_stable": 1,
+        "ece_all": 0.18022000000000002,
+        "ece_clean": 0.18058116232464932,
+        "mismatch_all": 0.182,
+        "mismatch_clean": 0.18236472945891782,
+        "top_warning_token": "translation_no_json"
+      },
+      "warning_token_counts": {
+        "translation_no_json": 1
+      },
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.98222,
+        "ece": 0.18022000000000002,
+        "mismatch_at_0_9": 0.182
+      },
+      "clean_rows_metrics": {
+        "n": 499,
+        "mean_conf": 0.984188376753507,
+        "ece": 0.18058116232464932,
+        "mismatch_at_0_9": 0.18236472945891782
+      },
+      "warning_rows_metrics": {
+        "n": 1,
+        "mean_conf": 0.0,
+        "ece": 0.0,
+        "mismatch_at_0_9": 0.0
+      },
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "openai/gpt-5-mini": {
+      "summary": {
+        "model": "openai/gpt-5-mini",
+        "n_total": 500,
+        "n_warning_rows": 0,
+        "warning_rate": 0.0,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 0,
+        "n_translation_warning_rows": 0,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.88188,
+        "mean_conf_warning": NaN,
+        "clean_subset_stable": 1,
+        "ece_all": 0.1522,
+        "ece_clean": 0.1522,
+        "mismatch_all": 0.128,
+        "mismatch_clean": 0.128,
+        "top_warning_token": "none"
+      },
+      "warning_token_counts": {},
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.88188,
+        "ece": 0.1522,
+        "mismatch_at_0_9": 0.128
+      },
+      "clean_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.88188,
+        "ece": 0.1522,
+        "mismatch_at_0_9": 0.128
+      },
+      "warning_rows_metrics": null,
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "openai/gpt-5-nano": {
+      "summary": {
+        "model": "openai/gpt-5-nano",
+        "n_total": 500,
+        "n_warning_rows": 0,
+        "warning_rate": 0.0,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 0,
+        "n_translation_warning_rows": 0,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.72626,
+        "mean_conf_warning": NaN,
+        "clean_subset_stable": 1,
+        "ece_all": 0.07574,
+        "ece_clean": 0.07574,
+        "mismatch_all": 0.002,
+        "mismatch_clean": 0.002,
+        "top_warning_token": "none"
+      },
+      "warning_token_counts": {},
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.72626,
+        "ece": 0.07574,
+        "mismatch_at_0_9": 0.002
+      },
+      "clean_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.72626,
+        "ece": 0.07574,
+        "mismatch_at_0_9": 0.002
+      },
+      "warning_rows_metrics": null,
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    },
+    "openai/gpt-5.2": {
+      "summary": {
+        "model": "openai/gpt-5.2",
+        "n_total": 500,
+        "n_warning_rows": 0,
+        "warning_rate": 0.0,
+        "n_repaired_rows": 0,
+        "n_fallback_rows": 0,
+        "n_translation_warning_rows": 0,
+        "n_confidence_warning_rows": 0,
+        "n_both_warning_rows": 0,
+        "mean_conf_clean": 0.92392,
+        "mean_conf_warning": NaN,
+        "clean_subset_stable": 1,
+        "ece_all": 0.13391999999999998,
+        "ece_clean": 0.13391999999999998,
+        "mismatch_all": 0.152,
+        "mismatch_clean": 0.152,
+        "top_warning_token": "none"
+      },
+      "warning_token_counts": {},
+      "all_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.92392,
+        "ece": 0.13391999999999998,
+        "mismatch_at_0_9": 0.152
+      },
+      "clean_rows_metrics": {
+        "n": 500,
+        "mean_conf": 0.92392,
+        "ece": 0.13391999999999998,
+        "mismatch_at_0_9": 0.152
+      },
+      "warning_rows_metrics": null,
+      "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
+    }
+  }
 }
