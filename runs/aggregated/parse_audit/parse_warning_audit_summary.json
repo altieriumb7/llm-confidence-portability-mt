@@ -2,7 +2,8 @@
   "config": {
     "input": "runs/aggregated/dataframe.csv",
     "error_col": "error_within_model_q20",
-    "min_clean_subset": 30
+    "min_clean_subset": 30,
+    "snapshot_dir": "runs/snapshots/20260228_000439/raw"
   },
   "models": {
     "anthropic/claude-haiku-4-5-20251001": {
@@ -16,6 +17,8 @@
         "n_translation_warning_rows": 29,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 29,
+        "n_unflagged_schema_issue_rows": 0,
         "mean_conf_clean": 0.8991082802547771,
         "mean_conf_warning": 0.5641379310344827,
         "clean_subset_stable": 1,
@@ -27,6 +30,10 @@
       },
       "warning_token_counts": {
         "translation_no_json": 29
+      },
+      "strict_issue_counts": {
+        "translation_invalid_or_truncated_json": 29,
+        "confidence_trailing_text_after_json": 1
       },
       "all_rows_metrics": {
         "n": 500,
@@ -46,6 +53,12 @@
         "ece": 0.3544827586206897,
         "mismatch_at_0_9": 0.1724137931034483
       },
+      "strict_issue_rows_metrics": {
+        "n": 29,
+        "mean_conf": 0.5641379310344827,
+        "ece": 0.3544827586206897,
+        "mismatch_at_0_9": 0.1724137931034483
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "anthropic/claude-opus-4-6": {
@@ -59,6 +72,8 @@
         "n_translation_warning_rows": 58,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 59,
+        "n_unflagged_schema_issue_rows": 1,
         "mean_conf_clean": 0.9221945701357467,
         "mean_conf_warning": 0.4386206896551724,
         "clean_subset_stable": 1,
@@ -70,6 +85,9 @@
       },
       "warning_token_counts": {
         "translation_no_json": 58
+      },
+      "strict_issue_counts": {
+        "translation_invalid_or_truncated_json": 59
       },
       "all_rows_metrics": {
         "n": 500,
@@ -89,6 +107,12 @@
         "ece": 0.23344827586206895,
         "mismatch_at_0_9": 0.0
       },
+      "strict_issue_rows_metrics": {
+        "n": 59,
+        "mean_conf": 0.44610169491525425,
+        "ece": 0.24440677966101693,
+        "mismatch_at_0_9": 0.0
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "anthropic/claude-sonnet-4-5-20250929": {
@@ -102,6 +126,8 @@
         "n_translation_warning_rows": 68,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 68,
+        "n_unflagged_schema_issue_rows": 0,
         "mean_conf_clean": 0.9387731481481482,
         "mean_conf_warning": 0.5869117647058824,
         "clean_subset_stable": 1,
@@ -113,6 +139,9 @@
       },
       "warning_token_counts": {
         "translation_no_json": 68
+      },
+      "strict_issue_counts": {
+        "translation_invalid_or_truncated_json": 68
       },
       "all_rows_metrics": {
         "n": 500,
@@ -132,6 +161,12 @@
         "ece": 0.19279411764705884,
         "mismatch_at_0_9": 0.14705882352941177
       },
+      "strict_issue_rows_metrics": {
+        "n": 68,
+        "mean_conf": 0.5869117647058824,
+        "ece": 0.19279411764705884,
+        "mismatch_at_0_9": 0.14705882352941177
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "gemini/gemini-2.5-flash": {
@@ -145,6 +180,8 @@
         "n_translation_warning_rows": 77,
         "n_confidence_warning_rows": 240,
         "n_both_warning_rows": 30,
+        "n_strict_schema_issue_rows": 289,
+        "n_unflagged_schema_issue_rows": 2,
         "mean_conf_clean": 0.7736150234741784,
         "mean_conf_warning": 0.6788850174216028,
         "clean_subset_stable": 1,
@@ -161,6 +198,13 @@
         "no_confidence_found": 164,
         "confidence_repaired": 164,
         "confidence_from_partial_json": 2
+      },
+      "strict_issue_counts": {
+        "confidence_no_json_object": 212,
+        "translation_invalid_or_truncated_json": 76,
+        "confidence_invalid_or_truncated_json": 28,
+        "confidence_trailing_text_after_json": 3,
+        "translation_no_json_object": 1
       },
       "all_rows_metrics": {
         "n": 500,
@@ -180,6 +224,12 @@
         "ece": 0.2827177700348432,
         "mismatch_at_0_9": 0.05226480836236934
       },
+      "strict_issue_rows_metrics": {
+        "n": 289,
+        "mean_conf": 0.6792387543252595,
+        "ece": 0.2788927335640138,
+        "mismatch_at_0_9": 0.05190311418685121
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "gemini/gemini-2.5-pro": {
@@ -193,6 +243,8 @@
         "n_translation_warning_rows": 1,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 3,
+        "n_unflagged_schema_issue_rows": 2,
         "mean_conf_clean": 0.984188376753507,
         "mean_conf_warning": 0.0,
         "clean_subset_stable": 1,
@@ -204,6 +256,11 @@
       },
       "warning_token_counts": {
         "translation_no_json": 1
+      },
+      "strict_issue_counts": {
+        "confidence_trailing_text_after_json": 1,
+        "translation_no_json_object": 1,
+        "translation_trailing_text_after_json": 1
       },
       "all_rows_metrics": {
         "n": 500,
@@ -223,6 +280,12 @@
         "ece": 0.0,
         "mismatch_at_0_9": 0.0
       },
+      "strict_issue_rows_metrics": {
+        "n": 3,
+        "mean_conf": 0.6166666666666667,
+        "ece": 0.2833333333333333,
+        "mismatch_at_0_9": 0.3333333333333333
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "openai/gpt-5-mini": {
@@ -236,6 +299,8 @@
         "n_translation_warning_rows": 0,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 1,
+        "n_unflagged_schema_issue_rows": 1,
         "mean_conf_clean": 0.88188,
         "mean_conf_warning": NaN,
         "clean_subset_stable": 1,
@@ -246,6 +311,9 @@
         "top_warning_token": "none"
       },
       "warning_token_counts": {},
+      "strict_issue_counts": {
+        "translation_invalid_or_truncated_json": 1
+      },
       "all_rows_metrics": {
         "n": 500,
         "mean_conf": 0.88188,
@@ -259,6 +327,12 @@
         "mismatch_at_0_9": 0.128
       },
       "warning_rows_metrics": null,
+      "strict_issue_rows_metrics": {
+        "n": 1,
+        "mean_conf": 0.88,
+        "ece": 0.12,
+        "mismatch_at_0_9": 0.0
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "openai/gpt-5-nano": {
@@ -272,6 +346,8 @@
         "n_translation_warning_rows": 0,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 2,
+        "n_unflagged_schema_issue_rows": 2,
         "mean_conf_clean": 0.72626,
         "mean_conf_warning": NaN,
         "clean_subset_stable": 1,
@@ -282,6 +358,9 @@
         "top_warning_token": "none"
       },
       "warning_token_counts": {},
+      "strict_issue_counts": {
+        "translation_invalid_or_truncated_json": 2
+      },
       "all_rows_metrics": {
         "n": 500,
         "mean_conf": 0.72626,
@@ -295,6 +374,12 @@
         "mismatch_at_0_9": 0.002
       },
       "warning_rows_metrics": null,
+      "strict_issue_rows_metrics": {
+        "n": 2,
+        "mean_conf": 0.73,
+        "ece": 0.27,
+        "mismatch_at_0_9": 0.0
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     },
     "openai/gpt-5.2": {
@@ -308,6 +393,8 @@
         "n_translation_warning_rows": 0,
         "n_confidence_warning_rows": 0,
         "n_both_warning_rows": 0,
+        "n_strict_schema_issue_rows": 1,
+        "n_unflagged_schema_issue_rows": 1,
         "mean_conf_clean": 0.92392,
         "mean_conf_warning": NaN,
         "clean_subset_stable": 1,
@@ -318,6 +405,9 @@
         "top_warning_token": "none"
       },
       "warning_token_counts": {},
+      "strict_issue_counts": {
+        "translation_invalid_or_truncated_json": 1
+      },
       "all_rows_metrics": {
         "n": 500,
         "mean_conf": 0.92392,
@@ -331,7 +421,99 @@
         "mismatch_at_0_9": 0.152
       },
       "warning_rows_metrics": null,
+      "strict_issue_rows_metrics": {
+        "n": 1,
+        "mean_conf": 0.93,
+        "ece": 0.06999999999999995,
+        "mismatch_at_0_9": 0.0
+      },
       "notes": "Clean-subset metrics are omitted when the clean subset is smaller than min_clean_subset."
     }
+  },
+  "global_parse_validation": {
+    "unflagged_malformed_raw_rows": 9,
+    "examples": [
+      {
+        "provider": "anthropic",
+        "model_id": "claude-opus-4-6",
+        "id": 271,
+        "line": 272,
+        "issues": [
+          "translation_invalid_or_truncated_json"
+        ]
+      },
+      {
+        "provider": "gemini",
+        "model_id": "gemini-2.5-flash",
+        "id": 374,
+        "line": 368,
+        "issues": [
+          "confidence_trailing_text_after_json"
+        ]
+      },
+      {
+        "provider": "gemini",
+        "model_id": "gemini-2.5-flash",
+        "id": 376,
+        "line": 370,
+        "issues": [
+          "confidence_trailing_text_after_json"
+        ]
+      },
+      {
+        "provider": "gemini",
+        "model_id": "gemini-2.5-pro",
+        "id": 151,
+        "line": 152,
+        "issues": [
+          "confidence_trailing_text_after_json"
+        ]
+      },
+      {
+        "provider": "gemini",
+        "model_id": "gemini-2.5-pro",
+        "id": 417,
+        "line": 418,
+        "issues": [
+          "translation_trailing_text_after_json"
+        ]
+      },
+      {
+        "provider": "openai",
+        "model_id": "gpt-5-mini",
+        "id": 229,
+        "line": 230,
+        "issues": [
+          "translation_invalid_or_truncated_json"
+        ]
+      },
+      {
+        "provider": "openai",
+        "model_id": "gpt-5-nano",
+        "id": 229,
+        "line": 230,
+        "issues": [
+          "translation_invalid_or_truncated_json"
+        ]
+      },
+      {
+        "provider": "openai",
+        "model_id": "gpt-5-nano",
+        "id": 435,
+        "line": 436,
+        "issues": [
+          "translation_invalid_or_truncated_json"
+        ]
+      },
+      {
+        "provider": "openai",
+        "model_id": "gpt-5.2",
+        "id": 229,
+        "line": 230,
+        "issues": [
+          "translation_invalid_or_truncated_json"
+        ]
+      }
+    ]
   }
 }

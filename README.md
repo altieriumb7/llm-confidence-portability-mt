@@ -12,6 +12,45 @@ bash scripts/reproduce_offline_artifact.sh
 
 This authoritative pipeline now guarantees paper/repo synchronization by regenerating all manuscript-facing assets and running a hard consistency check.
 
+## Local artifact build scripts (text-only workflow)
+
+To regenerate generated artifacts locally (without committing binaries from Codex), use:
+
+```bash
+bash scripts/build_artifacts.sh
+```
+
+Optional manuscript PDF build:
+
+```bash
+WITH_PDF=1 bash scripts/build_artifacts.sh
+```
+
+If you only need figures:
+
+```bash
+bash scripts/build_figures.sh
+```
+
+If you only need the manuscript PDF:
+
+```bash
+bash scripts/build_pdf.sh
+```
+
+### Prerequisites
+- Python 3 + dependencies from `requirements.txt`
+- Bundled snapshot data at `runs/snapshots/20260228_000439/raw/*.jsonl`
+- `latexmk` (only for PDF build)
+
+### Generated artifact types and output locations
+- Figures (`.png`, `.pdf`): `figures/` via `src/04_analysis_and_plots.py` (called by `scripts/regenerate_figures.sh` / `scripts/build_figures.sh`)
+- Aggregated analysis artifacts (`.csv`, `.json`, `.md`, `.tex`): `runs/aggregated/` and `tables/` via `scripts/generate_paper_assets.sh`
+- Manuscript PDF (`.pdf`): project root (or `BUILD_DIR`) via `scripts/build_pdf.sh`
+
+### Known limitation
+The snapshot does not include the full bibliography inputs needed to guarantee fully resolved references in every environment; see `paper/TODO_missing_bibliography.md`.
+
 ## Authoritative locations
 
 - Environment setup: `requirements.txt`, `requirements.lock`
