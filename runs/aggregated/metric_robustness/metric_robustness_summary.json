@@ -7,8 +7,161 @@
     "secondary_quantile": 0.2
   },
   "secondary_metric": {
-    "backend": "unavailable",
-    "label": "Unavailable"
+    "backend": "bleu_fallback",
+    "label": "Sentence BLEU fallback"
   },
-  "models": {}
+  "models": {
+    "anthropic/claude-haiku-4-5-20251001": {
+      "summary": {
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.09431999999999999,
+        "ece_secondary_q20": 0.09927999999999995,
+        "coverage_chrf_tau_0_9": 0.776,
+        "coverage_secondary_tau_0_9": 0.776,
+        "mismatch_chrf_tau_0_9": 0.134,
+        "mismatch_secondary_tau_0_9": 0.142,
+        "accepted_error_chrf_tau_0_9": 0.17268041237113402,
+        "accepted_error_secondary_tau_0_9": 0.18298969072164947
+      },
+      "thresholds": {
+        "chrf": 44.49436917915149,
+        "secondary": 10.398089766078932
+      }
+    },
+    "anthropic/claude-opus-4-6": {
+      "summary": {
+        "model": "anthropic/claude-opus-4-6",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.08694000000000002,
+        "ece_secondary_q20": 0.09194000000000002,
+        "coverage_chrf_tau_0_9": 0.666,
+        "coverage_secondary_tau_0_9": 0.666,
+        "mismatch_chrf_tau_0_9": 0.076,
+        "mismatch_secondary_tau_0_9": 0.08,
+        "accepted_error_chrf_tau_0_9": 0.11411411411411411,
+        "accepted_error_secondary_tau_0_9": 0.12012012012012012
+      },
+      "thresholds": {
+        "chrf": 45.504502531309946,
+        "secondary": 10.129474235115733
+      }
+    },
+    "anthropic/claude-sonnet-4-5-20250929": {
+      "summary": {
+        "model": "anthropic/claude-sonnet-4-5-20250929",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.09480000000000005,
+        "ece_secondary_q20": 0.09840000000000004,
+        "coverage_chrf_tau_0_9": 0.85,
+        "coverage_secondary_tau_0_9": 0.85,
+        "mismatch_chrf_tau_0_9": 0.128,
+        "mismatch_secondary_tau_0_9": 0.13,
+        "accepted_error_chrf_tau_0_9": 0.15058823529411763,
+        "accepted_error_secondary_tau_0_9": 0.15294117647058825
+      },
+      "thresholds": {
+        "chrf": 43.995705052848066,
+        "secondary": 9.535414040914189
+      }
+    },
+    "gemini/gemini-2.5-flash": {
+      "summary": {
+        "model": "gemini/gemini-2.5-flash",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.14787999999999998,
+        "ece_secondary_q20": 0.15188000000000001,
+        "coverage_chrf_tau_0_9": 0.374,
+        "coverage_secondary_tau_0_9": 0.374,
+        "mismatch_chrf_tau_0_9": 0.042,
+        "mismatch_secondary_tau_0_9": 0.048,
+        "accepted_error_chrf_tau_0_9": 0.11229946524064172,
+        "accepted_error_secondary_tau_0_9": 0.12834224598930483
+      },
+      "thresholds": {
+        "chrf": 38.95360037469629,
+        "secondary": 8.225964699966553
+      }
+    },
+    "gemini/gemini-2.5-pro": {
+      "summary": {
+        "model": "gemini/gemini-2.5-pro",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.18022000000000002,
+        "ece_secondary_q20": 0.18570000000000011,
+        "coverage_chrf_tau_0_9": 0.962,
+        "coverage_secondary_tau_0_9": 0.962,
+        "mismatch_chrf_tau_0_9": 0.182,
+        "mismatch_secondary_tau_0_9": 0.188,
+        "accepted_error_chrf_tau_0_9": 0.1891891891891892,
+        "accepted_error_secondary_tau_0_9": 0.19542619542619544
+      },
+      "thresholds": {
+        "chrf": 48.19827174755905,
+        "secondary": 12.368464772045964
+      }
+    },
+    "openai/gpt-5-mini": {
+      "summary": {
+        "model": "openai/gpt-5-mini",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.1522,
+        "ece_secondary_q20": 0.1522,
+        "coverage_chrf_tau_0_9": 0.704,
+        "coverage_secondary_tau_0_9": 0.704,
+        "mismatch_chrf_tau_0_9": 0.128,
+        "mismatch_secondary_tau_0_9": 0.13,
+        "accepted_error_chrf_tau_0_9": 0.18181818181818182,
+        "accepted_error_secondary_tau_0_9": 0.1846590909090909
+      },
+      "thresholds": {
+        "chrf": 43.87523104073144,
+        "secondary": 9.880782578056978
+      }
+    },
+    "openai/gpt-5-nano": {
+      "summary": {
+        "model": "openai/gpt-5-nano",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.07574,
+        "ece_secondary_q20": 0.08826,
+        "coverage_chrf_tau_0_9": 0.028,
+        "coverage_secondary_tau_0_9": 0.028,
+        "mismatch_chrf_tau_0_9": 0.002,
+        "mismatch_secondary_tau_0_9": 0.006,
+        "accepted_error_chrf_tau_0_9": 0.07142857142857142,
+        "accepted_error_secondary_tau_0_9": 0.21428571428571427
+      },
+      "thresholds": {
+        "chrf": 42.78570425818257,
+        "secondary": 9.980099403873663
+      }
+    },
+    "openai/gpt-5.2": {
+      "summary": {
+        "model": "openai/gpt-5.2",
+        "secondary_metric_name": "bleu_fallback",
+        "secondary_metric_label": "Sentence BLEU fallback",
+        "ece_chrf_q20": 0.13391999999999998,
+        "ece_secondary_q20": 0.14504000000000003,
+        "coverage_chrf_tau_0_9": 0.816,
+        "coverage_secondary_tau_0_9": 0.816,
+        "mismatch_chrf_tau_0_9": 0.152,
+        "mismatch_secondary_tau_0_9": 0.16,
+        "accepted_error_chrf_tau_0_9": 0.18627450980392157,
+        "accepted_error_secondary_tau_0_9": 0.19607843137254902
+      },
+      "thresholds": {
+        "chrf": 46.51459950254599,
+        "secondary": 10.657284485555579
+      }
+    }
+  }
 }

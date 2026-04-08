@@ -1,21 +1,26 @@
-# Committed artifacts (artifact companion)
+# Artifact notes
 
-This repository is an artifact-only companion repository. It keeps release-relevant evidence under version control for transparency and easy review, but it does **not** include the final LaTeX paper source.
+## Canonical paper-facing generation
 
-## What is committed
+```bash
+bash scripts/generate_paper_assets.sh
+```
 
-- `runs/aggregated/*`  
-  Final aggregated dataset and metrics/features tables used for analysis.
-- `paper/*` (selected markdown outputs)  
-  Paper-facing markdown notes and generated examples used to accompany the artifact.
+This is the authoritative manuscript-asset pipeline.
 
-## What is not committed by default
+## Generated (do not hand-edit)
 
-- `figures/*` binary plots are regenerated locally and are not versioned.
-- `runs/raw/*` full model API caches are ignored by default to reduce repository size and avoid redistributing potentially license-sensitive/raw text content.
-- A compact debugging sample is kept in `runs/raw_sample/*`.
-- Historical backup/debug files are archived under `archive/dev_old/` rather than left in the main release tree.
+- `tables/*.tex` (from `tools/export_latex_tables.py`)
+- `figures/*`
+- `paper/top_mismatch_examples.md`
+- `runs/aggregated/*` outputs and supplementary analyses
 
-## Reproducibility
+## Drift guard
 
-Running `bash run_repro.sh --clean` regenerates all generated outputs from source scripts and config.
+- `python3 tools/consistency_check.py` fails on stale manuscript-facing table files or missing manuscript-referenced figures.
+
+## Hand-maintained
+
+- `revised_submission_with_new_results.tex`
+- `added_refs.bib`
+- docs (`README.md`, `paper/README.md`, `REPRODUCIBILITY_CHECKLIST.md`)
