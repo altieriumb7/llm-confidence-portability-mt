@@ -1,0 +1,4 @@
+provider,sample_rows,valid_annotations,semantic_error,acceptable_paraphrase,metric_artifact_or_unclear
+anthropic,12,0,0,0,0
+gemini,21,0,0,0,0
+openai,15,0,0,0,0

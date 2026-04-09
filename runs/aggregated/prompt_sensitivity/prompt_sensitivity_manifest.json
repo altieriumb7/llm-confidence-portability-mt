@@ -1,0 +1,9 @@
+{
+  "default_prompt_variant": "canonical_v1",
+  "variants": [
+    "canonical_v1",
+    "minimal_v2",
+    "verifier_v3"
+  ],
+  "expected_variant_output_pattern": "runs/prompt_variants/<variant>/aggregated/summary_table.csv"
+}

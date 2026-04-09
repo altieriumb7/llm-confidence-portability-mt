@@ -30,6 +30,14 @@ If you only need figures:
 bash scripts/build_figures.sh
 ```
 
+If you want a binary-only regeneration entrypoint for figures (and optional manuscript PDF):
+
+```bash
+bash scripts/generate_binary_artifacts.sh
+# optional PDF build:
+WITH_PDF=1 bash scripts/generate_binary_artifacts.sh
+```
+
 If you only need the manuscript PDF:
 
 ```bash
@@ -80,12 +88,16 @@ The snapshot does not include the full bibliography inputs needed to guarantee f
 
 - Reviewer workflow and provenance map: `ARTIFACT_GUIDE.md`
 - Reproducibility scope/status statement: `ARTIFACT_STATUS.md`
+- Prompt robustness and baseline details: `ROBUSTNESS_AND_BASELINES.md`
 - Paper-specific build notes: `paper/README.md`
 
 ## What is bundled
 
 - Raw offline snapshot: `runs/snapshots/20260228_000439/raw/*.jsonl`
 - Regenerated aggregated outputs: `runs/aggregated/`
+- Semantic-audit exports for high-confidence mismatch review: `runs/aggregated/semantic_audit/`
+- External comparator baseline exports: `runs/aggregated/external_comparator/`
+- Prompt-sensitivity status exports: `runs/aggregated/prompt_sensitivity/`
 - Manuscript tables: `tables/*.tex`
 - Manuscript figures: `figures/*`
 

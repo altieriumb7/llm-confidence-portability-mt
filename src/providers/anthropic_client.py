@@ -5,6 +5,7 @@ from typing import Any, Dict, Tuple
 import anthropic
 
 from utils.parse import build_strict_json_system
+from utils.prompt_variants import render_confidence_prompt, render_translation_prompt
 
 _CLIENTS: dict[str, anthropic.Anthropic] = {}
 LOGGER = logging.getLogger(__name__)
@@ -57,11 +58,7 @@ def _usage(resp: Any) -> Dict[str, Any]:
 def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key)
     system = build_strict_json_system("translation")
-    user = (
-        "Translate English to German. "
-        "Return JSON with exactly one key: {\"translation\":\"...\"}.\n\n"
-        f"SOURCE: {text}"
-    )
+    _, user = render_translation_prompt(global_cfg, src=text, variant=global_cfg.get("prompt_variant"))
     t0 = time.time()
     resp = _message(client, model_id, system, user, global_cfg, "translation")
     return _extract_text(resp), _usage(resp), time.time() - t0, None
@@ -70,11 +67,7 @@ def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str
 def confidence(src: str, hyp: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key)
     system = build_strict_json_system("confidence")
-    user = (
-        "Rate translation correctness confidence from 0 to 1. "
-        "Return JSON with exactly one key: {\"confidence\":0.73}.\n\n"
-        f"SOURCE: {src}\nTRANSLATION: {hyp}"
-    )
+    _, user = render_confidence_prompt(global_cfg, src=src, hyp=hyp, variant=global_cfg.get("prompt_variant"))
     t0 = time.time()
     resp = _message(client, model_id, system, user, global_cfg, "confidence")
     return _extract_text(resp), _usage(resp), time.time() - t0, None

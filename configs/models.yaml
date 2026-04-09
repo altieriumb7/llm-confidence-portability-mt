@@ -19,6 +19,45 @@ global:
   error_quantile_within_model: 0.2
   error_quantile_global: 0.2
   mismatch_error_col: "error_within_model_q20"
+  default_prompt_variant: canonical_v1
+  prompt_variants:
+    canonical_v1:
+      translation_user_template: >-
+        Translate English to German. Return JSON with exactly one key:
+        {"translation":"..."}.
+
+        SOURCE: {src}
+      confidence_user_template: >-
+        Rate translation correctness confidence from 0 to 1. Return JSON
+        with exactly one key: {"confidence":0.73}.
+
+        SOURCE: {src}
+        TRANSLATION: {hyp}
+    minimal_v2:
+      translation_user_template: >-
+        Task: English->German translation. Output must be one JSON object and
+        only this key: {"translation":"..."}.
+
+        English: {src}
+      confidence_user_template: >-
+        Task: estimate confidence that the German translation is correct.
+        Respond with one JSON object and only this key: {"confidence":0.73}.
+
+        English: {src}
+        German translation: {hyp}
+    verifier_v3:
+      translation_user_template: >-
+        Produce a faithful German translation of the sentence below.
+        Return strict JSON with exactly one field {"translation":"..."}.
+
+        SOURCE_SENTENCE: {src}
+      confidence_user_template: >-
+        Judge how likely the German translation preserves the source meaning.
+        Return strict JSON with exactly one field {"confidence":0.73},
+        where 0 is very unlikely and 1 is very likely.
+
+        SOURCE_SENTENCE: {src}
+        TRANSLATION_TO_JUDGE: {hyp}
 
 
   # Appendix C robustness variant: within-model bottom 10% chrF

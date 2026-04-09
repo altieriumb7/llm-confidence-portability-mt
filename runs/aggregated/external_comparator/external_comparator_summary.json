@@ -1,0 +1,82 @@
+{
+  "meta": {
+    "comparator": "surface_proxy_v1",
+    "description": "Length/number/punctuation consistency heuristic plus parse-warning penalty.",
+    "median_len_ratio": 0.95,
+    "coverage_top_fraction": 0.2
+  },
+  "models": {
+    "anthropic/claude-haiku-4-5-20251001": {
+      "model": "anthropic/claude-haiku-4-5-20251001",
+      "corr_self_conf_vs_chrf": 0.25673253721570766,
+      "corr_proxy_vs_chrf": 0.2391402121909181,
+      "ece_self_conf": 0.09431999999999999,
+      "ece_proxy": 0.06310139821860206,
+      "accepted_error_self_top_frac": 0.12,
+      "accepted_error_proxy_top_frac": 0.13
+    },
+    "anthropic/claude-opus-4-6": {
+      "model": "anthropic/claude-opus-4-6",
+      "corr_self_conf_vs_chrf": 0.4805100204174397,
+      "corr_proxy_vs_chrf": 0.40429137247581337,
+      "ece_self_conf": 0.08694000000000002,
+      "ece_proxy": 0.06252249511543984,
+      "accepted_error_self_top_frac": 0.06,
+      "accepted_error_proxy_top_frac": 0.14
+    },
+    "anthropic/claude-sonnet-4-5-20250929": {
+      "model": "anthropic/claude-sonnet-4-5-20250929",
+      "corr_self_conf_vs_chrf": 0.4548607639121102,
+      "corr_proxy_vs_chrf": 0.4648488193366137,
+      "ece_self_conf": 0.09480000000000005,
+      "ece_proxy": 0.06719787867079532,
+      "accepted_error_self_top_frac": 0.11,
+      "accepted_error_proxy_top_frac": 0.13
+    },
+    "gemini/gemini-2.5-flash": {
+      "model": "gemini/gemini-2.5-flash",
+      "corr_self_conf_vs_chrf": 0.22388659164603797,
+      "corr_proxy_vs_chrf": 0.684165085812077,
+      "ece_self_conf": 0.14787999999999998,
+      "ece_proxy": 0.0879637753350939,
+      "accepted_error_self_top_frac": 0.13,
+      "accepted_error_proxy_top_frac": 0.1
+    },
+    "gemini/gemini-2.5-pro": {
+      "model": "gemini/gemini-2.5-pro",
+      "corr_self_conf_vs_chrf": 0.2328800167301861,
+      "corr_proxy_vs_chrf": 0.12408757314749486,
+      "ece_self_conf": 0.18022000000000002,
+      "ece_proxy": 0.09025444109729894,
+      "accepted_error_self_top_frac": 0.22,
+      "accepted_error_proxy_top_frac": 0.2
+    },
+    "openai/gpt-5-mini": {
+      "model": "openai/gpt-5-mini",
+      "corr_self_conf_vs_chrf": 0.04136772738918861,
+      "corr_proxy_vs_chrf": 0.10205603607884765,
+      "ece_self_conf": 0.1522,
+      "ece_proxy": 0.08882903502757063,
+      "accepted_error_self_top_frac": 0.13,
+      "accepted_error_proxy_top_frac": 0.19
+    },
+    "openai/gpt-5-nano": {
+      "model": "openai/gpt-5-nano",
+      "corr_self_conf_vs_chrf": 0.20747965487313844,
+      "corr_proxy_vs_chrf": 0.06000406229954395,
+      "ece_self_conf": 0.07574,
+      "ece_proxy": 0.08431060328716254,
+      "accepted_error_self_top_frac": 0.11,
+      "accepted_error_proxy_top_frac": 0.18
+    },
+    "openai/gpt-5.2": {
+      "model": "openai/gpt-5.2",
+      "corr_self_conf_vs_chrf": 0.10746969874891744,
+      "corr_proxy_vs_chrf": 0.05325080729305372,
+      "ece_self_conf": 0.13391999999999998,
+      "ece_proxy": 0.08572795890736482,
+      "accepted_error_self_top_frac": 0.16,
+      "accepted_error_proxy_top_frac": 0.18
+    }
+  }
+}

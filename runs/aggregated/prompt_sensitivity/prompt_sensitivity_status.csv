@@ -1,0 +1,4 @@
+prompt_variant,status,summary_path,n_models
+canonical_v1,available_baseline,runs/aggregated/summary_table.csv,8
+minimal_v2,missing_optional_live_run,runs/prompt_variants/minimal_v2/aggregated/summary_table.csv,0
+verifier_v3,missing_optional_live_run,runs/prompt_variants/verifier_v3/aggregated/summary_table.csv,0
