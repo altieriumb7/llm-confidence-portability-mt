@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lc}
+\toprule
+Audit item & Count \\
+\midrule
+Candidate pool (conf>=0.9 and chrF-q20 mismatch) & 443 \\
+Audit sample rows & 48 \\
+Valid human labels available & 0 \\
+Sample provider mix (anthropic/openai/gemini) & 12/15/21 \\
+Sample bucket mix (Q1/Q2/Q3/Q4) & 24/12/11/1 \\
+Annotated: semantic error & 0 \\
+Annotated: acceptable paraphrase & 0 \\
+Annotated: metric artifact/unclear & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Deterministic semantic-audit scaffold for high-confidence chrF mismatches. Label rows remain zero until annotation CSV files are added under runs/annotations/semantic_audit/.}
+\label{tab:semantic_audit}
+\end{table}

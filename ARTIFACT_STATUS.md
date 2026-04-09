@@ -9,6 +9,9 @@
   - selective analysis
   - parse-warning audit
   - metric robustness (BLEU fallback when COMET unavailable)
+  - semantic-audit scaffold export for high-confidence mismatch review
+  - external comparator baseline export
+  - prompt-sensitivity status export (baseline + expected optional variant paths)
 - Consistency validation via `tools/consistency_check.py`
 
 ## Partially reproducible from this bundle
@@ -18,6 +21,8 @@
 ## Not reproducible from zip alone
 - Fresh provider API outputs from Step 2 (`src/02_translate_and_confidence.py`) without credentials/network access.
 - Exact bitwise reproduction of live API outputs due to provider/model drift over time.
+- COMET/xCOMET learned-metric runs without fetching external model checkpoints.
+- Prompt-variant (non-baseline) output generation without provider API access.
 
 ## Recommended reviewer command
 ```bash

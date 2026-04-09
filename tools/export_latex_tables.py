@@ -142,12 +142,85 @@ def build_metric_robustness_table(metric_json: Path) -> str:
     )
 
 
+def build_semantic_audit_table(semantic_json: Path) -> str:
+    payload = json.loads(semantic_json.read_text(encoding="utf-8"))
+    counts = payload.get("counts", {})
+    dist = payload.get("sample_distribution", {})
+    by_provider = dist.get("providers", {})
+    by_bucket = dist.get("difficulty_buckets", {})
+    label_counts = payload.get("labels", {}).get("overall_counts", {})
+    rows = [
+        ["Candidate pool (conf>=0.9 and chrF-q20 mismatch)", str(int(counts.get("n_candidate_rows", 0)))],
+        ["Audit sample rows", str(int(counts.get("n_sample_rows", 0)))],
+        ["Valid human labels available", str(int(counts.get("n_valid_annotations", 0)))],
+        ["Sample provider mix (anthropic/openai/gemini)", f"{int(by_provider.get('anthropic', 0))}/{int(by_provider.get('openai', 0))}/{int(by_provider.get('gemini', 0))}"],
+        ["Sample bucket mix (Q1/Q2/Q3/Q4)", f"{int(by_bucket.get('Q1', 0))}/{int(by_bucket.get('Q2', 0))}/{int(by_bucket.get('Q3', 0))}/{int(by_bucket.get('Q4', 0))}"],
+        ["Annotated: semantic error", str(int(label_counts.get("semantic_error", 0)))],
+        ["Annotated: acceptable paraphrase", str(int(label_counts.get("acceptable_paraphrase", 0)))],
+        ["Annotated: metric artifact/unclear", str(int(label_counts.get("metric_artifact_or_unclear", 0)))],
+    ]
+    return _render_table(
+        label="tab:semantic_audit",
+        caption="Deterministic semantic-audit scaffold for high-confidence chrF mismatches. Label rows remain zero until annotation CSV files are added under runs/annotations/semantic_audit/.",
+        headers=["Audit item", "Count"],
+        rows=rows,
+        align="lc",
+    )
+
+
+def build_external_comparator_table(comparator_json: Path) -> str:
+    payload = json.loads(comparator_json.read_text(encoding="utf-8"))
+    models = payload.get("models", {})
+    out = []
+    for model in sorted(models):
+        s = models[model]
+        out.append([
+            model,
+            f"{float(s['corr_self_conf_vs_chrf']):.3f}",
+            f"{float(s['corr_proxy_vs_chrf']):.3f}",
+            f"{float(s['accepted_error_self_top_frac']):.3f}",
+            f"{float(s['accepted_error_proxy_top_frac']):.3f}",
+        ])
+    return _render_table(
+        label="tab:external_comparator",
+        caption="External comparator against self-reported confidence using a model-independent surface proxy (higher correlation and lower accepted-error are better).",
+        headers=["Model", "Corr(self,chrF)", "Corr(proxy,chrF)", "Accepted err@top20\\% self", "Accepted err@top20\\% proxy"],
+        rows=out,
+        align="lcccc",
+    )
+
+
+def build_prompt_sensitivity_status_table(status_json: Path) -> str:
+    payload = json.loads(status_json.read_text(encoding="utf-8"))
+    rows = []
+    default_variant = payload.get("default_prompt_variant", "unknown")
+    for row in payload.get("status_rows", []):
+        variant = row.get("prompt_variant", "")
+        tag = "baseline" if variant == default_variant else "variant"
+        rows.append([
+            variant,
+            tag,
+            str(row.get("status", "")),
+            str(int(row.get("n_models", 0))),
+        ])
+    return _render_table(
+        label="tab:prompt_sensitivity_status",
+        caption="Prompt-sensitivity availability in the released artifact bundle. Non-baseline variants require optional live reruns and are not fabricated offline.",
+        headers=["Prompt variant", "Role", "Status", "Models with data"],
+        rows=rows,
+        align="lllc",
+    )
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--summary-csv", default="runs/aggregated/summary_table.csv")
     ap.add_argument("--results-json", default="runs/aggregated/results_by_model.json")
     ap.add_argument("--calibration-json", default="runs/aggregated/calibration/calibration_summary.json")
     ap.add_argument("--metric-robustness-json", default="runs/aggregated/metric_robustness/metric_robustness_summary.json")
+    ap.add_argument("--semantic-audit-json", default="runs/aggregated/semantic_audit/semantic_audit_summary.json")
+    ap.add_argument("--external-comparator-json", default="runs/aggregated/external_comparator/external_comparator_summary.json")
+    ap.add_argument("--prompt-sensitivity-json", default="runs/aggregated/prompt_sensitivity/prompt_sensitivity_status.json")
     ap.add_argument("--outdir", default="tables")
     ap.add_argument("--check", action="store_true", help="Fail if committed tables differ from regenerated content.")
     args = ap.parse_args()
@@ -161,6 +234,9 @@ def main() -> int:
         "robustness.tex": build_robustness_table(Path(args.results_json)),
         "calibration.tex": build_calibration_table(Path(args.calibration_json)),
         "metric_robustness.tex": build_metric_robustness_table(Path(args.metric_robustness_json)),
+        "semantic_audit.tex": build_semantic_audit_table(Path(args.semantic_audit_json)),
+        "external_comparator.tex": build_external_comparator_table(Path(args.external_comparator_json)),
+        "prompt_sensitivity_status.tex": build_prompt_sensitivity_status_table(Path(args.prompt_sensitivity_json)),
     }
 
     failed = False

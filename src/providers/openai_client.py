@@ -8,6 +8,7 @@ from openai import BadRequestError
 from openai import OpenAI
 
 from utils.parse import build_strict_json_system
+from utils.prompt_variants import render_confidence_prompt, render_translation_prompt
 
 _NO_TEMPERATURE_MODELS: set[str] = set()
 _NO_TEXT_FORMAT_MODELS: set[str] = set()
@@ -291,11 +292,7 @@ def _usage(resp: Any) -> Dict[str, Any]:
 def translate(text: str, model_id: str, global_cfg: Dict[str, Any], api_key: str) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key, global_cfg["timeout_s"])
     system = build_strict_json_system("translation")
-    user = (
-        "Translate English to German. Return ONLY one JSON object with exactly this key: "
-        '{"translation":"..."}. No explanations, no markdown, no code fences.\n\n'
-        f"SOURCE: {text}"
-    )
+    _, user = render_translation_prompt(global_cfg, src=text, variant=global_cfg.get("prompt_variant"))
     t0 = time.time()
     resp = _chat(client, model_id, system, user, global_cfg, "translation")
     raw = _extract_text(resp, prefer_key="translation")
@@ -307,11 +304,7 @@ def confidence(
 ) -> Tuple[str, Dict[str, Any], float, str | None]:
     client = _get_client(api_key, global_cfg["timeout_s"])
     system = build_strict_json_system("confidence")
-    user = (
-        "Rate translation correctness confidence from 0 to 1. Return ONLY one JSON object "
-        'with exactly this key: {"confidence":0.73}. No explanations, no markdown, no code fences.\n\n'
-        f"SOURCE: {src}\nTRANSLATION: {hyp}"
-    )
+    _, user = render_confidence_prompt(global_cfg, src=src, hyp=hyp, variant=global_cfg.get("prompt_variant"))
     t0 = time.time()
     resp = _chat(client, model_id, system, user, global_cfg, "confidence")
     return _extract_text(resp, prefer_key="confidence"), _usage(resp), time.time() - t0, None

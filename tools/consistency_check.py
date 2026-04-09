@@ -18,7 +18,16 @@ def _run(cmd: list[str]) -> None:
 
 def _check_tex_inputs(manuscript: Path) -> None:
     text = manuscript.read_text(encoding="utf-8")
-    expected_tables = ["summary", "corr", "calibration", "metric_robustness", "robustness"]
+    expected_tables = [
+        "summary",
+        "corr",
+        "calibration",
+        "metric_robustness",
+        "semantic_audit",
+        "external_comparator",
+        "prompt_sensitivity_status",
+        "robustness",
+    ]
     for t in expected_tables:
         token = f"\\input{{tables/{t}}}"
         if token not in text:

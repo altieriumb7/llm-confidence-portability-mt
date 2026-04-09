@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
@@ -18,6 +19,7 @@ from utils.common import (
     usage_to_tokens,
 )
 from utils.llm_parse import coerce_confidence, coerce_translation, find_first_json, normalize_json_obj
+from utils.prompt_variants import default_variant, list_variant_names, resolve_variant
 
 ENV_KEYS = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}
 
@@ -106,12 +108,34 @@ def main():
     ap.add_argument("--dry_run", action="store_true")
     ap.add_argument("--progress_every", type=int, default=25)
     ap.add_argument("--fail_on_parse_rate", type=float, default=None)
+    ap.add_argument("--prompt_variant", default=None, help="Prompt variant name from config global.prompt_variants")
+    ap.add_argument("--write_prompt_manifest", default="runs/prompt_variants/manifest.json")
     args = ap.parse_args()
 
     load_env()
     cfg = load_config(args.config)
     g = cfg["global"]
+    selected_prompt_variant, _ = resolve_variant(cfg, args.prompt_variant)
+    g["prompt_variant"] = selected_prompt_variant
     logger = setup_logging(Path("runs/logs/translate.log"), name="translate")
+    logger.info("Using prompt variant: %s", selected_prompt_variant)
+
+    if args.write_prompt_manifest:
+        target = Path(args.write_prompt_manifest)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(
+                {
+                    "default_prompt_variant": default_variant(cfg),
+                    "selected_prompt_variant": selected_prompt_variant,
+                    "available_prompt_variants": list_variant_names(cfg),
+                    "config_path": args.config,
+                    "outdir": args.outdir,
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
     data = list(read_jsonl(Path(args.input)))
     if args.max_samples:
@@ -128,7 +152,8 @@ def main():
         if provider in skip_providers:
             logger.warning("Skipping %s/%s due to previous fatal quota exhaustion.", provider, model_id)
             continue
-        out_path = Path(args.outdir) / f"{provider}__{model_id}.jsonl"
+        out_suffix = "" if selected_prompt_variant == default_variant(cfg) else f"__pv-{selected_prompt_variant}"
+        out_path = Path(args.outdir) / f"{provider}__{model_id}{out_suffix}.jsonl"
         done_ids = {
             str(r["id"])
             for r in read_jsonl(out_path)
@@ -316,6 +341,7 @@ def main():
                     "confidence": confidence,
                     "provider": provider,
                     "model_id": model_id,
+                    "prompt_variant": selected_prompt_variant,
                     "latency_translate_s": tr_lat + fx_tr_lat,
                     "latency_conf_s": cf_lat + fx_cf_lat,
                     "input_tokens": input_total if any(v is not None for v in [u1["input_tokens"], u2["input_tokens"], uf1["input_tokens"], uf2["input_tokens"]]) else None,

@@ -1,0 +1,25 @@
+{
+  "default_prompt_variant": "canonical_v1",
+  "status_rows": [
+    {
+      "prompt_variant": "canonical_v1",
+      "status": "available_baseline",
+      "summary_path": "runs/aggregated/summary_table.csv",
+      "n_models": 8
+    },
+    {
+      "prompt_variant": "minimal_v2",
+      "status": "missing_optional_live_run",
+      "summary_path": "runs/prompt_variants/minimal_v2/aggregated/summary_table.csv",
+      "n_models": 0
+    },
+    {
+      "prompt_variant": "verifier_v3",
+      "status": "missing_optional_live_run",
+      "summary_path": "runs/prompt_variants/verifier_v3/aggregated/summary_table.csv",
+      "n_models": 0
+    }
+  ],
+  "comparison_rows": [],
+  "note": "Variants other than baseline require optional live reruns and are not fabricated in offline bundle."
+}

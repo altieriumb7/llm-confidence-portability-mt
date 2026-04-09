@@ -1,0 +1,37 @@
+{
+  "config": {
+    "tau": 0.9,
+    "sample_size": 48,
+    "min_per_provider": 12,
+    "max_per_bucket": 12
+  },
+  "counts": {
+    "n_total_rows": 4000,
+    "n_candidate_rows": 443,
+    "n_sample_rows": 48,
+    "n_annotation_files": 0,
+    "n_valid_annotations": 0
+  },
+  "sample_distribution": {
+    "providers": {
+      "anthropic": 12,
+      "gemini": 21,
+      "openai": 15
+    },
+    "difficulty_buckets": {
+      "Q2": 12,
+      "Q1": 24,
+      "Q3": 11,
+      "Q4": 1
+    }
+  },
+  "labels": {
+    "label_definitions": {
+      "semantic_error": "clear semantic error",
+      "acceptable_paraphrase": "acceptable paraphrase",
+      "metric_artifact_or_unclear": "metric artifact / unclear"
+    },
+    "overall_counts": {},
+    "provider_counts": {}
+  }
+}
