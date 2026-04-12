@@ -42,3 +42,19 @@
   - `src/04_analysis_and_plots.py`
   - `runs/aggregated/meta.json`
 
+## 6) Prompt wording claim aligned with released code paths
+- **Change made:** Updated manuscript wording to state that released canonical runs use shared prompt-renderer templates across providers, with provider-specific API adapters only.
+- **Why needed:** Removed paper↔repo contradiction claiming provider-specific shorter wording in baseline runs.
+- **Artifact evidence:**
+  - `src/utils/prompt_variants.py`
+  - `src/providers/openai_client.py`
+  - `src/providers/anthropic_client.py`
+  - `src/providers/gemini_client.py`
+
+## 7) Bibliography failure mode made explicit and placeholders removed
+- **Change made:** Manuscript citation usage was constrained to keys present in bundled `added_refs.bib`; documentation now explicitly states that canonical `references.bib` metadata is missing in this release.
+- **Why needed:** Prevents unresolved citation placeholders while avoiding fabricated bibliography entries.
+- **Artifact evidence:**
+  - `revised_submission_with_new_results.tex`
+  - `paper/TODO_missing_bibliography.md`
+  - `paper/README.md`

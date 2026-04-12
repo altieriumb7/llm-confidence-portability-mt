@@ -116,20 +116,42 @@ def _safe_slug(label: str) -> str:
 def _write_meta(path: Path, cfg_path: str, cfg: dict, rows: list):
     providers = sorted({r["provider"] for r in rows})
     models = sorted({f"{r['provider']}/{r['model_id']}" for r in rows})
+    commit = None
+    commit_source = None
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+        if commit:
+            commit_source = "git_live"
     except Exception:
-        commit = "unknown"
+        commit = None
+
+    if not commit and path.exists():
+        try:
+            previous_meta = json.loads(path.read_text(encoding="utf-8"))
+            old = str(previous_meta.get("git_commit", "")).strip()
+            if old and old not in {"unknown", "unavailable", "unavailable_no_git_or_bundled_commit"}:
+                commit = old
+                commit_source = "reused_existing_meta"
+        except Exception:
+            pass
+
+    if not commit:
+        commit = "unavailable_no_git_or_bundled_commit"
+        commit_source = "unavailable"
+
     cfg_text = Path(cfg_path).read_text(encoding="utf-8")
     meta = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "config_hash_sha256": hashlib.sha256(cfg_text.encode("utf-8")).hexdigest(),
         "git_commit": commit,
+        "git_commit_source": commit_source,
         "providers": providers,
         "models": models,
         "n": len(rows),
         "seed": (cfg.get("global") or {}).get("seed"),
         "mismatch_tau": (cfg.get("global") or {}).get("mismatch_tau", (cfg.get("global") or {}).get("tau")),
+        "mismatch_error_col": (cfg.get("global") or {}).get("mismatch_error_col", "error_within_model_q20"),
+        "conf_bins": (cfg.get("global") or {}).get("conf_bins"),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(meta, indent=2), encoding="utf-8")

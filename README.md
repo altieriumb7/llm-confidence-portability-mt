@@ -8,7 +8,24 @@ This repository is packaged as a **reviewer artifact** for the paper manuscript 
 bash scripts/reproduce_offline_artifact.sh --skip-manuscript
 ```
 
-This authoritative pipeline now guarantees paper/repo synchronization by regenerating all manuscript-facing assets and running a hard consistency check.
+This pipeline regenerates manuscript-facing assets from the bundled snapshot and runs consistency checks. It validates artifact drift and key wiring/metadata checks, but it does **not** validate narrative claims, bibliography completeness, or figure semantics.
+
+## Quick repository orientation
+
+- **Active analysis + paper-facing outputs**
+  - `src/` (analysis pipeline)
+  - `scripts/` (root-runnable orchestration)
+  - `tools/` (table export + consistency checks)
+  - `runs/aggregated/`, `tables/`, `figures/`, `paper/top_mismatch_examples.md`
+- **Bundled offline source snapshot**
+  - `runs/snapshots/20260228_000439/raw/*.jsonl`
+- **Paper source + paper docs**
+  - `revised_submission_with_new_results.tex`
+  - `paper/`
+- **Live/API path (credentials required)**
+  - `run_repro.sh` (Step 2 calls providers)
+- **Archival/context docs**
+  - `REPAIR_REPORT.md`, `CHANGELOG_ARTIFACT_FIXES.md`
 
 ## Local artifact build scripts (text-only workflow)
 
@@ -36,6 +53,18 @@ If you want a binary-only regeneration entrypoint for figures (and optional manu
 bash scripts/generate_binary_artifacts.sh
 # optional PDF build:
 WITH_PDF=1 bash scripts/generate_binary_artifacts.sh
+```
+
+PR-friendly binary regeneration helper (same intent, explicit for figure rebuilds):
+```bash
+bash scripts/regenerate_pr_binaries.sh
+# optional manuscript PDF attempt:
+WITH_PDF=1 bash scripts/regenerate_pr_binaries.sh
+```
+
+Compatibility wrapper used in older docs:
+```bash
+bash scripts/generate_all_artifacts.sh
 ```
 
 If you only need the manuscript PDF:
@@ -69,6 +98,16 @@ The snapshot does not include the full bibliography inputs needed to guarantee f
 
 ## Generated manuscript asset pipeline
 
+- Full offline paper-asset regeneration:
+  ```bash
+  bash scripts/generate_paper_assets.sh
+  ```
+- Validation-only pass:
+  ```bash
+  bash scripts/validate_artifact.sh
+  ```
+  This currently checks parse regression, LaTeX table drift, manuscript wiring, key metric/table cross-consistency, and metadata/config integrity.
+
 ## Optional commands
 
 - Build manuscript PDF as well (requires LaTeX):
@@ -87,6 +126,7 @@ The snapshot does not include the full bibliography inputs needed to guarantee f
 ## Core documentation
 
 - Reviewer workflow and provenance map: `ARTIFACT_GUIDE.md`
+- Quick repository orientation map: `REPO_MAP.md`
 - Reproducibility scope/status statement: `ARTIFACT_STATUS.md`
 - Prompt robustness and baseline details: `ROBUSTNESS_AND_BASELINES.md`
 - Paper-specific build notes: `paper/README.md`

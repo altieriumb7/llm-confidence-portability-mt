@@ -37,7 +37,15 @@ This regenerates manuscript-facing tables/figures/examples and runs `tools/consi
 python3 tools/consistency_check.py
 ```
 
-Fails if committed paper-facing assets drift from regenerated values.
+Fails on table drift, manuscript wiring gaps, key metric inconsistencies, or metadata/config integrity mismatches.
+
+## Legacy-compatible wrapper
+
+```bash
+bash scripts/generate_all_artifacts.sh
+```
+
+This wrapper is kept for command compatibility and forwards to the active offline build workflow.
 
 ## Remaining blocker
 

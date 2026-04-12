@@ -25,6 +25,6 @@ rm -f runs/aggregated/external_comparator/* runs/aggregated/prompt_sensitivity/*
 "$PYTHON_BIN" src/11_prompt_sensitivity.py --config "$CONFIG" --baseline_summary runs/aggregated/summary_table.csv --variant_root runs/prompt_variants --outdir runs/aggregated/prompt_sensitivity
 
 "$PYTHON_BIN" tools/export_latex_tables.py
-"$PYTHON_BIN" tools/consistency_check.py
+"$PYTHON_BIN" tools/consistency_check.py --config "$CONFIG"
 
 echo "Paper-facing assets regenerated and checked."
