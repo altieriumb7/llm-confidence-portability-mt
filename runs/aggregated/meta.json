@@ -1,7 +1,8 @@
 {
-  "timestamp_utc": "2026-04-12T15:16:44.720989+00:00",
+  "timestamp_utc": "2026-04-12T15:57:02.001365+00:00",
   "config_hash_sha256": "ab3ef83290360d9b5340696d312b963f631e63271f5a6818ee01af6c8bc0e643",
-  "git_commit": "360b58512dae9d7b660520d38da1dab3c77b9513",
+  "git_commit": "633d0848e7fc24f9e3f47e54e6d428953489cbe8",
+  "git_commit_source": "git_live",
   "providers": [
     "anthropic",
     "gemini",
@@ -19,5 +20,7 @@
   ],
   "n": 4000,
   "seed": 123,
-  "mismatch_tau": 0.9
+  "mismatch_tau": 0.9,
+  "mismatch_error_col": "error_within_model_q20",
+  "conf_bins": 10
 }

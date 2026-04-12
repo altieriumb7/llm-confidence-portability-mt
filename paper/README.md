@@ -36,7 +36,7 @@ The manuscript uses:
 \bibliography{references,added_refs}
 ```
 
-`added_refs.bib` contains the curated added entries. `references.bib` is present as an empty compatibility file because canonical bibliography metadata was not included in the bundled snapshot. The manuscript can still be built for structure/layout checks, but unresolved citations will remain until canonical `references.bib` metadata is restored.
+`added_refs.bib` contains the curated bundled entries. `references.bib` is present as an empty compatibility file because canonical bibliography metadata was not included in the bundled snapshot. The manuscript was adjusted to cite only bundled bibliography keys so PDF builds do not emit unresolved citation placeholders, but restoring canonical `references.bib` metadata remains necessary for a fully referenced camera-ready version.
 
 ## Google Colab quickstart
 

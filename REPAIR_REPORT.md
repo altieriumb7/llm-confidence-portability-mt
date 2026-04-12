@@ -26,9 +26,8 @@ The following artifact classes are reproducible via documented shell entrypoints
   - regenerates manuscript-facing examples markdown:
     - `paper/top_mismatch_examples.md`
 - `scripts/generate_all_artifacts.sh`
-  - wrapper orchestration:
-    1. `scripts/regenerate_tables.sh`
-    2. `scripts/regenerate_figures.sh`
+  - compatibility wrapper that forwards to `scripts/build_artifacts.sh`
+  - preserves older documentation command paths while using current workflow internally
 
 No binary artifacts were committed as part of this documentation repair step.
 
@@ -44,7 +43,7 @@ Documentation claims were corrected to match repository reality:
 
 - manuscript entrypoint corrected to `revised_submission_with_new_results.tex`
 - bibliography file documented as `added_refs.bib`
-- pre-compilation artifact workflow explicitly documented (`generate_all_artifacts.sh` or two-step equivalent)
+- pre-compilation artifact workflow explicitly documented (current scripts plus `generate_all_artifacts.sh` compatibility wrapper)
 - live-API dependency scope clarified: Step 2 (`src/02_translate_and_confidence.py`) only
 
 ## 5) Remaining unreproducible elements and limitations
@@ -68,9 +67,8 @@ A final light sweep was performed for broken references, stale filenames, obviou
 
 - No remaining stale `main.tex`/`main_v2.tex` references in current primary README entrypoints.
 - Script entrypoints and manuscript entrypoint are now consistent across `README.md`, `paper/README.md`, and checklist docs.
-- Binary artifact generation ownership is documented (`regenerate_figures.sh`, `generate_all_artifacts.sh`).
+- Binary artifact generation ownership is documented (`regenerate_figures.sh`, `build_artifacts.sh`, `generate_all_artifacts.sh` compatibility wrapper).
 
 ### Tiny residual fixes made
 
 - Aligned `scripts/regenerate_tables.sh` `--examples` output target to `paper/top_mismatch_examples.md` for documentation/path consistency with the rest of the repo flow.
-

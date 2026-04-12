@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-python3}"
+CONFIG="${CONFIG:-configs/models.yaml}"
 
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   echo "ERROR: python binary not found: $PYTHON_BIN" >&2
@@ -18,6 +19,6 @@ echo "[validate] manuscript table drift check"
 "$PYTHON_BIN" tools/export_latex_tables.py --check
 
 echo "[validate] cross-artifact consistency check"
-"$PYTHON_BIN" tools/consistency_check.py
+"$PYTHON_BIN" tools/consistency_check.py --config "$CONFIG"
 
 echo "[validate] all checks passed"

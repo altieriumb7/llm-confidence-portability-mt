@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -56,6 +57,33 @@ def _check_core_values(manuscript: Path, meta: Path) -> None:
         raise SystemExit(f"Threshold mismatch: tau={expected_tau} from meta.json not found in manuscript")
 
 
+def _check_meta_integrity(meta_path: Path, cfg_path: Path) -> None:
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    cfg_text = cfg_path.read_text(encoding="utf-8")
+    expected_hash = hashlib.sha256(cfg_text.encode("utf-8")).hexdigest()
+    got_hash = str(meta.get("config_hash_sha256", "")).strip()
+    if got_hash != expected_hash:
+        raise SystemExit(
+            "meta.json config hash mismatch: "
+            f"{got_hash or '<missing>'} vs expected {expected_hash}"
+        )
+
+    source = str(meta.get("git_commit_source", "")).strip()
+    if source not in {"git_live", "reused_existing_meta", "unavailable"}:
+        raise SystemExit(
+            "meta.json git_commit_source must be one of "
+            "{git_live,reused_existing_meta,unavailable}"
+        )
+    commit = str(meta.get("git_commit", "")).strip()
+    if source == "unavailable" and commit != "unavailable_no_git_or_bundled_commit":
+        raise SystemExit(
+            "meta.json git_commit/source mismatch: unavailable source requires "
+            "git_commit=unavailable_no_git_or_bundled_commit"
+        )
+    if source != "unavailable" and not commit:
+        raise SystemExit("meta.json git_commit is empty despite available commit source")
+
+
 def _check_examples_file(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
     if "_No data available._" in text:
@@ -100,6 +128,13 @@ def _check_metric_consistency(root: Path) -> None:
 
     summary_rows = {r["model"]: r for r in csv.DictReader(summary_csv.open(encoding="utf-8"))}
     results = json.loads(results_json.read_text(encoding="utf-8"))
+    if set(summary_rows) != set(results):
+        missing_in_summary = sorted(set(results) - set(summary_rows))
+        missing_in_results = sorted(set(summary_rows) - set(results))
+        raise SystemExit(
+            "model set mismatch between summary_table.csv and results_by_model.json; "
+            f"missing_in_summary={missing_in_summary}, missing_in_results={missing_in_results}"
+        )
     for model, r in summary_rows.items():
         _assert_close(
             f"{model} summary_csv mismatch@0.9 vs results_json",
@@ -170,6 +205,7 @@ def main() -> int:
     ap.add_argument("--manuscript", default="revised_submission_with_new_results.tex")
     ap.add_argument("--meta", default="runs/aggregated/meta.json")
     ap.add_argument("--examples", default="paper/top_mismatch_examples.md")
+    ap.add_argument("--config", default="configs/models.yaml")
     args = ap.parse_args()
 
     # 1) hard fail if LaTeX tables drift from regenerated artifacts
@@ -183,6 +219,7 @@ def main() -> int:
     manuscript = ROOT / args.manuscript
     _check_tex_inputs(manuscript)
     _check_core_values(manuscript, ROOT / args.meta)
+    _check_meta_integrity(ROOT / args.meta, ROOT / args.config)
     _check_examples_file(ROOT / args.examples)
     _check_metric_consistency(ROOT)
 

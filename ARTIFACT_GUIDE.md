@@ -81,10 +81,22 @@ This runs:
 - `tools/export_latex_tables.py --check`
 - `tools/consistency_check.py`
 
+Current checks verify:
+- manuscript table drift against regenerated LaTeX tables,
+- manuscript `\input{tables/...}` and figure-file wiring,
+- key scalar alignment (`seed`, `n`, `tau`) between manuscript text and `runs/aggregated/meta.json`,
+- numeric consistency across `summary_table.csv`, `results_by_model.json`, calibration/robustness tables, and selective-threshold exports,
+- metadata integrity (`config_hash_sha256` vs active config; provenance field structure).
+
+Current checks do **not** verify:
+- bibliography completeness/resolution in TeX toolchains,
+- narrative correctness of manuscript prose,
+- semantic correctness of examples/figures.
+
 ## 6) Known limitations
 - The bundled snapshot supports deterministic offline regeneration of analysis artifacts only.
 - COMET/xCOMET checkpoints are not bundled in this artifact; enabling learned-metric scoring requires external downloads.
 - A deterministic semantic-audit scaffold is bundled and fully reproducible offline; completed human labels are optional external inputs under `runs/annotations/semantic_audit/*.csv`.
 - Prompt variants beyond `canonical_v1` are configured and executable, but data for those variants requires optional live reruns with API credentials.
 - Live API reruns are not exact reproductions of the snapshot.
-- `references.bib` is included as an empty compatibility file; canonical bibliography metadata is not fully bundled in this zip, so unresolved citations are expected.
+- `references.bib` is included as an empty compatibility file; canonical bibliography metadata is not fully bundled in this zip.
