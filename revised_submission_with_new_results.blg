@@ -1,0 +1,70 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: revised_submission_with_new_results.aux
+The style file: plainnat.bst
+Database file #1: references.bib
+Database file #2: added_refs.bib
+Warning--I didn't find a database entry for "geng-etal-2024-survey"
+Warning--I didn't find a database entry for "yang2024verbalizedconfidence"
+Warning--I didn't find a database entry for "wang2024calibratingverbalized"
+Warning--I didn't find a database entry for "liu2025uqsurvey"
+Warning--I didn't find a database entry for "xue-etal-2025-mlingconf"
+Warning--I didn't find a database entry for "post2018bleu"
+Warning--I didn't find a database entry for "popovic2015chrf"
+Warning--I didn't find a database entry for "rei2020comet"
+Warning--I didn't find a database entry for "sellam2020bleurt"
+Warning--I didn't find a database entry for "guerreiro-etal-2024-xcomet"
+Warning--I didn't find a database entry for "freitag-etal-2024-llms"
+Warning--I didn't find a database entry for "specia2018wmtqe"
+Warning--I didn't find a database entry for "zerva-etal-2024-findings"
+Warning--I didn't find a database entry for "qian-etal-2024-what"
+Warning--I didn't find a database entry for "zouhar-etal-2026-early"
+Warning--I didn't find a database entry for "guo2017calibration"
+Warning--I didn't find a database entry for "geifman2017selective"
+Warning--I didn't find a database entry for "gal2016dropout"
+Warning--I didn't find a database entry for "lakshminarayanan2017simple"
+Warning--I didn't find a database entry for "kuleshov2018accurate"
+Warning--I didn't find a database entry for "kadavath2022language"
+Warning--I didn't find a database entry for "bojar2017wmt17"
+You've used 3 entries,
+            2773 wiz_defined-function locations,
+            642 strings with 6473 characters,
+and the built_in function-call counts, 2472 in all, are:
+= -- 243
+> -- 153
+< -- 3
++ -- 51
+- -- 48
+* -- 204
+:= -- 358
+add.period$ -- 17
+call.type$ -- 3
+change.case$ -- 25
+chr.to.int$ -- 3
+cite$ -- 6
+duplicate$ -- 105
+empty$ -- 166
+format.name$ -- 51
+if$ -- 544
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 3
+newline$ -- 28
+num.names$ -- 12
+pop$ -- 51
+preamble$ -- 1
+purify$ -- 22
+quote$ -- 0
+skip$ -- 95
+stack$ -- 0
+substring$ -- 126
+swap$ -- 36
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 33
+warning$ -- 0
+while$ -- 18
+width$ -- 0
+write$ -- 62
+(There were 22 warnings)
