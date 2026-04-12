@@ -16,6 +16,19 @@ def _pct(x: str | float, nd=1) -> str:
     return f"{100.0 * float(x):.{nd}f}\\%"
 
 
+def _tex(text: str) -> str:
+    s = str(text)
+    return (
+        s.replace("\\", r"\textbackslash{}")
+        .replace("&", r"\&")
+        .replace("%", r"\%")
+        .replace("_", r"\_")
+        .replace("#", r"\#")
+        .replace("{", r"\{")
+        .replace("}", r"\}")
+    )
+
+
 def _render_table(label: str, caption: str, headers: list[str], rows: list[list[str]], align: str) -> str:
     lines = [
         r"\begin{table}[t]",
@@ -44,7 +57,7 @@ def build_summary_table(summary_csv: Path) -> str:
     out = []
     for r in rows:
         out.append([
-            r["model"],
+            _tex(r["model"]),
             f"{_f(r['mean_quality']):.2f}",
             f"{_f(r['ece_within_model_q20']):.3f}",
             _pct(r["mismatch_rate_overall_tau_0.9"]),
@@ -65,7 +78,7 @@ def build_corr_table(results_json: Path) -> str:
     for model in sorted(results):
         corr = results[model]["correlations"]
         out.append([
-            model,
+            _tex(model),
             f"{float(corr['pearson_difficulty_conf']):.3f}",
             f"{float(corr['pearson_difficulty_quality']):.3f}",
             f"{float(corr['pearson_conf_quality']):.3f}",
@@ -84,7 +97,7 @@ def build_robustness_table(results_json: Path) -> str:
     out = []
     for model in sorted(results):
         out.append([
-            model,
+            _tex(model),
             _pct(results[model]["mismatch_rate_overall_within_model_q20_tau_0.9"]),
             _pct(results[model]["mismatch_rate_overall_global_q20_tau_0.9"]),
         ])
@@ -104,7 +117,7 @@ def build_calibration_table(calibration_json: Path) -> str:
     for model in sorted(models):
         m = models[model]["metrics"]
         out.append([
-            model,
+            _tex(model),
             f"{float(m['ece_before']):.3f}",
             f"{float(m['ece_after']):.3f}",
             _pct(m["mismatch_at_0_9_before"]),
@@ -126,8 +139,8 @@ def build_metric_robustness_table(metric_json: Path) -> str:
     for model in sorted(models):
         s = models[model]["summary"]
         out.append([
-            model,
-            s["secondary_metric_label"],
+            _tex(model),
+            _tex(s["secondary_metric_label"]),
             f"{float(s['ece_chrf_q20']):.3f}",
             f"{float(s['ece_secondary_q20']):.3f}",
             _pct(s["mismatch_chrf_tau_0_9"]),
@@ -161,7 +174,7 @@ def build_semantic_audit_table(semantic_json: Path) -> str:
     ]
     return _render_table(
         label="tab:semantic_audit",
-        caption="Deterministic semantic-audit scaffold for high-confidence chrF mismatches. Label rows remain zero until annotation CSV files are added under runs/annotations/semantic_audit/.",
+        caption=r"Deterministic semantic-audit scaffold for high-confidence chrF mismatches. Label rows remain zero until annotation CSV files are added under \texttt{runs/annotations/semantic\_audit/}.",
         headers=["Audit item", "Count"],
         rows=rows,
         align="lc",
@@ -175,7 +188,7 @@ def build_external_comparator_table(comparator_json: Path) -> str:
     for model in sorted(models):
         s = models[model]
         out.append([
-            model,
+            _tex(model),
             f"{float(s['corr_self_conf_vs_chrf']):.3f}",
             f"{float(s['corr_proxy_vs_chrf']):.3f}",
             f"{float(s['accepted_error_self_top_frac']):.3f}",
@@ -198,9 +211,9 @@ def build_prompt_sensitivity_status_table(status_json: Path) -> str:
         variant = row.get("prompt_variant", "")
         tag = "baseline" if variant == default_variant else "variant"
         rows.append([
-            variant,
-            tag,
-            str(row.get("status", "")),
+            _tex(variant),
+            _tex(tag),
+            _tex(str(row.get("status", ""))),
             str(int(row.get("n_models", 0))),
         ])
     return _render_table(
