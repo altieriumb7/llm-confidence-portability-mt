@@ -21,14 +21,12 @@ From repository root:
    ```bash
    bash scripts/build_pdf.sh
    ```
-   The script auto-selects `latexmk` (preferred), `tectonic`, or `pdflatex`+`bibtex` if available.
+   The script auto-selects `latexmk` (preferred) or `tectonic` if available.
    You can force one with:
    ```bash
    PDF_ENGINE=latexmk bash scripts/build_pdf.sh
    # or
    PDF_ENGINE=tectonic bash scripts/build_pdf.sh
-   # or
-   PDF_ENGINE=pdflatex bash scripts/build_pdf.sh
    ```
 
 ## Bibliography note
@@ -60,7 +58,7 @@ fi
 
 cd "$REPO_DIR"
 bash scripts/generate_paper_assets.sh
-PDF_ENGINE=auto bash scripts/build_pdf.sh
+PDF_ENGINE=latexmk bash scripts/build_pdf.sh
 
 echo "Built PDF:"
 ls -lh revised_submission_with_new_results.pdf
