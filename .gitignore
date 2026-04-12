@@ -39,17 +39,3 @@ runs/logs/*
 !runs/logs/.gitkeep
 !runs/logs/README.md
 
-# Locally generated binaries (build locally; do not commit new binary outputs via Codex)
-figures/*.png
-figures/*.pdf
-*.aux
-*.bbl
-*.bcf
-*.blg
-*.fdb_latexmk
-*.fls
-*.log
-*.out
-*.run.xml
-*.synctex.gz
-revised_submission_with_new_results.pdf
