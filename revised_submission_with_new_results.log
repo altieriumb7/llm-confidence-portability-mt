@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.12)  12 APR 2026 15:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.12)  12 APR 2026 17:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -601,196 +601,39 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 30.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 30.
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 3
-0.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 37.
+ [1
 
-(/usr/share/texmf/tex/latex/lm/t1lmtt.fd
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 5
+0.
+ (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
+File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+) [2]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 7
+5.
+ (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-
-
-Package natbib Warning: Citation `geng-etal-2024-survey' on page 1 undefined on
- input line 35.
-
-
-Package natbib Warning: Citation `yang2024verbalizedconfidence' on page 1 undef
-ined on input line 35.
-
-
-Package natbib Warning: Citation `wang2024calibratingverbalized' on page 1 unde
-fined on input line 35.
-
-
-Package natbib Warning: Citation `liu2025uqsurvey' on page 1 undefined on input
- line 35.
-
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 37.
-[1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-
-Package natbib Warning: Citation `yang2024verbalizedconfidence' on page 2 undef
-ined on input line 47.
-
-
-Package natbib Warning: Citation `wang2024calibratingverbalized' on page 2 unde
-fined on input line 47.
-
-
-Package natbib Warning: Citation `xue-etal-2025-mlingconf' on page 2 undefined 
-on input line 47.
-
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 5
-0.
-(/usr/share/texmf/tex/latex/lm/ts1lmr.fd
-File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-
-Package natbib Warning: Citation `post2018bleu' on page 2 undefined on input li
-ne 59.
-
-
-Package natbib Warning: Citation `popovic2015chrf' on page 2 undefined on input
- line 59.
-
-
-Package natbib Warning: Citation `rei2020comet' on page 2 undefined on input li
-ne 59.
-
-
-Package natbib Warning: Citation `sellam2020bleurt' on page 2 undefined on inpu
-t line 59.
-
-
-Package natbib Warning: Citation `guerreiro-etal-2024-xcomet' on page 2 undefin
-ed on input line 59.
-
-
-Package natbib Warning: Citation `freitag-etal-2024-llms' on page 2 undefined o
-n input line 59.
-
-
-Package natbib Warning: Citation `specia2018wmtqe' on page 2 undefined on input
- line 59.
-
-
-Package natbib Warning: Citation `zerva-etal-2024-findings' on page 2 undefined
- on input line 59.
-
-[2]
-
-Package natbib Warning: Citation `qian-etal-2024-what' on page 3 undefined on i
-nput line 62.
-
-
-Package natbib Warning: Citation `zouhar-etal-2026-early' on page 3 undefined o
-n input line 62.
-
-
-Package natbib Warning: Citation `guo2017calibration' on page 3 undefined on in
-put line 65.
-
-
-Package natbib Warning: Citation `geifman2017selective' on page 3 undefined on 
-input line 65.
-
-
-Package natbib Warning: Citation `gal2016dropout' on page 3 undefined on input 
-line 65.
-
-
-Package natbib Warning: Citation `lakshminarayanan2017simple' on page 3 undefin
-ed on input line 65.
-
-
-Package natbib Warning: Citation `kuleshov2018accurate' on page 3 undefined on 
-input line 65.
-
-
-Package natbib Warning: Citation `geng-etal-2024-survey' on page 3 undefined on
- input line 65.
-
-
-Package natbib Warning: Citation `liu2025uqsurvey' on page 3 undefined on input
- line 65.
-
-
-Package natbib Warning: Citation `kadavath2022language' on page 3 undefined on 
-input line 68.
-
-
-Package natbib Warning: Citation `yang2024verbalizedconfidence' on page 3 undef
-ined on input line 68.
-
-
-Package natbib Warning: Citation `wang2024calibratingverbalized' on page 3 unde
-fined on input line 68.
-
-
-Package natbib Warning: Citation `xue-etal-2025-mlingconf' on page 3 undefined 
-on input line 68.
-
-[3]
-
-Package natbib Warning: Citation `bojar2017wmt17' on page 4 undefined on input 
-line 75.
-
-
-Package natbib Warning: Citation `post2018bleu' on page 4 undefined on input li
-ne 75.
-
-[4]
-
-Package natbib Warning: Citation `popovic2015chrf' on page 5 undefined on input
- line 94.
-
-
-Package natbib Warning: Citation `post2018bleu' on page 5 undefined on input li
-ne 94.
-
-
-Package natbib Warning: Citation `rei2020comet' on page 5 undefined on input li
-ne 94.
-
-
-Package natbib Warning: Citation `sellam2020bleurt' on page 5 undefined on inpu
-t line 94.
-
-
-Package natbib Warning: Citation `guerreiro-etal-2024-xcomet' on page 5 undefin
-ed on input line 94.
-
-
-Package natbib Warning: Citation `freitag-etal-2024-llms' on page 5 undefined o
-n input line 94.
-
-[5]
-
-Package natbib Warning: Citation `guo2017calibration' on page 6 undefined on in
-put line 123.
-
-
-Package natbib Warning: Citation `geng-etal-2024-survey' on page 6 undefined on
- input line 123.
-
-
-Package natbib Warning: Citation `liu2025uqsurvey' on page 6 undefined on input
- line 123.
-
-
-Package natbib Warning: Citation `yang2024verbalizedconfidence' on page 6 undef
-ined on input line 130.
-
-
-Package natbib Warning: Citation `wang2024calibratingverbalized' on page 6 unde
-fined on input line 130.
-
-[6] (./tables/summary.tex
+ [3]
+Overfull \hbox (25.50403pt too wide) in paragraph at lines 94--95
+\T1/lmr/m/n/10.95 (-20) com-puted with \T1/lmtt/m/n/10.95 sacrebleu\T1/lmr/m/n/
+10.95 (-20) . In the re-leased code path, this is \T1/lmtt/m/n/10.95 sacrebleu.
+sentence_chrf(hypothesis,
+ []
+
+
+Overfull \hbox (0.35402pt too wide) in paragraph at lines 94--95
+\T1/lmtt/m/n/10.95 references=[ref], char_order=6, word_order=2) \T1/lmr/m/n/10
+.95 (-20) (i.e., sen-tence chrF++ with word n-grams
+ []
+
+[4] [5] [6] (./tables/summary.tex
 Overfull \hbox (19.00525pt too wide) in paragraph at lines 4--18
  [][] 
  []
@@ -800,12 +643,12 @@ Overfull \hbox (48.72684pt too wide) in paragraph at lines 4--18
  [][] 
  []
 
-) [9] (./tables/metric_robustness.tex
+) (./tables/metric_robustness.tex
 Overfull \hbox (267.64537pt too wide) in paragraph at lines 4--18
  [][] 
  []
 
-) (./tables/semantic_audit.tex) (./tables/external_comparator.tex
+) [9] (./tables/semantic_audit.tex) (./tables/external_comparator.tex
 Overfull \hbox (150.61713pt too wide) in paragraph at lines 4--18
  [][] 
  []
@@ -835,82 +678,32 @@ File: figures/fig4_efficiency_frontier.pdf Graphic file (type pdf)
 Package pdftex.def Info: figures/fig4_efficiency_frontier.pdf  used on input li
 ne 220.
 (pdftex.def)             Requested size: 339.72592pt x 242.66565pt.
-
-
-Package natbib Warning: Citation `yang2024verbalizedconfidence' on page 11 unde
-fined on input line 228.
-
-
-Package natbib Warning: Citation `wang2024calibratingverbalized' on page 11 und
-efined on input line 228.
-
-[11]
-
-Package natbib Warning: Citation `xue-etal-2025-mlingconf' on page 12 undefined
- on input line 234.
-
-[12 <./figures/fig1_scatter_difficulty_vs_conf.pdf>] [13 <./figures/fig2_reliab
-ility_diagram_overlay.pdf>]
-
-Package natbib Warning: Citation `rei2020comet' on page 14 undefined on input l
-ine 251.
-
-
-Package natbib Warning: Citation `sellam2020bleurt' on page 14 undefined on inp
-ut line 251.
-
-
-Package natbib Warning: Citation `guerreiro-etal-2024-xcomet' on page 14 undefi
-ned on input line 251.
-
-
-Package natbib Warning: Citation `freitag-etal-2024-llms' on page 14 undefined 
-on input line 251.
-
-[14 <./figures/fig3_mismatch_by_difficulty_bucket.pdf>]
-
-Package natbib Warning: Citation `yang2024verbalizedconfidence' on page 15 unde
-fined on input line 259.
-
-
-Package natbib Warning: Citation `wang2024calibratingverbalized' on page 15 und
-efined on input line 259.
-
-
-Package natbib Warning: Citation `qian-etal-2024-what' on page 15 undefined on 
-input line 265.
-
-
-Package natbib Warning: Citation `zouhar-etal-2026-early' on page 15 undefined 
-on input line 265.
-
-[15 <./figures/fig4_efficiency_frontier.pdf>]
-(./revised_submission_with_new_results.bbl) [16] [17] (./tables/robustness.tex
+ [11] [12 <./figures/fig1_scatter_difficulty_vs_conf.pdf>] [13 <./figures/fig2_
+reliability_diagram_overlay.pdf>] [14 <./figures/fig3_mismatch_by_difficulty_bu
+cket.pdf>] [15 <./figures/fig4_efficiency_frontier.pdf>] (./revised_submission_
+with_new_results.bbl) [16]
+(./tables/robustness.tex
 Overfull \hbox (65.78333pt too wide) in paragraph at lines 4--18
  [][] 
  []
 
-)
-
-Package natbib Warning: There were undefined citations.
-
-[18] (./revised_submission_with_new_results.aux)
+) [17] [18] (./revised_submission_with_new_results.aux)
 Package rerunfilecheck Info: File `revised_submission_with_new_results.out' has
  not changed.
 (rerunfilecheck)             Checksum: 958B91330595EC50F9129B4D4EB92D58;7037.
  ) 
 Here is how much of TeX's memory you used:
- 14924 strings out of 480247
- 241231 string characters out of 5896151
- 567847 words of memory out of 5000000
- 32290 multiletter control sequences out of 15000+600000
- 547973 words of font info for 203 fonts, out of 8000000 for 9000
+ 14913 strings out of 480247
+ 241077 string characters out of 5896151
+ 565847 words of memory out of 5000000
+ 32287 multiletter control sequences out of 15000+600000
+ 547245 words of font info for 198 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,10n,63p,2673b,459s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,10n,63p,1896b,488s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
 ips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/share
 /texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm
--mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}</usr/share/texmf/f
+-ts1.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}</usr/share/texmf/f
 onts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.
 pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts/
 type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></
@@ -919,11 +712,11 @@ ublic/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/shar
 e/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/
 lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf
 /fonts/type1/public/lm/lmtt10.pfb>
-Output written on revised_submission_with_new_results.pdf (18 pages, 419891 byt
+Output written on revised_submission_with_new_results.pdf (18 pages, 418725 byt
 es).
 PDF statistics:
  573 PDF objects out of 1000 (max. 8388607)
  351 compressed objects within 4 object streams
  86 named destinations out of 1000 (max. 500000)
- 43293 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 42781 words of extra memory for PDF output out of 42996 (max. 10000000)
 
