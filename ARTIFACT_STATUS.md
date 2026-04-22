@@ -16,13 +16,17 @@
 
 ## Partially reproducible from this bundle
 - Manuscript PDF compilation is reproducible if local LaTeX toolchain is installed.
-- Bibliography path resolves because `references.bib` is included as an empty compatibility file, but authoritative reference metadata is not fully packaged.
+- Bibliography path resolves because `references.bib` is included as an empty compatibility file; bundled citation metadata currently lives in `added_refs.bib` and legacy canonical metadata is not fully packaged.
 
 ## Not reproducible from zip alone
 - Fresh provider API outputs from Step 2 (`src/02_translate_and_confidence.py`) without credentials/network access.
 - Exact bitwise reproduction of live API outputs due to provider/model drift over time.
 - COMET/xCOMET learned-metric runs without fetching external model checkpoints.
 - Prompt-variant (non-baseline) output generation without provider API access.
+
+## Manuscript variants
+- Full version: `revised_submission_with_new_results.tex`
+- ATC-compressed draft: `revised_submission_atc2026_compressed.tex`
 
 ## Recommended reviewer command
 ```bash

@@ -1,6 +1,6 @@
 # Confidence–Difficulty Mismatch in MT Evaluation
 
-This repository is packaged as a **reviewer artifact** for the paper manuscript in `revised_submission_with_new_results.tex`.
+This repository is packaged as a **reviewer artifact** for the full manuscript `revised_submission_with_new_results.tex` and an ATC-compressed draft `revised_submission_atc2026_compressed.tex`.
 
 ## Quick start (offline, recommended)
 
@@ -12,6 +12,10 @@ This pipeline regenerates manuscript-facing assets from the bundled snapshot and
 
 ## Quick repository orientation
 
+
+- **Manuscript variants**
+  - Full manuscript: `revised_submission_with_new_results.tex`
+  - ATC-compressed draft: `revised_submission_atc2026_compressed.tex` (submission-oriented condensation using only bundled evidence)
 - **Active analysis + paper-facing outputs**
   - `src/` (analysis pipeline)
   - `scripts/` (root-runnable orchestration)
@@ -84,7 +88,7 @@ bash scripts/build_pdf.sh
 - Manuscript PDF (`.pdf`): project root (or `BUILD_DIR`) via `scripts/build_pdf.sh`
 
 ### Known limitation
-The snapshot does not include the full bibliography inputs needed to guarantee fully resolved references in every environment; see `paper/TODO_missing_bibliography.md`.
+The snapshot does not include the canonical legacy bibliography metadata. `references.bib` is an empty compatibility file and bundled entries currently live in `added_refs.bib`; see `paper/TODO_missing_bibliography.md`.
 
 ## Authoritative locations
 

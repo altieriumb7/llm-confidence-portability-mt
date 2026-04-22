@@ -51,4 +51,10 @@ This wrapper is kept for command compatibility and forwards to the active offlin
 
 - Full manuscript PDF build still needs:
   - TeX toolchain (`latexmk` or `pdflatex` + `bibtex`)
-  - missing external file `references.bib`
+  - canonical bibliography metadata is incomplete in this snapshot (`references.bib` is compatibility-only; bundled keys are in `added_refs.bib`)
+
+
+## Submission-oriented manuscript files
+
+- Full manuscript source: `revised_submission_with_new_results.tex`
+- ATC-compressed source: `revised_submission_atc2026_compressed.tex`

@@ -5,7 +5,8 @@ For full artifact reproduction instructions, see `../ARTIFACT_GUIDE.md`.
 
 ## Manuscript source
 
-- Main TeX file: `../revised_submission_with_new_results.tex`
+- Full TeX file: `../revised_submission_with_new_results.tex`
+- ATC-compressed TeX file: `../revised_submission_atc2026_compressed.tex`
 - Tables consumed by TeX: `../tables/*.tex`
 - Figures consumed by TeX: `../figures/*`
 
@@ -19,7 +20,10 @@ From repository root:
    ```
 2. Build PDF (optional, requires LaTeX):
    ```bash
-   bash scripts/build_pdf.sh
+   # full manuscript (default)
+   TEX_MAIN=revised_submission_with_new_results.tex bash scripts/build_pdf.sh
+   # ATC-compressed draft
+   TEX_MAIN=revised_submission_atc2026_compressed.tex bash scripts/build_pdf.sh
    ```
    The script auto-selects `latexmk` (preferred) or `tectonic` if available.
    You can force one with:
@@ -27,6 +31,10 @@ From repository root:
    PDF_ENGINE=latexmk bash scripts/build_pdf.sh
    # or
    PDF_ENGINE=tectonic bash scripts/build_pdf.sh
+   ```
+3. Optional consistency checks:
+   ```bash
+   python3 tools/consistency_check.py
    ```
 
 ## Bibliography note
