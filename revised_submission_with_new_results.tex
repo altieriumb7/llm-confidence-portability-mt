@@ -19,7 +19,7 @@
 \setlength{\parindent}{0pt}
 \renewcommand{\arraystretch}{1.12}
 
-\title{Protocol-Dependent Non-Portability of Self-Reported Confidence in English-to-German Machine Translation Across Providers}
+\title{Provider-Dependent Reliability of Self-Reported Confidence under a Shared Black-Box MT Protocol}
 \author{Umberto Altieri}
 \date{}
 
@@ -27,7 +27,7 @@
 \maketitle
 
 \begin{abstract}
-This paper evaluates whether self-reported confidence is portable across providers for English$\rightarrow$German machine translation under one shared protocol. Eight models (OpenAI, Anthropic, Google) are run at temperature 0 on 500 WMT17 sentences, yielding 4,000 translation--confidence pairs. Quality is scored with sentence-level chrF, and low quality is operationally defined as the within-model bottom 20\% tail. Relative to that target, expected calibration error (ECE) and mismatch@0.9 show large provider differences despite similar mean chrF (54.0--60.1): ECE ranges from 0.076 to 0.180, and mismatch@0.9 ranges from 0.2\% to 18.2\%. The released snapshot also shows uneven parse-warning burden (443/4000 rows; 11.1\%), which is an implementation-level confound for cross-provider comparison. The main conclusion is scoped: under this protocol and chrF-based target, self-reported confidence is not portable as a shared probability scale, and a common threshold (e.g., $\tau=0.9$) does not induce comparable operating points. Supplementary analyses show that provider-specific isotonic remapping can often reduce ECE but does not restore portability. Limitations are explicit: the target is operational rather than semantic, COMET/xCOMET is not bundled offline, the semantic-audit scaffold is included without completed labels in this release, and non-baseline prompt-variant outputs are not bundled.
+This paper studies a trustworthy-AI reliability question for black-box language-model services: can one shared confidence threshold be reused across providers under a common protocol? We evaluate English$\rightarrow$German translation with eight models from OpenAI, Anthropic, and Google on 500 WMT17 sentences (4,000 translation--confidence pairs) at temperature 0. Quality is scored with sentence-level chrF, and low quality is operationally defined as the within-model bottom 20\% tail. Relative to that target, expected calibration error (ECE) and mismatch@0.9 differ widely despite similar mean chrF (54.0--60.1): ECE ranges from 0.076 to 0.180, and mismatch@0.9 ranges from 0.2\% to 18.2\%. The released snapshot also shows uneven parse-warning burden (443/4000 rows; 11.1\%), an implementation-level confound for cross-provider reliability comparisons. The central claim is therefore practical and scoped: under this shared protocol and operational target, self-reported confidence is provider-dependent and non-portable as a common probability scale, so a fixed threshold does not induce comparable routing/abstention operating points. Supplementary analyses indicate that provider-specific isotonic remapping can reduce ECE but does not restore portability. Limitations are explicit: operational (not semantic) target, no bundled COMET/xCOMET checkpoints, no completed semantic-audit labels, and no bundled non-baseline prompt-variant outputs.
 \end{abstract}
 
 \section{Introduction}
@@ -48,9 +48,9 @@ The main result is practical rather than theoretical. Models with similar mean c
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*]
-\item A unified, reproducible pipeline for multi-provider MT evaluation with self-reported confidence, covering prompts, parsing, metrics, analysis, and plots.
-\item An empirical comparison of ECE and high-confidence low-quality mismatch across eight LLMs from three providers under a shared English-to-German MT protocol, framed as a comparison of provider-specific operating points relative to a reproducible chrF-based target.
-\item A secondary stratified analysis using a lightweight source-side surface-complexity proxy, included explicitly as a coarse descriptive analysis rather than a validated measure of translation difficulty.
+\item A reproducible black-box evaluation pipeline for provider-level confidence reliability comparisons under a shared MT protocol.
+\item Evidence that fixed confidence thresholds induce materially different operating points across providers, even when mean translation quality is similar.
+\item A conservative deployment-oriented framing for trustworthy decision support: confidence-guided routing or abstention should be calibrated per provider, with explicit caveats about operational labels, parse burden, and incomplete semantic validation.
 \end{itemize}
 
 \section{Related work}
