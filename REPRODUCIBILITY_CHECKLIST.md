@@ -6,6 +6,32 @@
 bash scripts/reproduce_offline_artifact.sh
 ```
 
+## Reviewer Quickstart: deterministic offline reproduction
+
+### What works without API keys
+- Regenerate manuscript-facing tables/figures/examples from bundled snapshot.
+- Re-run consistency checks and reviewer readiness checks.
+
+### What requires live API calls
+- `run_repro.sh --mode step2` and `run_repro.sh --mode all` (provider calls).
+- Non-baseline prompt variant outputs (`minimal_v2`, `verifier_v3`), which are optional and not bundled offline.
+
+### What is snapshot/artifact-level only
+- Baseline `canonical_v1` prompt outputs.
+- Semantic-audit scaffold and candidate/sample exports; completed semantic labels are not bundled.
+
+### What is intentionally not claimed in offline-only mode
+- Cross-prompt robustness invariance.
+- Semantic correctness calibration against human labels.
+
+### Deterministic reviewer commands
+
+```bash
+bash scripts/generate_paper_assets.sh
+python3 tools/consistency_check.py --config configs/models.yaml
+make reviewer-check
+```
+
 ## Paper-asset-only command
 
 ```bash

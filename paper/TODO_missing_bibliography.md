@@ -6,4 +6,9 @@ For reviewer artifact compatibility, this repository includes:
 
 Canonical metadata for the historical `references.bib` was not bundled in this snapshot.
 
-To avoid unresolved citation placeholders in the manuscript build, the current TeX source cites only keys that are present in `added_refs.bib`. Restoring the full historical bibliography remains a release blocker for a fully referenced final submission.
+Current submission-safe status:
+- Active manuscript citations are restricted to keys present in `added_refs.bib`.
+- `references.bib` remains a compatibility include path placeholder and should not be treated as canonical metadata.
+
+Open TODO for post-submission archival completeness:
+- restore full historical bibliography metadata in `references.bib` with verifiable sources.
