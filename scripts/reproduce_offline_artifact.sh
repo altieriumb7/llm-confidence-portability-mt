@@ -73,8 +73,8 @@ if [[ "$BUILD_MANUSCRIPT" -eq 1 ]]; then
   if command -v latexmk >/dev/null 2>&1; then
     latexmk -pdf -interaction=nonstopmode revised_submission_with_new_results.tex
   else
-    echo "TODO: manuscript build skipped because latexmk is not installed in this environment." >&2
-    echo "TODO: references.bib is also required for bibliography resolution and is not bundled in this repository." >&2
+    echo "NOTE: manuscript build skipped because latexmk is not installed in this environment." >&2
+    echo "NOTE: bibliography metadata is split across references.bib (compatibility placeholder) and added_refs.bib (bundled keys)." >&2
   fi
 fi
 

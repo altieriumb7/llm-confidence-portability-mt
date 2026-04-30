@@ -10,6 +10,41 @@ bash scripts/reproduce_offline_artifact.sh --skip-manuscript
 
 This pipeline regenerates manuscript-facing assets from the bundled snapshot and runs consistency checks. It validates artifact drift and key wiring/metadata checks, but it does **not** validate narrative claims, bibliography completeness, or figure semantics.
 
+## Reviewer Quickstart: deterministic offline reproduction
+
+This section is the intended **reviewer-safe path** for FLLM-style artifact checks.
+
+- **Reproducible without API keys (deterministic, snapshot-based):**
+  - Regenerate manuscript-facing tables/figures/examples from bundled raw snapshot.
+  - Re-run consistency checks for paper/repo wiring and drift.
+- **Requires live provider API keys (non-deterministic over time):**
+  - Step 2 (`run_repro.sh --mode step2` or `--mode all`) model calls.
+  - Non-baseline prompt-variant reruns (`minimal_v2`, `verifier_v3`).
+- **Snapshot/artifact-level only in this bundle:**
+  - Baseline prompt variant (`canonical_v1`) outputs.
+  - Semantic-audit scaffold artifacts (no completed human labels).
+- **Intentionally not claimed by this artifact alone:**
+  - Cross-prompt robustness invariance.
+  - Semantic correctness calibration against human annotation labels.
+
+Deterministic reviewer commands:
+
+```bash
+# regenerate manuscript-facing tables/figures/examples from bundled snapshot
+bash scripts/generate_paper_assets.sh
+
+# run consistency checks
+python3 tools/consistency_check.py --config configs/models.yaml
+
+# run one-pass reviewer readiness checks (files + consistency + bib keys + optional TeX)
+make reviewer-check
+```
+
+Expected outputs after deterministic regeneration:
+- tables: `tables/summary.tex`, `tables/corr.tex`, `tables/robustness.tex`, `tables/calibration.tex`, `tables/metric_robustness.tex`, `tables/semantic_audit.tex`, `tables/prompt_sensitivity_status.tex`
+- figures: `figures/fig1_scatter_difficulty_vs_conf.pdf`, `figures/fig2_reliability_diagram_overlay.pdf`, `figures/fig3_mismatch_by_difficulty_bucket.pdf`, `figures/fig4_efficiency_frontier.pdf`
+- examples: `paper/top_mismatch_examples.md`
+
 ## Quick repository orientation
 
 

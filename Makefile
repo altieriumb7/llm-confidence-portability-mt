@@ -1,4 +1,4 @@
-.PHONY: reproduce-offline reproduce-offline-no-tex paper-assets check-paper-consistency validate-artifact
+.PHONY: reproduce-offline reproduce-offline-no-tex paper-assets check-paper-consistency validate-artifact reviewer-check
 
 reproduce-offline:
 	bash scripts/reproduce_offline_artifact.sh
@@ -14,3 +14,6 @@ check-paper-consistency:
 
 validate-artifact:
 	bash scripts/validate_artifact.sh
+
+reviewer-check:
+	bash scripts/reviewer_check.sh
