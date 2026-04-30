@@ -16,7 +16,7 @@ usage() {
 Usage: bash scripts/reproduce_offline_artifact.sh [options]
 
 Canonical offline artifact pipeline:
-  1) install Python dependencies
+  1) install Python dependencies (best-effort; network dependent)
   2) regenerate aggregate outputs from bundled raw snapshot
   3) regenerate figures + paper-facing mismatch markdown
   4) regenerate supplementary analyses
@@ -31,6 +31,22 @@ Options:
   --config PATH           Config file (default: configs/models.yaml)
   -h, --help              Show this help
 USAGE
+}
+
+print_install_help() {
+  cat <<'HELP' >&2
+Dependency installation guidance:
+  - Online path (default):
+      python3 -m pip install -U pip
+      python3 -m pip install -r requirements.txt
+  - If pip/index access is blocked, this is an environment issue, not a scientific reproducibility failure.
+  - Manual/offline install options:
+      1) install from a local wheelhouse:
+         python3 -m pip install --no-index --find-links /path/to/wheels -r requirements.txt
+      2) use a pre-provisioned virtualenv/container that already has requirements installed.
+  - After dependencies are available, rerun:
+      bash scripts/reproduce_offline_artifact.sh --skip-install
+HELP
 }
 
 while [[ $# -gt 0 ]]; do
@@ -57,8 +73,19 @@ if [[ ! -d "$SNAPSHOT_DIR" ]]; then
 fi
 
 if [[ "$INSTALL_DEPS" -eq 1 ]]; then
+  set +e
   "$PYTHON_BIN" -m pip install --root-user-action=ignore -U pip
+  PIP_UPGRADE_RC=$?
   "$PYTHON_BIN" -m pip install --root-user-action=ignore -r requirements.txt
+  PIP_REQ_RC=$?
+  set -e
+  if [[ "$PIP_UPGRADE_RC" -ne 0 || "$PIP_REQ_RC" -ne 0 ]]; then
+    echo "ERROR: dependency installation failed." >&2
+    echo "ERROR: this usually indicates environment/network/package-index access issues." >&2
+    echo "ERROR: artifact scientific reproducibility cannot be evaluated until dependencies are installed." >&2
+    print_install_help
+    exit 2
+  fi
 fi
 
 if [[ "$RUN_SUPPLEMENTARY" -eq 1 ]]; then

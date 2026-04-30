@@ -1,9 +1,21 @@
 # Reproducibility Checklist
 
+This repository documents reproducibility as three explicit levels:
+
+- **Level A (claimed):** deterministic regeneration of manuscript-facing assets from bundled snapshot artifacts.
+- **Level B (claimed):** deterministic consistency/wiring checks over generated assets and manuscript references.
+- **Level C (not claimed in bundled artifact):** live provider/API end-to-end reruns that depend on credentials and evolving external services.
+
 ## Canonical offline command
 
 ```bash
 bash scripts/reproduce_offline_artifact.sh
+```
+
+Reviewer-safe one-command path (skip optional TeX build):
+
+```bash
+bash scripts/reproduce_offline_artifact.sh --skip-manuscript
 ```
 
 ## Reviewer Quickstart: deterministic offline reproduction
@@ -64,6 +76,14 @@ python3 tools/consistency_check.py
 ```
 
 Fails on table drift, manuscript wiring gaps, key metric inconsistencies, or metadata/config integrity mismatches.
+
+## Checksum verification
+
+```bash
+sha256sum -c CHECKSUMS.sha256
+```
+
+Integrity mismatches indicate packaging/file drift and should be resolved before interpreting reproduction outcomes.
 
 ## Legacy-compatible wrapper
 
