@@ -10,6 +10,21 @@ bash scripts/reproduce_offline_artifact.sh --skip-manuscript
 
 This pipeline regenerates manuscript-facing assets from the bundled snapshot and runs consistency checks. It validates artifact drift and key wiring/metadata checks, but it does **not** validate narrative claims, bibliography completeness, or figure semantics.
 
+## Reproducibility levels (A/B/C)
+
+- **Level A — Deterministic artifact regeneration (claimed):**
+  regenerate manuscript-facing assets from the bundled snapshot with no live provider calls.
+- **Level B — Consistency and wiring validation (claimed):**
+  run repository checks for table/figure drift, manuscript wiring, and metadata/config integrity.
+- **Level C — End-to-end live rerun with provider APIs (not claimed in this bundle):**
+  live API responses are time-varying and depend on external credentials/services.
+
+One-command reviewer path (A+B):
+
+```bash
+bash scripts/reproduce_offline_artifact.sh --skip-manuscript
+```
+
 ## Reviewer Quickstart: deterministic offline reproduction
 
 This section is the intended **reviewer-safe path** for FLLM-style artifact checks.
@@ -124,6 +139,14 @@ bash scripts/build_pdf.sh
 
 ### Known limitation
 The snapshot does not include the canonical legacy bibliography metadata. `references.bib` is an empty compatibility file and bundled entries currently live in `added_refs.bib`; see `paper/TODO_missing_bibliography.md`.
+
+## Checksum verification
+
+Use the bundled checksums to verify file integrity before reproduction:
+
+```bash
+sha256sum -c CHECKSUMS.sha256
+```
 
 ## Authoritative locations
 

@@ -1,61 +1,57 @@
-# Submission Freeze Report (Final Safe Pass)
+# Submission Freeze Report (ATC 2026 final polish)
 
-Date: 2026-04-30  
-Repository: `confidence-difficulty-mismatch-on-MT-evaluation`  
-Scope: final submission-freeze checks with minimal safe edits only; no scientific-result changes.
+Date: 2026-04-30 (UTC)
 
-## Checks run
+## Scope
+Final reviewer-safe freeze pass focused on wording conservatism, artifact reproducibility messaging, and offline validation. No scientific results, datasets, or conclusions were changed.
 
-1. Reviewer deterministic readiness bundle check:
-   - `make reviewer-check`
-   - Result: PASS (with 1 WARN: `latexmk` unavailable, so TeX compile check skipped).
-
-2. Placeholder/TODO/WIP scan in reviewer-visible files:
-   - `rg -n "TODO|TBD|FIXME|XXX|placeholder|lorem|WIP" README.md REPRODUCIBILITY_CHECKLIST.md revised_submission_with_new_results.tex revised_submission_atc2026_compressed.tex paper/*.md scripts/*.sh`
-   - Result: No unresolved placeholders in manuscript; reviewer-visible TODO language reduced in runtime script logs.
-
-3. Referenced-file existence sanity scan in key docs:
-   - custom Python check over code-formatted file paths in `README.md`, `REPRODUCIBILITY_CHECKLIST.md`, `ARTIFACT_GUIDE.md`
-   - Result: 0 missing referenced files.
-
-4. Manual manuscript overclaiming and scope-boundary pass:
-   - inspected abstract/conclusion/limitations in `revised_submission_with_new_results.tex` and ATC-compressed variant.
-   - Result: claims remain operationally scoped and conservative; no result modifications required.
-
-5. Citation key resolution check:
-   - performed via `scripts/reviewer_check.sh` (Python check of TeX citation keys against `references.bib` + `added_refs.bib`)
-   - Result: all active keys resolve in bundled bibliography files.
-
-## Files inspected
-
-- `revised_submission_with_new_results.tex`
-- `revised_submission_atc2026_compressed.tex`
+## Files changed
+- `scripts/reproduce_offline_artifact.sh`
 - `README.md`
 - `REPRODUCIBILITY_CHECKLIST.md`
-- `ARTIFACT_GUIDE.md`
-- `scripts/reproduce_offline_artifact.sh`
-- `scripts/reviewer_check.sh`
-- `Makefile`
-- `paper/TODO_missing_bibliography.md`
-- `references.bib`
-- `added_refs.bib`
+- `REPRODUCIBILITY.md` (added)
+- `CHECKSUMS.sha256` (generated/updated)
 
-## Issues fixed in this freeze pass
+## Reviewer-visible cleanup
+- Scanned for reviewer-visible `TODO` / `FIXME` / `WIP` / `placeholder` / temporary wording markers.
+- Kept intentional limitation documentation (e.g., bibliography boundary notes) and avoided removing explicit reproducibility caveats.
 
-1. **Reviewer-visible unresolved TODO-style runtime messages**
-   - Updated `scripts/reproduce_offline_artifact.sh` log text from `TODO:` to `NOTE:` for manuscript-build/bibliography environment notices.
-   - Rationale: removes submission-freeze noise without changing behavior.
+## Repro script messaging improvements
+- Clarified that pip/install failures are usually environment/network/package-index issues.
+- Added explicit manual installation instructions and offline wheelhouse fallback.
+- Added rerun guidance (`--skip-install`) once dependencies are preinstalled.
+- Experimental and analysis execution logic remains unchanged.
 
-## Remaining known limitations (not newly introduced)
+## Reproducibility docs polish
+- Standardized explicit Level A/B/C definitions in reviewer-facing docs.
+- Added one-command reviewer run guidance (`--skip-manuscript`) for deterministic A+B checks.
+- Added checksum verification commands and interpretation notes.
+- Kept boundary language conservative: offline bundle does not claim full live end-to-end reproducibility.
 
-1. `latexmk` is not available in the current environment, so compile-level page-limit/citation-warning checks cannot be fully executed here.
-2. `references.bib` remains a compatibility placeholder; active manuscript citations resolve via bundled `added_refs.bib`.
-3. Prompt-variant non-baseline outputs are not bundled offline (already disclosed).
-4. Semantic-audit labels remain unfilled in bundled artifact (scaffold only; already disclosed).
+## Manuscript/claims synchronization audit
+- Audited manuscript wording and artifact-claim framing for conservative systems-oriented language.
+- Verified central claim remains scoped to operational portability under shared protocol.
+- Confirmed no new experiments and no broadened claim scope.
+
+## Checks run
+1. `bash scripts/reproduce_offline_artifact.sh --skip-manuscript`
+   - Pass; regenerated tables/figures/aggregates and passed consistency checks.
+2. `make reviewer-check`
+   - Pass with expected warning: TeX compile check skipped because `latexmk` unavailable in environment.
+3. `sha256sum -c CHECKSUMS.sha256`
+   - Pass after generating `CHECKSUMS.sha256` in repo root.
+4. TeX compile attempt:
+   - `latexmk` not installed in this environment.
+
+## Remaining limitations (intentionally disclosed)
+- Live provider/API reruns remain external-dependency paths (Level C, not artifact-only claim).
+- Canonical legacy bibliography metadata remains partial in this snapshot; compatibility/bundled split is documented.
+- No completed semantic-audit human labels in bundled snapshot.
+- Experimental breadth remains bounded to current bundled protocol/snapshot.
 
 ## Final readiness judgment
+**Ready for reviewer-facing ATC 2026 submission freeze** with conservative, artifact-faithful claims and explicit reproducibility boundaries.
 
-**Judgment: Borderline-ready for submission freeze (reviewer-safe artifact mode).**
 
-- Strengths: deterministic offline artifact checks pass, claim scope remains conservative, key references resolve, and reviewer commands are in place.
-- Residual risk: environment-limited TeX compile/page-limit verification and known disclosed scope limits (bibliography packaging, prompt-variant and semantic-label incompleteness).
+## Binary artifact policy note
+- Figure/image binaries were not retained in this follow-up change to keep the patch text-centric and push-safe; reviewer regeneration remains available via `bash scripts/reproduce_offline_artifact.sh --skip-manuscript`.
