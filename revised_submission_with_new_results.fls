@@ -1,4 +1,4 @@
-PWD /content/confidence-difficulty-mismatch-on-MT-evaluation
+PWD /content/confidence-difficulty-mismatch-on-MT-evaluation/confidence-difficulty-mismatch-on-MT-evaluation
 INPUT /etc/texmf/web2c/texmf.cnf
 INPUT /usr/share/texmf/web2c/texmf.cnf
 INPUT /usr/share/texlive/texmf-dist/web2c/texmf.cnf

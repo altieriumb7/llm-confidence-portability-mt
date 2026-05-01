@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.4.12)  12 APR 2026 17:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2026.5.1)  1 MAY 2026 10:15
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -680,9 +680,13 @@ ne 220.
 (pdftex.def)             Requested size: 339.72592pt x 242.66565pt.
  [11] [12 <./figures/fig1_scatter_difficulty_vs_conf.pdf>] [13 <./figures/fig2_
 reliability_diagram_overlay.pdf>] [14 <./figures/fig3_mismatch_by_difficulty_bu
-cket.pdf>] [15 <./figures/fig4_efficiency_frontier.pdf>] (./revised_submission_
-with_new_results.bbl) [16]
-(./tables/robustness.tex
+cket.pdf>] [15 <./figures/fig4_efficiency_frontier.pdf>]
+Overfull \hbox (15.32811pt too wide) in paragraph at lines 268--269
+\T1/lmr/m/n/10.95 (-20) A re-pro-ducibil-ity pack-age ac-com-pa-nies the pa-per
+. Repos-i-tory: []$\T1/lmtt/m/n/10.95 https : / / github . com / altieriumb7 /
+ []
+
+(./revised_submission_with_new_results.bbl) [16] (./tables/robustness.tex
 Overfull \hbox (65.78333pt too wide) in paragraph at lines 4--18
  [][] 
  []
@@ -693,13 +697,13 @@ Package rerunfilecheck Info: File `revised_submission_with_new_results.out' has
 (rerunfilecheck)             Checksum: 958B91330595EC50F9129B4D4EB92D58;7037.
  ) 
 Here is how much of TeX's memory you used:
- 14913 strings out of 480247
- 241077 string characters out of 5896151
- 565847 words of memory out of 5000000
+ 14903 strings out of 480247
+ 240973 string characters out of 5896152
+ 565822 words of memory out of 5000000
  32287 multiletter control sequences out of 15000+600000
- 547245 words of font info for 198 fonts, out of 8000000 for 9000
+ 546830 words of font info for 193 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,10n,63p,1896b,488s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,10n,63p,1896b,486s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dv
 ips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/share
 /texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm
@@ -712,11 +716,11 @@ ublic/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/shar
 e/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/
 lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf
 /fonts/type1/public/lm/lmtt10.pfb>
-Output written on revised_submission_with_new_results.pdf (18 pages, 418725 byt
+Output written on revised_submission_with_new_results.pdf (18 pages, 417888 byt
 es).
 PDF statistics:
- 573 PDF objects out of 1000 (max. 8388607)
- 351 compressed objects within 4 object streams
+ 575 PDF objects out of 1000 (max. 8388607)
+ 353 compressed objects within 4 object streams
  86 named destinations out of 1000 (max. 500000)
  42781 words of extra memory for PDF output out of 42996 (max. 10000000)
 
