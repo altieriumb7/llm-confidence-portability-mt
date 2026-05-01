@@ -30,18 +30,18 @@ We study whether prompt-elicited self-reported confidence can be reused across p
 Across eight models, mean chrF is relatively clustered while confidence behavior is not. This disconnect creates portability risk: identical threshold policies can produce materially different high-confidence failure rates. We therefore treat confidence as a provider-specific decision signal unless calibrated per provider.
 
 \section{Related work}
-MT reliability work spans reference-based evaluation (e.g., BLEU/chrF), learned metrics, and QE without references. This paper does not propose a new metric or QE model; it asks whether the generating model's own confidence is stable enough for cross-provider threshold transfer \citep{blatz-etal-2004-confidence}.
+MT reliability work spans reference-based evaluation (e.g., BLEU/chrF), learned metrics, and QE without references \citep{papineni-etal-2002-bleu,popovic-2015-chrf,rei-etal-2020-comet,guerreiro-etal-2024-xcomet,rei-etal-2022-cometkiwi}. This paper does not propose a new metric or QE model; it asks whether the generating model's own confidence is stable enough for cross-provider threshold transfer \citep{blatz-etal-2004-confidence}.
 
-In LLM settings, confidence and calibration have become central for selective prediction and abstention. Prior work shows miscalibration in modern models and motivates post-hoc correction methods; black-box settings are particularly challenging because token-level internals are unavailable \citep{ulmer-etal-2024-calibrating}.
+In LLM settings, confidence and calibration have become central for selective prediction and abstention \citep{el-yaniv-wiener-2010-foundations}. Prior work shows miscalibration in modern models and motivates post-hoc correction methods \citep{guo-etal-2017-calibration,jiang-etal-2021-calibration-lm,tian-etal-2023-just-ask}; black-box settings are particularly challenging because token-level internals are unavailable \citep{ulmer-etal-2024-calibrating}.
 
 Recent work on verbalized/self-reported confidence indicates useful signal but also sensitivity to elicitation and imperfect uncertainty expression \citep{yona-etal-2024-large}. Our contribution is a constrained MT portability test: same task, same protocol, multiple providers, and operational chrF/BLEU targets.
 
 \section{Methods}
-\textbf{Setup.} We evaluate WMT17 en$\rightarrow$de with a fixed 500-sentence sample (seed 123). Eight models (OpenAI/Anthropic/Google) each produce one translation and one scalar confidence in $[0,1]$ per sentence (4,000 outputs total). Canonical prompts and JSON schema are shared; provider adapters only handle transport.
+\textbf{Setup.} We evaluate WMT17 en$\rightarrow$de with a fixed 500-sentence sample (seed 123) \citep{bojar-etal-2017-findings}. Eight models (OpenAI/Anthropic/Google) each produce one translation and one scalar confidence in $[0,1]$ per sentence (4,000 outputs total). Canonical prompts and JSON schema are shared; provider adapters only handle transport.
 
-\textbf{Operational target.} Sentence-level chrF is the primary quality signal. Low quality is the within-model bottom 20\% chrF tail. This is an operational overlap-based target, not semantic correctness calibration. A secondary robustness stage uses the strongest available alternative metric in the environment (BLEU fallback when COMET is unavailable).
+\textbf{Operational target.} Sentence-level chrF is the primary quality signal \citep{popovic-2015-chrf}. Low quality is the within-model bottom 20\% chrF tail. This is an operational overlap-based target, not semantic correctness calibration. A secondary robustness stage uses the strongest available alternative metric in the environment (BLEU fallback when COMET is unavailable) \citep{papineni-etal-2002-bleu,rei-etal-2020-comet}.
 
-\textbf{Metrics.} With 10 bins, ECE is computed against the binary non-low-quality label:
+\textbf{Metrics.} With 10 bins, ECE is computed against the binary non-low-quality label, following standard calibration usage of ECE in modern ML \citep{guo-etal-2017-calibration}:
 \[
 \mathrm{ECE}=\sum_{b=1}^{B}\frac{|S_b|}{N}\left|\mathrm{acc}(S_b)-\mathrm{conf}(S_b)\right|.
 \]
@@ -60,7 +60,7 @@ Table~\ref{tab:main} shows the core result. Mean chrF is similar (54.0--60.1), b
 
 \input{tables/summary}
 
-Provider-specific isotonic remapping can reduce ECE for several models on held-out data, but gains are uneven and not portable; one model worsens in held-out ECE. This supports mitigation as provider-specific, not universal portability restoration.
+Provider-specific isotonic remapping can reduce ECE for several models on held-out data, but gains are uneven and not portable; one model worsens in held-out ECE. This follows classic post-hoc probability calibration practice where isotonic mapping is model-specific \citep{niculescu-mizil-caruana-2005-probabilities}. This supports mitigation as provider-specific, not universal portability restoration.
 
 \input{tables/calibration}
 
@@ -83,7 +83,7 @@ Full prompts, mismatch examples, robustness exports, and artifact-level provenan
 \section{Conclusion}
 Across 500 WMT17 sentences and 4,000 outputs from eight LLMs, confidence portability fails under a shared black-box MT protocol: similar mean chrF coexists with large cross-provider gaps in ECE and mismatch@0.9. The central claim is practical and scoped to this operational target.
 
-Provider-specific isotonic calibration may mitigate alignment within providers, but it does not restore a shared probability scale across providers. Deployment should therefore use provider-specific threshold tuning/calibration or stronger external evaluator layers rather than assuming universal threshold portability.
+Provider-specific isotonic calibration may mitigate alignment within providers, but it does not restore a shared probability scale across providers. Deployment should therefore use provider-specific threshold tuning/calibration or stronger external evaluator layers rather than assuming universal threshold portability; stronger learned evaluators are a natural next layer \citep{kocmi-federmann-2023-large,freitag-etal-2022-results}.
 
 \bibliographystyle{plainnat}
 \bibliography{references,added_refs}

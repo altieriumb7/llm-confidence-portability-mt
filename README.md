@@ -60,12 +60,36 @@ Expected outputs after deterministic regeneration:
 - figures: `figures/fig1_scatter_difficulty_vs_conf.pdf`, `figures/fig2_reliability_diagram_overlay.pdf`, `figures/fig3_mismatch_by_difficulty_bucket.pdf`, `figures/fig4_efficiency_frontier.pdf`
 - examples: `paper/top_mismatch_examples.md`
 
+
+## Canonical paper build (submission-safe)
+
+Use a single canonical entrypoint for paper compilation:
+
+```bash
+bash run_paper.sh --variant 10page
+```
+
+This command:
+- regenerates metadata-driven paper assets (`tables/`, `figures/`),
+- compiles `revised_submission_with_new_results_10p.tex`,
+- writes submission PDF to `build/paper_10page.pdf`,
+- prints page count and fails if the PDF is over 10 pages.
+
+Long draft build (non-submission):
+
+```bash
+bash run_paper.sh --variant long
+```
+
+Long draft PDF is written to `build/paper_long.pdf` with no 10-page gate.
+
 ## Quick repository orientation
 
 
 - **Manuscript variants**
+  - Submission 10-page manuscript: `revised_submission_with_new_results_10p.tex`
   - Full manuscript: `revised_submission_with_new_results.tex`
-  - ATC-compressed draft: `revised_submission_atc2026_compressed.tex` (submission-oriented condensation using only bundled evidence)
+  - ATC-compressed draft: `revised_submission_atc2026_compressed.tex`
 - **Active analysis + paper-facing outputs**
   - `src/` (analysis pipeline)
   - `scripts/` (root-runnable orchestration)

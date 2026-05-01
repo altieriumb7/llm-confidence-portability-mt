@@ -1,0 +1,10 @@
+submission_variant: 10page
+variants:
+  long:
+    tex: revised_submission_with_new_results.tex
+    output_pdf: build/paper_long.pdf
+    max_pages: null
+  10page:
+    tex: revised_submission_with_new_results_10p.tex
+    output_pdf: build/paper_10page.pdf
+    max_pages: 10
