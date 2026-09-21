@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Model & Mean COMET & Spearman & AUROC \\
+\midrule
+claude-haiku-4-5-20251001 & 0.858 & 0.474 & 0.711 \\
+claude-opus-4-6 & 0.852 & 0.504 & 0.799 \\
+claude-sonnet-4-5-20250929 & 0.844 & 0.595 & 0.788 \\
+gemini-2.5-flash & 0.815 & 0.135 & 0.596 \\
+gemini-2.5-pro & 0.875 & 0.324 & 0.607 \\
+gpt-5-mini & 0.869 & 0.250 & 0.627 \\
+gpt-5-nano & 0.851 & 0.342 & 0.657 \\
+gpt-5.2 & 0.874 & 0.409 & 0.714 \\
+\bottomrule
+\end{tabular}
+\caption{COMET-based evaluation. Low quality defined as bottom 20\% COMET within model.}
+\label{tab:comet}
+\end{table}
