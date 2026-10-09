@@ -17,22 +17,22 @@
 \maketitle
 
 \begin{abstract}
-This paper evaluates a trustworthy-AI reliability question for black-box language-model services: whether one confidence threshold can be reused across providers under a shared protocol. We run eight models from OpenAI, Anthropic, and Google on 500 WMT17 English$\rightarrow$German sentences (4,000 translation--confidence pairs), with sentence-level chrF and an operational low-quality target (within-model bottom 20\%). Despite similar mean chrF (54.0--60.1), provider reliability differs sharply: ECE spans 0.076--0.180 and mismatch@0.9 spans 0.2\%--18.2\%. The released snapshot also shows uneven parse-warning burden (443/4000 rows; 11.1\%), which is an implementation-level confound. The supported conclusion is narrow: under this protocol and target, self-reported confidence is not portable as a shared probability scale, so common thresholds do not yield comparable routing/abstention operating points. We also report conservative limitations: no bundled COMET/xCOMET checkpoints, no completed semantic-audit labels, and no bundled non-baseline prompt-variant outputs.
+This paper evaluates a trustworthy-AI reliability question for black-box language-model services: whether one confidence threshold can be reused across providers under a shared protocol. I run eight models from OpenAI, Anthropic, and Google on 500 WMT17 English$\rightarrow$German sentences (4,000 translation--confidence pairs), with sentence-level chrF and an operational low-quality target (within-model bottom 20\%). Despite similar mean chrF (54.0--60.1), provider reliability differs sharply: ECE spans 0.076--0.180 and mismatch@0.9 spans 0.2\%--18.2\%. The released snapshot also shows uneven parse-warning burden (443/4000 rows; 11.1\%), which is an implementation-level confound. The supported conclusion is narrow: under this protocol and target, self-reported confidence is not portable as a shared probability scale, so common thresholds do not yield comparable routing/abstention operating points. I also report conservative limitations: no bundled COMET/xCOMET checkpoints, no completed semantic-audit labels, and no bundled non-baseline prompt-variant outputs.
 \end{abstract}
 
 \section{Introduction}
-Confidence-guided routing and abstention policies are increasingly used in AI-assisted workflows, but they often assume that scores from different providers are comparable on a common scale. This paper tests that assumption in a controlled black-box setting. We use the same prompt protocol and JSON schema across providers, collect translation and post-hoc self-reported confidence, and evaluate reliability against a reproducible operational target.
+Confidence-guided routing and abstention policies are increasingly used in AI-assisted workflows, but they often assume that scores from different providers are comparable on a common scale. This paper tests that assumption in a controlled black-box setting. I use the same prompt protocol and JSON schema across providers, collect translation and post-hoc self-reported confidence, and evaluate reliability against a reproducible operational target.
 
-Our framing is trustworthy AI rather than generic MT quality: if identical threshold policies induce materially different failure rates across providers, confidence cannot be treated as a portable control signal. This matters for safe decision support pipelines that switch or combine providers.
+My framing is trustworthy AI rather than generic MT quality: if identical threshold policies induce materially different failure rates across providers, confidence cannot be treated as a portable control signal. This matters for safe decision support pipelines that switch or combine providers.
 
 \section{Setup and Metrics}
-\textbf{Data and models.} We use 500 WMT17 \texttt{en-de} sentences (seed 123), eight models across three providers, and temperature 0. This yields 4,000 outputs.
+\textbf{Data and models.} I use 500 WMT17 \texttt{en-de} sentences (seed 123), eight models across three providers, and temperature 0. This yields 4,000 outputs.
 
 \textbf{Protocol.} Each input gets a translation call and a confidence call, both strict JSON. Prompts are rendered from shared templates; provider adapters handle transport.
 
 \textbf{Operational target.} Low quality is defined as the within-model bottom 20\% by sentence chrF. The study is therefore about alignment to an operational overlap-based event, not semantic correctness calibration.
 
-\textbf{Primary diagnostics.} We report ECE (10 bins) and mismatch@0.9, where mismatch is
+\textbf{Primary diagnostics.} I report ECE (10 bins) and mismatch@0.9, where mismatch is
 \[
 \Pr(\text{low-quality} \wedge \text{confidence}>0.9).
 \]

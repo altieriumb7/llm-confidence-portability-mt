@@ -1,6 +1,6 @@
-\documentclass[11pt]{article}
+\documentclass[10pt,conference]{IEEEtran}
 
-\usepackage[a4paper,margin=1in]{geometry}
+% \usepackage[a4paper,margin=1in]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
@@ -27,7 +27,7 @@
 \maketitle
 
 \begin{abstract}
-This paper studies a trustworthy-AI reliability question for black-box language-model services: can one shared confidence threshold be reused across models under a common protocol? We evaluate English$\rightarrow$German translation with eight models from OpenAI, Anthropic, and Google on 500 WMT17 sentences (4,000 translation--confidence pairs) at temperature 0. Quality is scored with sentence-level chrF, and low quality is operationally defined as the within-model bottom 20\% tail. Relative to that target, expected calibration error (ECE) and mismatch@0.9 differ widely despite similar mean chrF (54.0--60.1): ECE ranges from 0.076 to 0.180, and mismatch@0.9 ranges from 0.2\% to 18.2\%. The released snapshot also shows uneven parse-warning burden (443/4000 rows; 11.1\%), an implementation-level confound for cross-model reliability comparisons. The central claim is therefore practical and scoped: under this shared protocol and operational target, self-reported confidence is model-dependent and non-portable as a common probability scale, so a fixed threshold does not induce comparable routing/abstention operating points. Supplementary analyses indicate that model-specific isotonic remapping can reduce ECE but does not restore portability. Limitations are explicit: operational (not semantic) target, no bundled COMET/xCOMET checkpoints, no completed semantic-audit labels, and no bundled non-baseline prompt-variant outputs.
+This paper studies a trustworthy-AI reliability question for black-box language-model services: can one shared confidence threshold be reused across models under a common protocol? I evaluate English$\rightarrow$German translation with eight models from OpenAI, Anthropic, and Google on 500 WMT17 sentences (4,000 translation--confidence pairs) at temperature 0. Quality is scored with sentence-level chrF, and low quality is operationally defined as the within-model bottom 20\% tail. Relative to that target, expected calibration error (ECE) and mismatch@0.9 differ widely despite similar mean chrF (54.0--60.1): ECE ranges from 0.076 to 0.180, and mismatch@0.9 ranges from 0.2\% to 18.2\%. The released snapshot also shows uneven parse-warning burden (443/4000 rows; 11.1\%), an implementation-level confound for cross-model reliability comparisons. The central claim is therefore practical and scoped: under this shared protocol and operational target, self-reported confidence is model-dependent and non-portable as a common probability scale, so a fixed threshold does not induce comparable routing/abstention operating points. Supplementary analyses indicate that model-specific isotonic remapping can reduce ECE but does not restore portability. Limitations are explicit: operational (not semantic) target, no bundled COMET/xCOMET checkpoints, no completed semantic-audit labels, and no bundled non-baseline prompt-variant outputs.
 \end{abstract}
 
 \section{Introduction}
@@ -67,7 +67,7 @@ Modern neural networks are often miscalibrated. Calibrated probabilities are use
 \paragraph{Verbalized confidence and self-evaluation in LLMs.}
 Prior work suggests that language models can sometimes assess the validity of their own outputs when asked in the right format. More recent work studies verbalized confidence directly: Yang et al.\ show that such scores can be useful but are highly prompt-dependent, while Wang et al.\ analyze how post-hoc calibration can improve verbalized probability estimates for black-box models. Yona et al.\ further show that models often fail to express intrinsic uncertainty faithfully in words, which is directly relevant when a scalar confidence is elicited through natural-language instructions rather than read from model internals \citep{yona-etal-2024-large}. In multilingual settings, MlingConf shows that confidence estimation itself can vary across languages and prompting conditions.
 
-Relative to QE, uncertainty-aware MT evaluation, and LLM-as-evaluator work, the present paper studies a narrower but practically distinct signal: the self-reported confidence emitted by the same black-box model that produced the translation. While prior studies establish that verbalized confidence is prompt-dependent and often uncalibrated in the absolute sense, our incremental claim is specifically about \emph{cross-model portability} under a \emph{fixed, shared protocol}. The question addressed here is therefore not whether self-reported confidence is the best possible reliability estimator or whether it can be fixed with custom prompts, but whether the default interface is stable enough across models to support shared threshold policies (e.g., abstention routers) under a single prompt. The results suggest that, under the protocol and target used here, it is fundamentally non-portable: one model's 0.9 is not another model's 0.9, meaning fixed thresholds will inadvertently induce wildly different operating points depending on the backend model.
+Relative to QE, uncertainty-aware MT evaluation, and LLM-as-evaluator work, the present paper studies a narrower but practically distinct signal: the self-reported confidence emitted by the same black-box model that produced the translation. While prior studies establish that verbalized confidence is prompt-dependent and often uncalibrated in the absolute sense, my incremental claim is specifically about \emph{cross-model portability} under a \emph{fixed, shared protocol}. The question addressed here is therefore not whether self-reported confidence is the best possible reliability estimator or whether it can be fixed with custom prompts, but whether the default interface is stable enough across models to support shared threshold policies (e.g., abstention routers) under a single prompt. The results suggest that, under the protocol and target used here, it is fundamentally non-portable: one model's 0.9 is not another model's 0.9, meaning fixed thresholds will inadvertently induce wildly different operating points depending on the backend model.
 
 \section{Experimental setup}
 
@@ -116,7 +116,7 @@ The pipeline consists of dataset creation, model calls, feature extraction and m
 \subsection{Reference-based quality}
 Each translation is scored against the reference using sentence-level chrF as the main quality signal, computed with \texttt{sacrebleu}. In the released code path, this is \texttt{sacrebleu.sentence\_chrf(hypothesis, references=[ref], char\_order=6, word\_order=2)} (i.e., sentence chrF++ with word n-grams enabled). chrF is inexpensive, easy to reproduce, and still widely used in WMT-style evaluation.
 
-The reliance on chrF for defining the low-quality label raises important questions regarding construct validity, especially when compared to state-of-the-art neural metrics like COMET. While chrF effectively measures surface-level string overlap and is robust to minor morphological variations, it can penalize semantically accurate paraphrases, leading to a potential divergence between our operational low-quality label and true semantic incorrectness. Neural metrics like COMET have demonstrated stronger correlation with human judgments precisely because they capture semantic equivalence beyond surface overlap. Therefore, the findings here pertain specifically to the construct of literal fidelity as measured by chrF; extending these portability claims to semantic correctness would require validation against a COMET-based or human-annotated target. Sentence-level BLEU is also computed by the pipeline and remains available as a conservative overlap-based secondary check. COMET/xCOMET are not used in the released offline artifact because the required packages and checkpoints are not bundled and would require additional external downloads.
+The reliance on chrF for defining the low-quality label raises important questions regarding construct validity, especially when compared to state-of-the-art neural metrics like COMET. While chrF effectively measures surface-level string overlap and is robust to minor morphological variations, it can penalize semantically accurate paraphrases, leading to a potential divergence between my operational low-quality label and true semantic incorrectness. Neural metrics like COMET have demonstrated stronger correlation with human judgments precisely because they capture semantic equivalence beyond surface overlap. Therefore, the findings here pertain specifically to the construct of literal fidelity as measured by chrF; extending these portability claims to semantic correctness would require validation against a COMET-based or human-annotated target. Sentence-level BLEU is also computed by the pipeline and remains available as a conservative overlap-based secondary check. COMET/xCOMET are not used in the released offline artifact because the required packages and checkpoints are not bundled and would require additional external downloads.
 
 \subsection{Source-side surface-complexity proxy}
 A lightweight source-side surface-complexity score is computed from surface features that do not require model internals:
@@ -168,7 +168,7 @@ Third, the artifact now includes a deterministic semantic-audit scaffold for hig
 
 Table~\ref{tab:main} summarizes point estimates for mean chrF, calibration (ECE), and the rate of high-confidence low-quality outputs at $\tau = 0.9$ under the within-model bottom-20\% chrF definition, computed over the full sample of 500 sentences per model. Mean chrF is fairly clustered (54.0--60.1), but confidence behavior relative to this operational target is not. Gemini 2.5 Pro achieves the highest mean chrF, yet it also has the highest mismatch@0.9 rate (18.2\%), driven by near-certain confidence values (median 1.00) even on outputs that fall into the model's low-chrF tail. GPT-5-nano is much more conservative (median 0.73), and that conservatism shows up directly in mismatch@0.9 (0.2\%), despite lower average chrF. This does not mean that GPT-5-nano provides the best overall selective-routing signal; rather, it shows that a strict threshold such as 0.9 produces a very different operating point on a conservative model than on an aggressive one. Bootstrap 95\% confidence intervals (e.g., GPT-5-nano mismatch@0.9 $[0.0, 0.006]$ vs.\ Gemini 2.5 Pro $[0.148, 0.216]$) confirm that these broad differences in threshold mismatch are statistically robust rather than sampling noise.
 
-We additionally compute discrimination metrics relative to the low-quality label. Claude Opus 4.6 achieves an AUROC of 0.729, an AUPRC of 0.467, and a Spearman correlation of 0.406 with quality, showing the strongest separation. By contrast, Gemini 2.5 Flash yields an AUROC of 0.611 and an AUPRC of 0.270. Most other models hover around 0.55--0.65 AUROC. To address the potential artifact of varying base rates, we also evaluated mismatch and ECE under an absolute pooled 20\% chrF threshold computed across all models (44.706). Under this fixed pooled target, the qualitative cross-model trends hold. Because the low-quality label is defined within each model or globally, these results should be read as comparisons of how confidence behaves relative to a shared operational target, not as direct measurements of semantic correctness calibration.
+I additionally compute discrimination metrics relative to the low-quality label. Claude Opus 4.6 achieves an AUROC of 0.729, an AUPRC of 0.467, and a Spearman correlation of 0.406 with quality, showing the strongest separation. By contrast, Gemini 2.5 Flash yields an AUROC of 0.611 and an AUPRC of 0.270. Most other models hover around 0.55--0.65 AUROC. To address the potential artifact of varying base rates, I also evaluated mismatch and ECE under an absolute pooled 20\% chrF threshold computed across all models (44.706). Under this fixed pooled target, the qualitative cross-model trends hold. Because the low-quality label is defined within each model or globally, these results should be read as comparisons of how confidence behaves relative to a shared operational target, not as direct measurements of semantic correctness calibration.
 
 The example appendix and exported mismatch examples are included to visualize this operational region, not to claim that every listed case is semantically wrong. Some confident ``errors'' under the chrF-based label are plausible paraphrases that receive low overlap scores.
 
@@ -224,40 +224,40 @@ Table~\ref{tab:prompt_sensitivity_status} reports availability status. Because n
 \subsection{Cross-Model Portability and Risk-Coverage}
 To quantify portability explicitly, an $8 \times 8$ transfer matrix was computed (provided in \texttt{tables/portability\_matrix.csv}), fitting an isotonic calibration map on one model and applying it to another. This matrix confirms that cross-model transfer often deteriorates alignment compared to within-model calibration, further substantiating that confidence scales are idiosyncratic. Furthermore, risk-coverage curves (Figure~\ref{fig:risk_coverage}) visualize how operational error rates change as the abstention threshold is varied, demonstrating that shared strict thresholds yield substantially different coverage rates across systems.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \IfFileExists{figures/fig5_risk_coverage.pdf}{\includegraphics[width=0.95\linewidth]{figures/fig5_risk_coverage.pdf}}{}
 \caption{Risk-coverage curves showing the tradeoff between operational error rate (risk) and the fraction of inputs processed (coverage) for each model.}
 \label{fig:risk_coverage}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \IfFileExists{figures/fig1_scatter_difficulty_vs_conf.pdf}{\includegraphics[width=0.95\linewidth]{figures/fig1_scatter_difficulty_vs_conf.pdf}}{}
 \caption{Source-side surface-complexity proxy vs.\ self-reported confidence. The plot is drawn as small multiples per model using hexbins for per-bin counts, providing descriptive context only; the associated correlations in Table~\ref{tab:corr} are more interpretable than the raw scatter.}
 \label{fig:conf_vs_complexity}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \IfFileExists{figures/fig2_reliability_diagram_overlay.pdf}{\includegraphics[width=0.95\linewidth]{figures/fig2_reliability_diagram_overlay.pdf}}{}
 \caption{Overlaid reliability diagram with 10 bins. This figure is intended as a qualitative comparative view relative to the operational low-quality label rather than as the primary evidence for model ranking.}
 \label{fig:reliability}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \IfFileExists{figures/fig3_mismatch_by_difficulty_bucket.pdf}{\includegraphics[width=0.95\linewidth]{figures/fig3_mismatch_by_difficulty_bucket.pdf}}{}
 \caption{Mismatch@0.9 by source-side surface-complexity quartile. The figure is best interpreted as a secondary stratified view rather than as evidence for a strong difficulty effect.}
 \label{fig:mismatch_by_complexity}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \IfFileExists{figures/fig4_efficiency_frontier.pdf}{\includegraphics[width=0.75\linewidth]{figures/fig4_efficiency_frontier.pdf}}{}
 \caption{Secondary quality--latency view across models. This figure provides supplementary deployment context and is not central to the paper's main claim about confidence portability.}
 \label{fig:frontier}
-\end{figure}
+\end{figure*}
 
 \section{Discussion and limitations}
 
@@ -315,9 +315,11 @@ All providers are instructed to return strict JSON only. In the released artifac
 
 \subsection{Translation prompt}
 \begin{verbatim}
-SYSTEM: You are a helpful assistant. Output must be strict JSON.
-USER: Translate English to German. Return ONLY one JSON object with exactly
-this key: {"translation":"..."}. No explanations, no markdown, no code fences.
+SYSTEM: You are a helpful assistant. Output must be
+strict JSON.
+USER: Translate English to German. Return ONLY one JSON
+object with exactly this key: {"translation":"..."}.
+No explanations, no markdown, no code fences.
 SOURCE: <English sentence>
 \end{verbatim}
 
@@ -325,10 +327,12 @@ SOURCE: <English sentence>
 The prompt asks for ``translation correctness confidence'' because that is the elicited verbalized signal. The paper then evaluates that signal against an operational chrF-based low-quality label rather than against a human correctness judgment.
 
 \begin{verbatim}
-SYSTEM: You are a helpful assistant. Output must be strict JSON.
-USER: Rate translation correctness confidence from 0 to 1. Return ONLY one
-JSON object with exactly this key: {"confidence":0.73}. No explanations, no
-markdown, no code fences.
+SYSTEM: You are a helpful assistant. Output must be
+strict JSON.
+USER: Rate translation correctness confidence from 0 to 1.
+Return ONLY one JSON object with exactly this key:
+{"confidence":0.73}. No explanations, no markdown,
+no code fences.
 SOURCE: <English sentence>
 TRANSLATION: <German hypothesis>
 \end{verbatim}
@@ -338,11 +342,11 @@ TRANSLATION: <German hypothesis>
 
 The examples below are illustrative only. They are not used to establish semantic error and should not be read as evidence of semantic incorrectness by themselves. Overlap-based metrics can under-reward semantically adequate paraphrases, especially at the sentence level. These examples are therefore included only to visualize the high-confidence, low-chrF region under the paper's operational definitions. The full exported list is provided in \texttt{paper/top\_mismatch\_examples.md}.
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{rcccp{0.62\linewidth}}
+\begin{tabular}{rcccp{0.62\textwidth}}
 \toprule
 id & bucket & conf & chrF & example (source / hypothesis / reference) \\
 \midrule
@@ -352,7 +356,7 @@ id & bucket & conf & chrF & example (source / hypothesis / reference) \\
 \bottomrule
 \end{tabular}
 \caption{Illustrative high-confidence, low-chrF cases from the GPT-5.2 export. These examples visualize the operational mismatch region used in the paper, but they are not evidence of semantic incorrectness by themselves and may include semantically acceptable paraphrases that receive low overlap scores.}
-\end{table}
+\end{table*}
 
 \section{Robustness analyses}
 \label{app:robustness}
@@ -361,7 +365,7 @@ Table~\ref{tab:robustness} reports mismatch@0.9 under the two chrF-based low-qua
 
 \input{tables/robustness}
 
-Table~\ref{tab:metric_robustness} adds a second robustness view based on sentence-level BLEU. However, to explicitly address the need for a neural-metric target, we compute validation metrics against WMT22-COMET-DA, defining low quality as the bottom 20\% of COMET scores within each model. The results in Table~\ref{tab:comet} confirm that self-confidence remains predictive of neural metric scores (AUROC ranges from 0.60 to 0.80), supporting the general validity of our findings beyond surface-level overlap metrics like chrF. Table~\ref{tab:semantic_audit} then adds the semantic-audit scaffold summary for follow-up human review. Table~\ref{tab:external_comparator} provides an external comparator baseline from a model-independent surface proxy, and Table~\ref{tab:prompt_sensitivity_status} records prompt-variant availability status in the released artifact.
+Table~\ref{tab:metric_robustness} adds a second robustness view based on sentence-level BLEU. However, to explicitly address the need for a neural-metric target, I compute validation metrics against WMT22-COMET-DA, defining low quality as the bottom 20\% of COMET scores within each model. The results in Table~\ref{tab:comet} confirm that self-confidence remains predictive of neural metric scores (AUROC ranges from 0.60 to 0.80), supporting the general validity of my findings beyond surface-level overlap metrics like chrF. Table~\ref{tab:semantic_audit} then adds the semantic-audit scaffold summary for follow-up human review. Table~\ref{tab:external_comparator} provides an external comparator baseline from a model-independent surface proxy, and Table~\ref{tab:prompt_sensitivity_status} records prompt-variant availability status in the released artifact.
 
 \input{tables/comet_table.tex}
 
